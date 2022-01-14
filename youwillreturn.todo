@@ -1,0 +1,46 @@
+Game design:
+  ☐ Come up with a main game mechanic
+    Puzzles?
+    Top-down platforming while dodging fireballs?
+    Maze navigation?
+  ☐ Master palette
+    Maybe turning the lights on changes the color palette?
+
+Mechanics:
+  ☐ Moving around with a little astronaut
+  ☐ Lights on/off
+  ☐ Multiple levels
+  ☐ Translation changes as player progresses
+  ☐ Save progress (NEW GAME / CONTINUE)
+
+Content:
+  ☐ Ten levels
+  ☐ Write the text on the walls
+  ☐ Dialogue between astronauts (?)
+
+Sprites:
+  ☐ Astronaut
+  ☐ Switches, panels, buttons
+  ☐ Wires
+  ☐ Distortion bullets (?)
+  ☐ Title screen stars
+  ☐ Alien symbols on the wall (?)
+
+Audio:
+  ☐ Brown noise that gets louder
+  ☐ Heartbeat
+  ☐ Breathing
+  ☐ Sound of massive doors opening and closing
+  ☐ Water drips (?)
+  ☐ Ambient "music"
+
+Cinematics:
+  ☐ Menu screen cinematic
+    Planet/sun in the background descending from top of the screen, dark planet ascending from the bottom
+  ☐ Initial door opening
+  ☐ Final door opening
+  ☐ Last door closing
+
+Polish:
+  ☐ HEAT DEATH style title font (?)
+  ☐ CREDITS
