@@ -1,0 +1,19 @@
+# rust output
+/target
+/Cargo.lock
+
+# build output
+/build
+
+# output files
+*.out
+*.log
+*.log.gz
+
+# core dumps
+/*core*
+/callgrind.out.*
+
+# private keys
+/keys/*private*
+/keys/*steam*
