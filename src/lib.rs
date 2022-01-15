@@ -9,6 +9,7 @@ mod wasm4;
 #[cfg(feature = "buddy-alloc")]
 mod alloc;
 
+mod field;
 mod global_state;
 mod level;
 mod menu;

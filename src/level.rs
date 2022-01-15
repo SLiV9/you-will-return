@@ -7,6 +7,8 @@
 use crate::palette;
 use crate::wasm4::*;
 
+use crate::field::*;
+
 const WALL_HEIGHT: u32 = 45;
 const HUD_HEIGHT: u32 = 23;
 
@@ -14,6 +16,7 @@ pub struct Level
 {
 	ticks: i32,
 	hero: Hero,
+	field: Field,
 }
 
 impl Level
@@ -27,6 +30,7 @@ impl Level
 				number: 1,
 				health: 100,
 			},
+			field: FIELD1,
 		}
 	}
 
@@ -52,9 +56,38 @@ impl Level
 		text("UNLEASH THE DANGER", 10, 24);
 		text("FOREVER", 10, 34);
 
-		// TODO remove
-		unsafe { *DRAW_COLORS = 0x30 };
-		rect(0, WALL_HEIGHT as i32, 160, 90);
+		let y_of_field = WALL_HEIGHT as i32 + 5;
+		let x_of_field =
+			(SCREEN_SIZE as i32) / 2 - ((FIELD_SIZE * TILE_WIDTH) as i32) / 2;
+		for r in 0..FIELD_SIZE
+		{
+			for c in 0..FIELD_SIZE
+			{
+				let xx = x_of_field + (TILE_WIDTH as i32) * (c as i32);
+				let yy = y_of_field + (TILE_HEIGHT as i32) * (r as i32);
+
+				if self.field.has_wall_at_rc(r, c)
+				{
+					unsafe { *DRAW_COLORS = 0x02 };
+					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
+				}
+				else if self.field.has_bomb_at_rc(r, c)
+				{
+					unsafe { *DRAW_COLORS = 0x04 };
+					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
+				}
+				else
+				{
+					let count = self.field.flag_count_from_rc(r, c);
+					unsafe { *DRAW_COLORS = 0x30 };
+					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
+					if count > 0
+					{
+						text(format!("{}", count), xx + 3, yy + 3);
+					}
+				}
+			}
+		}
 
 		unsafe { *DRAW_COLORS = 0x20 };
 		rect(0, 137, 160, HUD_HEIGHT);
