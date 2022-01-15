@@ -4,7 +4,7 @@
 // License: MIT
 //
 
-pub const FIELD_SIZE: u32 = 5;
+pub const FIELD_SIZE: u8 = 5;
 pub const TILE_WIDTH: u32 = 24;
 pub const TILE_HEIGHT: u32 = 16;
 
@@ -28,17 +28,17 @@ pub struct FieldWork
 
 impl Field
 {
-	pub fn has_wall_at_rc(&self, r: u32, c: u32) -> bool
+	pub fn has_wall_at_rc(&self, r: u8, c: u8) -> bool
 	{
 		(self.wall_data[r as usize] >> (FIELD_SIZE - 1 - c)) & 0b1 == 0b1
 	}
 
-	pub fn has_bomb_at_rc(&self, r: u32, c: u32) -> bool
+	pub fn has_bomb_at_rc(&self, r: u8, c: u8) -> bool
 	{
 		(self.bomb_data[r as usize] >> (FIELD_SIZE - 1 - c)) & 0b1 == 0b1
 	}
 
-	pub fn flag_count_from_rc(&self, r: u32, c: u32) -> u8
+	pub fn flag_count_from_rc(&self, r: u8, c: u8) -> u8
 	{
 		let data_offset = r * FIELD_SIZE + c;
 		let byte_offset = (data_offset / 2) as usize;
@@ -63,12 +63,12 @@ impl FieldWork
 		}
 	}
 
-	pub fn is_visible_at_rc(&self, r: u32, c: u32) -> bool
+	pub fn is_visible_at_rc(&self, r: u8, c: u8) -> bool
 	{
 		(self.visibility_data[r as usize] >> (FIELD_SIZE - 1 - c)) & 0b1 == 0b1
 	}
 
-	pub fn activate(&mut self, r: u32, c: u32)
+	pub fn activate(&mut self, r: u8, c: u8)
 	{
 		self.visibility_data[r as usize] |= 0b1 << (FIELD_SIZE - 1 - c);
 	}

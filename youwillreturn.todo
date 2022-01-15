@@ -7,7 +7,7 @@ Mechanics:
   ✔ Moving around with a little astronaut @done (2022-01-15 16:03)
   ✔ Step on tiles to reveal symbols @done (2022-01-15 17:45)
   ✔ Generate minesweeper hints based on location of traps @done (2022-01-15 14:43)
-  ☐ Lights on/off
+  ✔ Lights on/off @done (2022-01-15 19:30)
   ☐ Multiple levels
   ☐ Translation changes as player progresses through the columns of a level
   ☐ Save progress (NEW GAME / CONTINUE)

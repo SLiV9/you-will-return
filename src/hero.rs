@@ -7,6 +7,9 @@
 use crate::sprites;
 use crate::wasm4::*;
 
+// TODO set to duration of death animation
+pub const MAX_DEATH_TICKS: u32 = 90;
+
 pub struct Hero
 {
 	pub code: &'static str,
@@ -15,6 +18,7 @@ pub struct Hero
 	pub x: i32,
 	pub y: i32,
 	pub is_dead: bool,
+	pub num_death_ticks: u32,
 	sprite: sprites::little_guy::Animation,
 }
 
@@ -37,6 +41,7 @@ impl Hero
 			x: -10,
 			y: 90,
 			is_dead: false,
+			num_death_ticks: 0,
 			sprite: sprites::little_guy::Animation::new(),
 		}
 	}
@@ -53,7 +58,7 @@ impl Hero
 
 		if self.is_dead
 		{
-			// Nothing
+			self.num_death_ticks += 1;
 		}
 		else if self.x > (SCREEN_SIZE as i32) - 10
 		{
