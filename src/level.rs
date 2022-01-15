@@ -59,16 +59,9 @@ impl Level
 		rect(0, 0, 160, WALL_HEIGHT);
 
 		unsafe { *DRAW_COLORS = 3 };
-		text("OUR ULTIMATE GIFT", 10, 4);
-		text("UNLEASH THE ENERGY", 10, 14);
-		text("YOUR BREAKTHROUGH", 10, 24);
-		text("INTO THE FUTURE", 10, 34);
-
-		unsafe { *DRAW_COLORS = 4 };
-		text("OUR FINAL WARNING", 10, 4);
-		text("IF YOU BREACH YOU", 10, 14);
-		text("UNLEASH THE DANGER", 10, 24);
-		text("FOREVER", 10, 34);
+		text("HERE IS A GIFT", 10, 4);
+		text("WE MADE THIS GIFT", 10, 14);
+		text("FOR YOU", 10, 24);
 
 		let y_of_field = WALL_HEIGHT as i32 + 5;
 		let x_of_field =
