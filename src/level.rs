@@ -81,6 +81,7 @@ impl Level
 					let count = self.field.flag_count_from_rc(r, c);
 					unsafe { *DRAW_COLORS = 0x30 };
 					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
+					unsafe { *DRAW_COLORS = 0x4 };
 					if count > 0
 					{
 						text(format!("{}", count), xx + 3, yy + 3);

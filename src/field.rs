@@ -52,11 +52,11 @@ impl Field
 pub const FIELD1: Field = Field {
 	wall_data: FIELD1_WALL_DATA,
 	bomb_data: FIELD1_BOMB_DATA,
-	flag_data: generate_flag_data(FIELD1_BOMB_DATA),
+	flag_data: generate_flag_data(&FIELD1_BOMB_DATA),
 };
 
 const fn generate_flag_data(
-	bomb_data: [u8; BOMB_DATA_SIZE],
+	bomb_data: &[u8; BOMB_DATA_SIZE],
 ) -> [u8; FLAG_DATA_SIZE]
 {
 	let mut flag_data = [0u8; FLAG_DATA_SIZE];
@@ -66,85 +66,43 @@ const fn generate_flag_data(
 		let mut c = 0;
 		while c < FIELD_SIZE
 		{
-			if (bomb_data[r as usize] >> c) & 0b1 == 0b1
+			let flag_count_top = if r > 0
 			{
-				// There is a bomb at (r, c).
-				// Add flags to the surrounding eight tiles.
-				let mut d = 0;
-				while d < 0
-				{
-					let mut rr = r;
-					let mut cc = c;
-					let yes = match d
-					{
-						0 if r > 0 && c > 0 =>
-						{
-							rr = r - 1;
-							cc = c - 1;
-							true
-						}
-						1 if r > 0 =>
-						{
-							rr = r - 1;
-							true
-						}
-						2 if r > 0 && c + 1 < FIELD_SIZE =>
-						{
-							rr = r - 1;
-							cc = c + 1;
-							true
-						}
-						3 if c > 0 =>
-						{
-							cc = c - 1;
-							true
-						}
-						4 if c + 1 < FIELD_SIZE =>
-						{
-							cc = c + 1;
-							true
-						}
-						5 if r + 1 < FIELD_SIZE && c > 0 =>
-						{
-							rr = r + 1;
-							cc = c - 1;
-							true
-						}
-						6 if r + 1 < FIELD_SIZE =>
-						{
-							rr = r + 1;
-							true
-						}
-						7 if r + 1 < FIELD_SIZE && c + 1 < FIELD_SIZE =>
-						{
-							rr = r + 1;
-							cc = c + 1;
-							true
-						}
-						_ => false,
-					};
-					if yes
-					{
-						// Add a flag to (rr, cc).
-						let data_offset = rr * FIELD_SIZE + cc;
-						let byte_offset = (data_offset / 2) as usize;
-						let needs_bit_shift: bool = (data_offset % 2) == 0;
-						if needs_bit_shift
-						{
-							let old_count =
-								(flag_data[byte_offset] & 0xF0) >> 4;
-							flag_data[byte_offset] &= 0x0F;
-							flag_data[byte_offset] |= (old_count + 1) << 4;
-						}
-						else
-						{
-							let old_count = flag_data[byte_offset] & 0x0F;
-							flag_data[byte_offset] &= 0xF0;
-							flag_data[byte_offset] |= old_count + 1;
-						}
-					}
-					d += 1;
-				}
+				let byte = bomb_data[(r - 1) as usize] as u16;
+				let bits = (((byte << 2) >> (FIELD_SIZE - c)) & 0b111) as u8;
+				(bits & 0b001) + ((bits & 0b010) >> 1) + ((bits & 0b100) >> 2)
+			}
+			else
+			{
+				0
+			};
+			let flag_count_mid = {
+				let byte = bomb_data[r as usize] as u16;
+				let bits = (((byte << 2) >> (FIELD_SIZE - c)) & 0b101) as u8;
+				(bits & 0b001) + ((bits & 0b100) >> 2)
+			};
+			let flag_count_bot = if r + 1 < FIELD_SIZE
+			{
+				let byte = bomb_data[(r + 1) as usize] as u16;
+				let bits = (((byte << 2) >> (FIELD_SIZE - c)) & 0b111) as u8;
+				(bits & 0b001) + ((bits & 0b010) >> 1) + ((bits & 0b100) >> 2)
+			}
+			else
+			{
+				0
+			};
+			let flag_count = flag_count_top + flag_count_mid + flag_count_bot;
+
+			let data_offset = r * FIELD_SIZE + c;
+			let byte_offset = (data_offset / 2) as usize;
+			let needs_bit_shift: bool = (data_offset % 2) == 0;
+			if needs_bit_shift
+			{
+				flag_data[byte_offset] |= flag_count << 4;
+			}
+			else
+			{
+				flag_data[byte_offset] |= flag_count;
 			}
 			c += 1;
 		}
