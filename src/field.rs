@@ -12,7 +12,7 @@ const NUM_TILES: usize = (FIELD_SIZE * FIELD_SIZE) as usize;
 const WALL_DATA_SIZE: usize = FIELD_SIZE as usize;
 const BOMB_DATA_SIZE: usize = FIELD_SIZE as usize;
 const FLAG_DATA_SIZE: usize = (NUM_TILES + 1) / 2;
-const VISIBILITY_DATA_SIZE: usize = FIELD_SIZE as usize;
+const BOOL_DATA_SIZE: usize = FIELD_SIZE as usize;
 
 pub struct Field
 {
@@ -23,7 +23,8 @@ pub struct Field
 
 pub struct FieldWork
 {
-	visibility_data: [u8; VISIBILITY_DATA_SIZE],
+	visibility_data: [u8; BOOL_DATA_SIZE],
+	activation_data: [u8; BOOL_DATA_SIZE],
 }
 
 impl Field
@@ -59,7 +60,8 @@ impl FieldWork
 	pub fn new() -> Self
 	{
 		Self {
-			visibility_data: [0u8; VISIBILITY_DATA_SIZE],
+			visibility_data: [0u8; BOOL_DATA_SIZE],
+			activation_data: [0u8; BOOL_DATA_SIZE],
 		}
 	}
 
@@ -68,8 +70,22 @@ impl FieldWork
 		(self.visibility_data[r as usize] >> (FIELD_SIZE - 1 - c)) & 0b1 == 0b1
 	}
 
+	pub fn is_active_at_rc(&self, r: u32, c: u32) -> bool
+	{
+		(self.activation_data[r as usize] >> (FIELD_SIZE - 1 - c)) & 0b1 == 0b1
+	}
+
+	pub fn deactivate(&mut self)
+	{
+		for r in 0..FIELD_SIZE
+		{
+			self.activation_data[r as usize] = 0;
+		}
+	}
+
 	pub fn activate(&mut self, r: u32, c: u32)
 	{
+		self.activation_data[r as usize] |= 0b1 << (FIELD_SIZE - 1 - c);
 		self.visibility_data[r as usize] |= 0b1 << (FIELD_SIZE - 1 - c);
 	}
 }

@@ -43,6 +43,8 @@ impl Level
 	{
 		self.ticks += 1;
 
+		self.field_work.deactivate();
+
 		let geometry = self.determine_geometry();
 		self.hero.update(&geometry);
 
@@ -98,6 +100,11 @@ impl Level
 					&& self.field_work.is_visible_at_rc(r, c)
 				{
 					unsafe { *DRAW_COLORS = 0x04 };
+					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
+				}
+				else if self.field_work.is_active_at_rc(r, c)
+				{
+					unsafe { *DRAW_COLORS = 0x20 };
 					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
 				}
 				else if self.field_work.is_visible_at_rc(r, c)
