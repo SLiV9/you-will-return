@@ -18,6 +18,14 @@ pub struct Hero
 	sprite: sprites::little_guy::Animation,
 }
 
+pub struct Geometry
+{
+	pub can_move_left: bool,
+	pub can_move_right: bool,
+	pub can_move_up: bool,
+	pub can_move_down: bool,
+}
+
 impl Hero
 {
 	pub fn new() -> Self
@@ -33,7 +41,7 @@ impl Hero
 		}
 	}
 
-	pub fn update(&mut self)
+	pub fn update(&mut self, walls: &Geometry)
 	{
 		self.sprite.tick();
 
@@ -47,30 +55,39 @@ impl Hero
 		{
 			// Nothing
 		}
-		else if self.x < 7 || self.x > (SCREEN_SIZE as i32) - 7
+		else if self.x > (SCREEN_SIZE as i32) - 10
 		{
 			self.sprite.run_right();
 			self.x += 1;
 		}
-		else if left && !right
+		else if self.x == 0 && (left && !right)
+		{
+			self.sprite.idle();
+		}
+		else if (left && !right) && walls.can_move_left
 		{
 			self.sprite.run_left();
 			self.x -= 1;
 		}
-		else if right && !left
+		else if (right && !left) && walls.can_move_right
 		{
 			self.sprite.run_right();
 			self.x += 1;
 		}
-		else if up && !down
+		else if (up && !down) && walls.can_move_up
 		{
 			self.sprite.run_up();
 			self.y -= 1;
 		}
-		else if down && !up
+		else if (down && !up) && walls.can_move_down
 		{
 			self.sprite.run_down();
 			self.y += 1;
+		}
+		else if self.x < 10
+		{
+			self.sprite.run_right();
+			self.x += 1;
 		}
 		else
 		{

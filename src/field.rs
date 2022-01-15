@@ -48,8 +48,13 @@ impl Field
 	}
 }
 
-pub const NUM_FIELDS: usize = 3;
+pub const NUM_FIELDS: usize = 4;
 pub const FIELDS: [Field; NUM_FIELDS] = [
+	Field {
+		wall_data: FIELD0_WALL_DATA,
+		bomb_data: FIELD0_BOMB_DATA,
+		flag_data: generate_flag_data(&FIELD0_BOMB_DATA),
+	},
 	Field {
 		wall_data: FIELD1_WALL_DATA,
 		bomb_data: FIELD1_BOMB_DATA,
@@ -122,6 +127,23 @@ const fn generate_flag_data(
 	}
 	flag_data
 }
+
+#[rustfmt::skip]
+const FIELD0_WALL_DATA: [u8; WALL_DATA_SIZE] = [
+	0b00000001,
+	0b00000101,
+	0b00000100,
+	0b00000101,
+	0b00000001,
+];
+#[rustfmt::skip]
+const FIELD0_BOMB_DATA: [u8; BOMB_DATA_SIZE] = [
+	0b00000000,
+	0b00000000,
+	0b00000000,
+	0b00000000,
+	0b00000000,
+];
 
 #[rustfmt::skip]
 const FIELD1_WALL_DATA: [u8; WALL_DATA_SIZE] = [
