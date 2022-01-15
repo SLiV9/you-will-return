@@ -39,9 +39,7 @@ impl Menu
 
 	pub fn draw(&mut self)
 	{
-		unsafe {
-			*PALETTE = palette::MENU;
-		}
+		unsafe { *PALETTE = palette::MENU };
 
 		unsafe { *DRAW_COLORS = 4 }
 		text("YOU WILL RETURN", 10, 10);
