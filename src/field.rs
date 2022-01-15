@@ -12,12 +12,18 @@ const NUM_TILES: usize = (FIELD_SIZE * FIELD_SIZE) as usize;
 const WALL_DATA_SIZE: usize = FIELD_SIZE as usize;
 const BOMB_DATA_SIZE: usize = FIELD_SIZE as usize;
 const FLAG_DATA_SIZE: usize = (NUM_TILES + 1) / 2;
+const VISIBILITY_DATA_SIZE: usize = FIELD_SIZE as usize;
 
 pub struct Field
 {
 	wall_data: [u8; WALL_DATA_SIZE],
 	bomb_data: [u8; BOMB_DATA_SIZE],
 	flag_data: [u8; FLAG_DATA_SIZE],
+}
+
+pub struct FieldWork
+{
+	visibility_data: [u8; VISIBILITY_DATA_SIZE],
 }
 
 impl Field
@@ -45,6 +51,26 @@ impl Field
 		{
 			self.flag_data[byte_offset] & 0x0F
 		}
+	}
+}
+
+impl FieldWork
+{
+	pub fn new() -> Self
+	{
+		Self {
+			visibility_data: [0u8; VISIBILITY_DATA_SIZE],
+		}
+	}
+
+	pub fn is_visible_at_rc(&self, r: u32, c: u32) -> bool
+	{
+		(self.visibility_data[r as usize] >> (FIELD_SIZE - 1 - c)) & 0b1 == 0b1
+	}
+
+	pub fn activate(&mut self, r: u32, c: u32)
+	{
+		self.visibility_data[r as usize] |= 0b1 << (FIELD_SIZE - 1 - c);
 	}
 }
 

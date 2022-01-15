@@ -5,7 +5,7 @@ Game design:
 
 Mechanics:
   ✔ Moving around with a little astronaut @done (2022-01-15 16:03)
-  ☐ Step on tiles to reveal symbols
+  ✔ Step on tiles to reveal symbols @done (2022-01-15 17:45)
   ✔ Generate minesweeper hints based on location of traps @done (2022-01-15 14:43)
   ☐ Lights on/off
   ☐ Multiple levels

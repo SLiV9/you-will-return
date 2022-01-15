@@ -214,6 +214,15 @@ impl Animation
 			BLIT_2BPP,
 		);
 	}
+
+	pub fn is_visible(&self) -> bool
+	{
+		match self.tag
+		{
+			AnimationTag::Gone => false,
+			_ => true,
+		}
+	}
 }
 
 const LITTLE_GUY_WIDTH: u32 = 16;

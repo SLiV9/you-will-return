@@ -35,7 +35,7 @@ impl Hero
 			number: 1,
 			health: 100,
 			x: -10,
-			y: 80,
+			y: 90,
 			is_dead: false,
 			sprite: sprites::little_guy::Animation::new(),
 		}
@@ -104,6 +104,11 @@ impl Hero
 	pub fn is_alive(&self) -> bool
 	{
 		!self.is_dead
+	}
+
+	pub fn is_visible(&self) -> bool
+	{
+		self.sprite.is_visible()
 	}
 
 	pub fn draw(&self)

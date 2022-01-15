@@ -20,6 +20,7 @@ pub struct Level
 {
 	field_offset: u8,
 	field: &'static Field,
+	field_work: FieldWork,
 	ticks: i32,
 	hero: Hero,
 }
@@ -32,6 +33,7 @@ impl Level
 		Self {
 			field_offset,
 			field: &FIELDS[field_offset as usize],
+			field_work: FieldWork::new(),
 			ticks: 0,
 			hero: Hero::new(),
 		}
@@ -43,6 +45,19 @@ impl Level
 
 		let geometry = self.determine_geometry();
 		self.hero.update(&geometry);
+
+		if self.hero.is_alive()
+		{
+			self.detect_activation();
+			if self.is_hero_on_bomb()
+			{
+				self.hero.kill();
+			}
+		}
+		else if !self.hero.is_visible()
+		{
+			self.hero = Hero::new();
+		}
 
 		if self.hero.x > (SCREEN_SIZE as i32) + 5
 			&& ((self.field_offset + 1) as usize) < NUM_FIELDS
@@ -80,11 +95,12 @@ impl Level
 					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
 				}
 				else if self.field.has_bomb_at_rc(r, c)
+					&& self.field_work.is_visible_at_rc(r, c)
 				{
 					unsafe { *DRAW_COLORS = 0x04 };
 					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
 				}
-				else
+				else if self.field_work.is_visible_at_rc(r, c)
 				{
 					let count = self.field.flag_count_from_rc(r, c);
 					unsafe { *DRAW_COLORS = 0x30 };
@@ -147,6 +163,36 @@ impl Level
 			can_move_right,
 			can_move_up,
 			can_move_down,
+		}
+	}
+
+	fn is_hero_on_bomb(&self) -> bool
+	{
+		let yy = self.hero.y - Y_OF_FIELD;
+		let xx = self.hero.x - X_OF_FIELD;
+		let th = TILE_HEIGHT as i32;
+		let tw = TILE_WIDTH as i32;
+		let r = (yy + 100 * th) / th - 100;
+		let c = (xx + 100 * tw) / tw - 100;
+		r >= 0
+			&& r < (FIELD_SIZE as i32)
+			&& c >= 0 && c < (FIELD_SIZE as i32)
+			&& self.field.has_bomb_at_rc(r as u32, c as u32)
+	}
+
+	fn detect_activation(&mut self)
+	{
+		let yy = self.hero.y - Y_OF_FIELD;
+		let xx = self.hero.x - X_OF_FIELD;
+		let th = TILE_HEIGHT as i32;
+		let tw = TILE_WIDTH as i32;
+		let r = (yy + 100 * th) / th - 100;
+		let c = (xx + 100 * tw) / tw - 100;
+		if r >= 0
+			&& r < (FIELD_SIZE as i32)
+			&& c >= 0 && c < (FIELD_SIZE as i32)
+		{
+			self.field_work.activate(r as u32, c as u32);
 		}
 	}
 }
