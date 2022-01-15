@@ -100,6 +100,8 @@ impl Level
 
 	pub fn draw(&mut self)
 	{
+		unsafe { *PALETTE = palette::LEVEL };
+
 		if self.hero.x > 0 && self.hero.x < SCREEN_SIZE as i32
 		{
 			unsafe { *DRAW_COLORS = 0x22 };
