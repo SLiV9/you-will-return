@@ -14,29 +14,43 @@ const HUD_HEIGHT: u32 = 23;
 
 pub struct Level
 {
+	field_offset: u8,
+	field: &'static Field,
 	ticks: i32,
 	hero: Hero,
-	field: Field,
 }
 
 impl Level
 {
-	pub fn new(_rng_seed: u64) -> Self
+	pub fn new(field_offset: u8) -> Self
 	{
+		assert!((field_offset as usize) < NUM_FIELDS);
 		Self {
+			field_offset,
+			field: &FIELDS[field_offset as usize],
 			ticks: 0,
 			hero: Hero {
 				code: "EKA".to_string(),
 				number: 1,
 				health: 100,
 			},
-			field: FIELD1,
 		}
 	}
 
-	pub fn update(&mut self)
+	pub fn update(&mut self) -> Option<Transition>
 	{
 		self.ticks += 1;
+
+		if self.ticks > 120 && ((self.field_offset + 1) as usize) < NUM_FIELDS
+		{
+			Some(Transition::Next {
+				field_offset: self.field_offset + 1,
+			})
+		}
+		else
+		{
+			None
+		}
 	}
 
 	pub fn draw(&mut self)
@@ -102,6 +116,14 @@ impl Level
 		unsafe { *DRAW_COLORS = 3 };
 		text(format!("{:03}", self.hero.health), 133, 150);
 	}
+}
+
+pub enum Transition
+{
+	Next
+	{
+		field_offset: u8
+	},
 }
 
 struct Hero

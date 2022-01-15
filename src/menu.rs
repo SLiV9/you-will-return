@@ -7,29 +7,22 @@
 use crate::palette;
 use crate::wasm4::*;
 
-pub struct Menu
-{
-	rng_seed: u64,
-}
+pub struct Menu {}
 
 impl Menu
 {
 	pub const fn new() -> Self
 	{
-		Self { rng_seed: 0 }
+		Self {}
 	}
 
 	pub fn update(&mut self) -> Option<Transition>
 	{
 		let gamepad = unsafe { *GAMEPAD1 };
 
-		self.rng_seed += 1;
-
 		if gamepad & BUTTON_1 != 0
 		{
-			Some(Transition::Start {
-				rng_seed: self.rng_seed,
-			})
+			Some(Transition::Start)
 		}
 		else
 		{
@@ -50,8 +43,5 @@ impl Menu
 
 pub enum Transition
 {
-	Start
-	{
-		rng_seed: u64
-	},
+	Start,
 }

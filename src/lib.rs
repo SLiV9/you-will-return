@@ -23,35 +23,67 @@ static GAME: Wrapper<Game> = Wrapper::new(Game::Menu(Menu::new()));
 
 enum Game
 {
-    Menu(Menu),
-    Level(Level),
+	Menu(Menu),
+	Level(Level),
+}
+
+enum Progress
+{
+	#[allow(dead_code)]
+	Menu,
+	Level
+	{
+		field_offset: u8
+	},
 }
 
 #[no_mangle]
 fn update()
 {
-    let game = GAME.get_mut();
-    let transition = match game
-    {
-        Game::Menu(menu) => menu.update(),
-        Game::Level(level) =>
-        {
-            level.update();
-            None
-        }
-    };
-    match transition
-    {
-        Some(menu::Transition::Start { rng_seed }) =>
-        {
-            *game = Game::Level(Level::new(rng_seed));
-        }
-        None => (),
-    }
+	let game = GAME.get_mut();
+	let transition = match game
+	{
+		Game::Menu(menu) =>
+		{
+			let transition = menu.update();
+			match transition
+			{
+				Some(menu::Transition::Start) =>
+				{
+					Some(Progress::Level { field_offset: 0 })
+				}
+				None => None,
+			}
+		}
+		Game::Level(level) =>
+		{
+			let transition = level.update();
+			match transition
+			{
+				Some(level::Transition::Next { field_offset }) =>
+				{
+					Some(Progress::Level { field_offset })
+				}
+				None => None,
+			}
+		}
+	};
+	match transition
+	{
+		Some(Progress::Menu) =>
+		{
+			*game = Game::Menu(Menu::new());
+		}
+		Some(Progress::Level { field_offset }) =>
+		{
+			*game = Game::Level(Level::new(field_offset));
+		}
+		None => (),
+	}
 
-    match game
-    {
-        Game::Menu(menu) => menu.draw(),
-        Game::Level(level) => level.draw(),
-    }
+	match game
+	{
+		Game::Menu(menu) => menu.draw(),
+		Game::Level(level) => level.draw(),
+	}
 }

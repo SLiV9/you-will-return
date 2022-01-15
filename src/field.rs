@@ -24,12 +24,12 @@ impl Field
 {
 	pub fn has_wall_at_rc(&self, r: u32, c: u32) -> bool
 	{
-		(self.wall_data[r as usize] >> c) & 0b1 == 0b1
+		(self.wall_data[r as usize] >> (FIELD_SIZE - 1 - c)) & 0b1 == 0b1
 	}
 
 	pub fn has_bomb_at_rc(&self, r: u32, c: u32) -> bool
 	{
-		(self.bomb_data[r as usize] >> c) & 0b1 == 0b1
+		(self.bomb_data[r as usize] >> (FIELD_SIZE - 1 - c)) & 0b1 == 0b1
 	}
 
 	pub fn flag_count_from_rc(&self, r: u32, c: u32) -> u8
@@ -49,11 +49,19 @@ impl Field
 	}
 }
 
-pub const FIELD1: Field = Field {
-	wall_data: FIELD1_WALL_DATA,
-	bomb_data: FIELD1_BOMB_DATA,
-	flag_data: generate_flag_data(&FIELD1_BOMB_DATA),
-};
+pub const NUM_FIELDS: usize = 2;
+pub const FIELDS: [Field; NUM_FIELDS] = [
+	Field {
+		wall_data: FIELD1_WALL_DATA,
+		bomb_data: FIELD1_BOMB_DATA,
+		flag_data: generate_flag_data(&FIELD1_BOMB_DATA),
+	},
+	Field {
+		wall_data: FIELD2_WALL_DATA,
+		bomb_data: FIELD2_BOMB_DATA,
+		flag_data: generate_flag_data(&FIELD2_BOMB_DATA),
+	},
+];
 
 const fn generate_flag_data(
 	bomb_data: &[u8; BOMB_DATA_SIZE],
@@ -124,6 +132,23 @@ const FIELD1_BOMB_DATA: [u8; BOMB_DATA_SIZE] = [
 	0b00000000,
 	0b00000000,
 	0b00000100,
+	0b00000000,
+	0b00000000,
+];
+
+#[rustfmt::skip]
+const FIELD2_WALL_DATA: [u8; WALL_DATA_SIZE] = [
+	0b00011111,
+	0b00000000,
+	0b00000000,
+	0b00000000,
+	0b00011111,
+];
+#[rustfmt::skip]
+const FIELD2_BOMB_DATA: [u8; BOMB_DATA_SIZE] = [
+	0b00000000,
+	0b00000010,
+	0b00000110,
 	0b00000000,
 	0b00000000,
 ];
