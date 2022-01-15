@@ -12,6 +12,9 @@ use crate::wasm4::*;
 const WALL_HEIGHT: u32 = 45;
 const HUD_HEIGHT: u32 = 23;
 
+const PROXIMITY_LIGHT_WIDTH: u32 = TILE_WIDTH * 3 / 2;
+const PROXIMITY_LIGHT_HEIGHT: u32 = TILE_HEIGHT * 3 / 2;
+
 const Y_OF_FIELD: i32 = WALL_HEIGHT as i32 + 5;
 const X_OF_FIELD: i32 =
 	(SCREEN_SIZE as i32) / 2 - ((FIELD_SIZE * TILE_WIDTH) as i32) / 2;
@@ -74,8 +77,22 @@ impl Level
 
 	pub fn draw(&mut self)
 	{
-		unsafe { *DRAW_COLORS = 2 };
+		if self.hero.x > 0 && self.hero.x < SCREEN_SIZE as i32
+		{
+			unsafe { *DRAW_COLORS = 0x22 };
+			oval(
+				self.hero.x - (PROXIMITY_LIGHT_WIDTH as i32) / 2,
+				self.hero.y - (PROXIMITY_LIGHT_HEIGHT as i32) / 2,
+				PROXIMITY_LIGHT_WIDTH,
+				PROXIMITY_LIGHT_HEIGHT,
+			);
+		}
+
+		unsafe { *DRAW_COLORS = 1 };
+		rect(0, 0, X_OF_FIELD as u32, 160);
+		rect(160 - X_OF_FIELD, 0, X_OF_FIELD as u32, 160);
 		rect(0, 0, 160, WALL_HEIGHT);
+		rect(0, WALL_HEIGHT as i32, 160, Y_OF_FIELD as u32 - WALL_HEIGHT);
 
 		unsafe { *DRAW_COLORS = 3 };
 		text("HERE IS A GIFT", 10, 4);
@@ -88,6 +105,8 @@ impl Level
 			{
 				let xx = X_OF_FIELD + (TILE_WIDTH as i32) * (c as i32);
 				let yy = Y_OF_FIELD + (TILE_HEIGHT as i32) * (r as i32);
+				unsafe { *DRAW_COLORS = 0x01 };
+				rect(xx + 1, yy + 1, TILE_WIDTH - 2, TILE_HEIGHT - 2);
 
 				if self.field.has_wall_at_rc(r, c)
 				{
@@ -116,7 +135,12 @@ impl Level
 
 		self.hero.draw();
 
-		unsafe { *DRAW_COLORS = 0x20 };
+		unsafe { *DRAW_COLORS = 0x01 };
+		{
+			let yy = Y_OF_FIELD + (FIELD_SIZE * TILE_HEIGHT) as i32;
+			rect(0, yy, 160, 160 - HUD_HEIGHT - (yy as u32));
+		}
+		unsafe { *DRAW_COLORS = 0x31 };
 		rect(0, 160 - HUD_HEIGHT as i32, 160, HUD_HEIGHT);
 
 		unsafe { *DRAW_COLORS = 2 };
