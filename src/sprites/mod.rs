@@ -5,3 +5,4 @@
 //
 
 pub mod little_guy;
+pub mod stars;

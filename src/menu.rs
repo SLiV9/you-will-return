@@ -5,6 +5,7 @@
 //
 
 use crate::palette;
+use crate::sprites::stars;
 use crate::wasm4::*;
 
 pub struct Menu
@@ -53,6 +54,9 @@ impl Menu
 
 		if self.is_starting
 		{
+			stars::draw_bg(-12);
+			stars::draw(-24);
+
 			if self.ticks < 5
 			{
 				let progress = self.ticks;
@@ -63,9 +67,15 @@ impl Menu
 				oval(x, y, size, size);
 				unsafe { *DRAW_COLORS = 0x11 }
 				let xx = ((size as i32) + x) as u32;
+				let yy = SCREEN_SIZE - 40 - 25 * progress;
 				if xx < SCREEN_SIZE
 				{
-					rect(xx as i32, 0, SCREEN_SIZE - xx, SCREEN_SIZE);
+					rect(
+						xx as i32,
+						yy as i32,
+						SCREEN_SIZE - xx,
+						SCREEN_SIZE - yy,
+					);
 				}
 			}
 			else if self.ticks < 25
@@ -89,6 +99,10 @@ impl Menu
 		{
 			let duration = 240;
 			let progress = std::cmp::min(self.ticks, duration);
+
+			stars::draw_bg(0 - (progress as i32) / 20);
+			stars::draw(0 - (progress as i32) / 10);
+
 			let x = -32 + (progress as i32) / 15;
 			let y = 90 + 80 - (progress as i32) / 3;
 			let size = 120 + progress / 6;
@@ -96,10 +110,11 @@ impl Menu
 			oval(x, y, size, size);
 			unsafe { *DRAW_COLORS = 0x11 }
 			let xx = size - 16;
-			rect(xx as i32, 0, SCREEN_SIZE - xx, SCREEN_SIZE);
+			let yy = SCREEN_SIZE - progress / 6;
+			rect(xx as i32, yy as i32, SCREEN_SIZE - xx, SCREEN_SIZE - yy);
 		}
 
-		unsafe { *DRAW_COLORS = 4 }
+		unsafe { *DRAW_COLORS = 0x14 }
 		if self.ticks > 60
 		{
 			text("YOU", 20, 40);
@@ -115,7 +130,7 @@ impl Menu
 
 		if self.ticks > 260
 		{
-			unsafe { *DRAW_COLORS = 1 }
+			unsafe { *DRAW_COLORS = 3 }
 			text("PRESS X TO START", 3, 150);
 		}
 	}
