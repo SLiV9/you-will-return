@@ -9,11 +9,48 @@ mod wasm4;
 #[cfg(feature = "buddy-alloc")]
 mod alloc;
 
-use wasm4::*;
+mod global_state;
+mod level;
+mod menu;
+mod palette;
+
+use global_state::Wrapper;
+use level::Level;
+use menu::Menu;
+
+static GAME: Wrapper<Game> = Wrapper::new(Game::Menu(Menu::new()));
+
+enum Game
+{
+    Menu(Menu),
+    Level(Level),
+}
 
 #[no_mangle]
 fn update()
 {
-    unsafe { *DRAW_COLORS = 2 }
-    text("Hello from Rust!", 10, 10);
+    let game = GAME.get_mut();
+    let transition = match game
+    {
+        Game::Menu(menu) => menu.update(),
+        Game::Level(level) =>
+        {
+            level.update();
+            None
+        }
+    };
+    match transition
+    {
+        Some(menu::Transition::Start { rng_seed }) =>
+        {
+            *game = Game::Level(Level::new(rng_seed));
+        }
+        None => (),
+    }
+
+    match game
+    {
+        Game::Menu(menu) => menu.draw(),
+        Game::Level(level) => level.draw(),
+    }
 }

@@ -1,13 +1,12 @@
 Game design:
-  ☐ Come up with a main game mechanic
-    Puzzles?
-    Top-down platforming while dodging fireballs?
-    Maze navigation?
+  ✔ Come up with a main game mechanic @done (2022-01-15 11:32)
   ☐ Master palette
     Maybe turning the lights on changes the color palette?
 
 Mechanics:
   ☐ Moving around with a little astronaut
+  ☐ Step on tiles to reveal symbols
+  ☐ Generate minesweeper hints based on location of traps
   ☐ Lights on/off
   ☐ Multiple levels
   ☐ Translation changes as player progresses
@@ -20,7 +19,11 @@ Content:
 
 Sprites:
   ☐ Astronaut
-  ☐ Switches, panels, buttons
+    ☐ Death animation
+  ☐ Tiles
+    ☐ Alien symbols (?)
+    ☐ Mushrooms (?)
+  ☐ Ceiling monster (?)
   ☐ Wires
   ☐ Distortion bullets (?)
   ☐ Title screen stars
@@ -30,6 +33,7 @@ Audio:
   ☐ Brown noise that gets louder
   ☐ Heartbeat
   ☐ Breathing
+  ☐ Alien sounds
   ☐ Sound of massive doors opening and closing
   ☐ Water drips (?)
   ☐ Ambient "music"
