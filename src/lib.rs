@@ -11,9 +11,11 @@ mod alloc;
 
 mod field;
 mod global_state;
+mod hero;
 mod level;
 mod menu;
 mod palette;
+mod sprites;
 
 use global_state::Wrapper;
 use level::Level;

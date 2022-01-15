@@ -34,7 +34,6 @@ impl Field
 
 	pub fn flag_count_from_rc(&self, r: u32, c: u32) -> u8
 	{
-		crate::wasm4::trace(format!("{:?}", self.flag_data));
 		let data_offset = r * FIELD_SIZE + c;
 		let byte_offset = (data_offset / 2) as usize;
 		let needs_bit_shift: bool = (data_offset % 2) == 0;

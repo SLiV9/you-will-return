@@ -4,10 +4,10 @@
 // License: MIT
 //
 
+use crate::field::*;
+use crate::hero::*;
 use crate::palette;
 use crate::wasm4::*;
-
-use crate::field::*;
 
 const WALL_HEIGHT: u32 = 45;
 const HUD_HEIGHT: u32 = 23;
@@ -29,11 +29,7 @@ impl Level
 			field_offset,
 			field: &FIELDS[field_offset as usize],
 			ticks: 0,
-			hero: Hero {
-				code: "EKA".to_string(),
-				number: 1,
-				health: 100,
-			},
+			hero: Hero::new(),
 		}
 	}
 
@@ -41,7 +37,10 @@ impl Level
 	{
 		self.ticks += 1;
 
-		if self.ticks > 120 && ((self.field_offset + 1) as usize) < NUM_FIELDS
+		self.hero.update();
+
+		if self.hero.x > (SCREEN_SIZE as i32) + 5
+			&& ((self.field_offset + 1) as usize) < NUM_FIELDS
 		{
 			Some(Transition::Next {
 				field_offset: self.field_offset + 1,
@@ -97,6 +96,8 @@ impl Level
 			}
 		}
 
+		self.hero.draw();
+
 		unsafe { *DRAW_COLORS = 0x20 };
 		rect(0, 137, 160, HUD_HEIGHT);
 
@@ -117,11 +118,4 @@ pub enum Transition
 	{
 		field_offset: u8
 	},
-}
-
-struct Hero
-{
-	code: String,
-	number: i32,
-	health: i32,
 }

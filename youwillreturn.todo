@@ -4,7 +4,7 @@ Game design:
     Maybe turning the lights on changes the color palette?
 
 Mechanics:
-  ☐ Moving around with a little astronaut
+  ✔ Moving around with a little astronaut @done (2022-01-15 16:03)
   ☐ Step on tiles to reveal symbols
   ✔ Generate minesweeper hints based on location of traps @done (2022-01-15 14:43)
   ☐ Lights on/off
