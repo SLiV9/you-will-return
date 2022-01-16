@@ -149,24 +149,38 @@ impl Level
 		if num_lines > 0
 		{
 			let progress = self.get_translation_progress_percentage() as usize;
-			let y_start = 4 + (10 * (NUM_LINES - num_lines) / num_lines) as i32;
+			let y_start = 2 + (10 * (NUM_LINES - num_lines) / num_lines) as i32;
 			let chunk_size = 90 / (2 * num_lines);
-			unsafe { *DRAW_COLORS = 3 };
 			for i in 0..num_lines
 			{
-				let line = if progress > (num_lines + i + 1) * chunk_size
+				let y = y_start + (10 * i) as i32;
+
 				{
-					self.communication.confident[i]
+					let mut x = (SCREEN_SIZE as i32) - 10;
+					unsafe { *DRAW_COLORS = 2 };
+					// Untranslated text is ascii, so read bytes.
+					for symbol in self.communication.untranslated[i].bytes()
+					{
+						if symbol != 0x20
+						{
+							sprites::alien_tile::draw(x, y, symbol as u32);
+						}
+						x -= 6;
+					}
+				}
+
+				if progress > (num_lines + i + 1) * chunk_size
+				{
+					let line = self.communication.confident[i];
+					unsafe { *DRAW_COLORS = 0x13 };
+					text(line, 2, y);
 				}
 				else if progress > (i + 1) * chunk_size
 				{
-					self.communication.rough[i]
-				}
-				else
-				{
-					self.communication.untranslated[i]
+					let line = self.communication.rough[i];
+					unsafe { *DRAW_COLORS = 0x12 };
+					text(line, 2, y);
 				};
-				text(line, 10, y_start + (10 * i) as i32);
 			}
 		}
 

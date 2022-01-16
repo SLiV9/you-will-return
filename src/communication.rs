@@ -17,8 +17,8 @@ pub struct Communication
 
 pub const COMMUNICATIONS: [Communication; NUM_FIELDS] = [
 	Communication {
-		untranslated: ["LOC DIT", "X NEG", "HIST HOUD LOC", ""],
-		rough: ["<loc> this(?)", "<copula>(?) not", "past keep(?) <loc>", ""],
+		untranslated: ["LOC DIT", "X NEG", "MORT HOUD LOC", ""],
+		rough: ["<loc> this?", "<copula>? not", "dead keep? <loc>", ""],
 		confident: ["THIS PLACE", "IS NOT", "A TOMB", ""],
 	},
 	Communication {
