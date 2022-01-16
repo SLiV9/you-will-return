@@ -4,6 +4,7 @@
 // License: MIT
 //
 
+use crate::communication::*;
 use crate::field::*;
 use crate::hero::*;
 use crate::palette;
@@ -27,6 +28,7 @@ pub struct Level
 {
 	field_offset: u8,
 	field: &'static Field,
+	communication: &'static Communication,
 	field_work: FieldWork,
 	ticks: i32,
 	hero: Hero,
@@ -41,6 +43,7 @@ impl Level
 		Self {
 			field_offset,
 			field: &FIELDS[field_offset as usize],
+			communication: &COMMUNICATIONS[field_offset as usize],
 			field_work: FieldWork::new(),
 			ticks: 0,
 			hero: Hero::new(),
@@ -137,10 +140,35 @@ impl Level
 		rect(0, 0, 160, WALL_HEIGHT);
 		rect(0, WALL_HEIGHT as i32, 160, Y_OF_FIELD as u32 - WALL_HEIGHT);
 
-		unsafe { *DRAW_COLORS = 3 };
-		text("HERE IS A GIFT", 10, 4);
-		text("WE MADE THIS GIFT", 10, 14);
-		text("FOR YOU", 10, 24);
+		let num_lines: usize = self
+			.communication
+			.untranslated
+			.iter()
+			.position(|&x| x.len() == 0)
+			.unwrap_or(NUM_LINES);
+		if num_lines > 0
+		{
+			let progress = self.get_translation_progress_percentage() as usize;
+			let y_start = 4 + (10 * (NUM_LINES - num_lines) / num_lines) as i32;
+			let chunk_size = 90 / (2 * num_lines);
+			unsafe { *DRAW_COLORS = 3 };
+			for i in 0..num_lines
+			{
+				let line = if progress > (num_lines + i + 1) * chunk_size
+				{
+					self.communication.confident[i]
+				}
+				else if progress > (i + 1) * chunk_size
+				{
+					self.communication.rough[i]
+				}
+				else
+				{
+					self.communication.untranslated[i]
+				};
+				text(line, 10, y_start + (10 * i) as i32);
+			}
+		}
 
 		let hero_position = self.get_hero_position();
 		for r in 0..FIELD_HEIGHT
@@ -267,6 +295,14 @@ impl Level
 		{
 			None
 		}
+	}
+
+	fn get_translation_progress_percentage(&self) -> u8
+	{
+		let max = self.field.num_reachable_tiles();
+		let progress = self.field_work.num_activated_tiles();
+		let percentage = std::cmp::min(progress * 100 / max, 100);
+		percentage as u8
 	}
 }
 

@@ -8,14 +8,15 @@ Mechanics:
   ✔ Step on tiles to reveal symbols @done (2022-01-15 17:45)
   ✔ Generate minesweeper hints based on location of traps @done (2022-01-15 14:43)
   ✔ Lights on/off @done (2022-01-15 19:30)
-  ☐ Multiple levels
-  ☐ Translation changes as player progresses through the columns of a level
+  ✔ Multiple levels @done (2022-01-16 23:16)
+  ✔ Translation changes as player progresses through a level @done (2022-01-16 23:16)
   ☐ Save progress (NEW GAME / CONTINUE)
 
 Content:
   ☐ Ten levels
   ☐ Write the text on the walls
   ☐ Dialogue between astronauts (?)
+  ☐ Prologue
 
 Sprites:
   ✔ Astronaut @done (2022-01-16 19:08)
