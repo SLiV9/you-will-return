@@ -62,7 +62,7 @@ impl Level
 		};
 
 		let geometry = self.determine_geometry();
-		self.hero.update(&geometry);
+		self.hero.update(&geometry, self.is_big_light_on);
 
 		if let Some(pos) = self.get_hero_position()
 		{

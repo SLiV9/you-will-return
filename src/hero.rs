@@ -46,7 +46,7 @@ impl Hero
 		}
 	}
 
-	pub fn update(&mut self, walls: &Geometry)
+	pub fn update(&mut self, walls: &Geometry, is_scanning: bool)
 	{
 		self.sprite.tick();
 
@@ -59,6 +59,10 @@ impl Hero
 		if self.is_dead
 		{
 			self.num_death_ticks += 1;
+		}
+		else if is_scanning
+		{
+			self.sprite.scan();
 		}
 		else if self.x > (SCREEN_SIZE as i32) - 10
 		{
