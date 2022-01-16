@@ -7,8 +7,7 @@
 use crate::sprites;
 use crate::wasm4::*;
 
-// TODO set to duration of death animation
-pub const MAX_DEATH_TICKS: u32 = 90;
+pub const MAX_DEATH_TICKS: u32 = 150;
 
 pub struct Hero
 {

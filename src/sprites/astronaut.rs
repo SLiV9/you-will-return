@@ -36,6 +36,8 @@ enum AnimationTag
 	Gone,
 }
 
+const FRAME_LENGTH_IN_TICKS: u8 = 10;
+
 impl Animation
 {
 	pub fn new() -> Self
@@ -157,8 +159,7 @@ impl Animation
 	{
 		self.ticks += 1;
 
-		let frame_length_in_ticks = 15;
-		if self.ticks >= frame_length_in_ticks
+		if self.ticks >= FRAME_LENGTH_IN_TICKS
 		{
 			self.ticks = 0;
 			self.next_frame();
@@ -239,9 +240,7 @@ impl Animation
 		let offset: usize = start + (self.frame as usize);
 		let frame = &ASTRONAUT_FRAMES[offset];
 
-		unsafe {
-			*DRAW_COLORS = 0x1320;
-		}
+		unsafe { *DRAW_COLORS = 0x1320 };
 		blit(
 			frame,
 			x - (ASTRONAUT_WIDTH as i32) / 2,
@@ -250,6 +249,21 @@ impl Animation
 			ASTRONAUT_HEIGHT,
 			BLIT_2BPP,
 		);
+
+		match self.tag
+		{
+			AnimationTag::Grabbed | AnimationTag::Hanging =>
+			{
+				let y_of_grab = y - 3;
+				if (self.hang_height as i32) < y_of_grab
+				{
+					let len = (y_of_grab - (self.hang_height as i32)) as u32;
+					unsafe { *DRAW_COLORS = 2 };
+					vline(x - 1, 0, len);
+				}
+			}
+			_ => (),
+		}
 	}
 
 	pub fn is_visible(&self) -> bool
