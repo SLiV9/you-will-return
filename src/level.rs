@@ -7,6 +7,7 @@
 use crate::field::*;
 use crate::hero::*;
 use crate::palette;
+use crate::sprites;
 use crate::wasm4::*;
 
 const WALL_HEIGHT: u32 = 45;
@@ -148,18 +149,10 @@ impl Level
 			{
 				let xx = X_OF_FIELD + (TILE_WIDTH as i32) * (c as i32);
 				let yy = Y_OF_FIELD + (TILE_HEIGHT as i32) * (r as i32);
-				unsafe { *DRAW_COLORS = 0x01 };
-				rect(xx + 1, yy + 1, TILE_WIDTH - 2, TILE_HEIGHT - 2);
 
 				if self.field.has_wall_at_rc(r, c)
 				{
 					unsafe { *DRAW_COLORS = 0x01 };
-					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
-				}
-				else if self.field.has_bomb_at_rc(r, c)
-					&& self.field_work.is_visible_at_rc(r, c)
-				{
-					unsafe { *DRAW_COLORS = 0x04 };
 					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
 				}
 				else if self.field_work.is_visible_at_rc(r, c)
@@ -167,13 +160,20 @@ impl Level
 						|| hero_position == Some(Position { row: r, col: c }))
 				{
 					let count = self.field.flag_count_from_rc(r, c);
+					unsafe { *DRAW_COLORS = 0x10 };
+					sprites::alien_tile::draw(xx, yy);
 					unsafe { *DRAW_COLORS = 0x30 };
 					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
-					unsafe { *DRAW_COLORS = 0x4 };
+					unsafe { *DRAW_COLORS = 0x13 };
 					if count > 0
 					{
-						text(format!("{}", count), xx + 3, yy + 3);
+						text(format!("{}", count), xx + 4, yy + 4);
 					}
+				}
+				else
+				{
+					unsafe { *DRAW_COLORS = 0x10 };
+					sprites::alien_tile::draw(xx, yy);
 				}
 			}
 		}

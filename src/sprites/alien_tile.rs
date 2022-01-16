@@ -1,0 +1,29 @@
+//
+// Part of you-will-return
+// Copyright (c) 2022 Sander in 't Veld
+// License: MIT
+//
+
+use crate::wasm4::*;
+
+pub fn draw(x: i32, y: i32)
+{
+	blit(
+		&ALIEN_TILE,
+		x,
+		y,
+		ALIEN_TILE_WIDTH,
+		ALIEN_TILE_HEIGHT,
+		ALIEN_TILE_FLAGS,
+	);
+}
+
+// alien_tile
+const ALIEN_TILE_WIDTH: u32 = 16;
+const ALIEN_TILE_HEIGHT: u32 = 16;
+const ALIEN_TILE_FLAGS: u32 = 0; // BLIT_1BPP
+const ALIEN_TILE: [u8; 32] = [
+	0x00, 0x00, 0x7f, 0xfe, 0x55, 0x82, 0x55, 0xfa, 0x55, 0x8a, 0x5d, 0xfa,
+	0x41, 0x82, 0x7f, 0xfe, 0x7f, 0xfe, 0x41, 0xaa, 0x5d, 0xba, 0x55, 0x82,
+	0x5d, 0xba, 0x41, 0xaa, 0x7f, 0xfe, 0x00, 0x00,
+];

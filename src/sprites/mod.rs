@@ -4,5 +4,6 @@
 // License: MIT
 //
 
+pub mod alien_tile;
 pub mod astronaut;
 pub mod stars;
