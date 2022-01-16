@@ -163,7 +163,7 @@ impl Level
 					{
 						if symbol != 0x20
 						{
-							sprites::alien_tile::draw(x, y, symbol as u32);
+							sprites::alien_tile::draw(x, y, symbol);
 						}
 						x -= 6;
 					}
@@ -191,12 +191,11 @@ impl Level
 			{
 				let xx = X_OF_FIELD + (TILE_WIDTH as i32) * (c as i32);
 				let yy = Y_OF_FIELD + (TILE_HEIGHT as i32) * (r as i32);
-				let seed = 0x7c7d07u32
+				let seed = 48274771u32
 					.wrapping_add(self.field_offset as u32)
-					.wrapping_mul(0x06b6f7)
-					.wrapping_add(r as u32)
-					.wrapping_mul(0xda8b11)
-					.wrapping_add(c as u32);
+					.wrapping_mul(68389231)
+					.wrapping_add((r * FIELD_WIDTH + c) as u32)
+					.wrapping_mul(1012391339);
 
 				if self.field.has_wall_at_rc(r, c)
 				{
