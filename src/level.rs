@@ -33,6 +33,8 @@ pub struct Level
 	ticks: i32,
 	hero: Hero,
 	is_big_light_on: bool,
+	left_door_height: u32,
+	right_door_height: u32,
 }
 
 impl Level
@@ -48,6 +50,8 @@ impl Level
 			ticks: 0,
 			hero: Hero::new(),
 			is_big_light_on: false,
+			left_door_height: (FIELD_HEIGHT as u32) * TILE_HEIGHT,
+			right_door_height: 1,
 		}
 	}
 
@@ -90,6 +94,21 @@ impl Level
 		if !self.hero.is_visible()
 		{
 			self.hero = Hero::new();
+		}
+
+		if self.get_translation_progress_percentage() >= 100
+		{
+			if self.right_door_height < 10
+			{
+				self.right_door_height += 1;
+			}
+			else if self.right_door_height < self.left_door_height
+			{
+				self.right_door_height = std::cmp::min(
+					self.right_door_height + 5,
+					self.left_door_height,
+				);
+			}
 		}
 
 		if self.hero.x > (SCREEN_SIZE as i32) + 5
@@ -139,6 +158,38 @@ impl Level
 		rect(160 - X_OF_FIELD, 0, X_OF_FIELD as u32, 160);
 		rect(0, 0, 160, WALL_HEIGHT);
 		rect(0, WALL_HEIGHT as i32, 160, Y_OF_FIELD as u32 - WALL_HEIGHT);
+
+		unsafe { *DRAW_COLORS = 2 };
+		if self.left_door_height > 0
+		{
+			for i in [0, 1, 3, 5]
+			{
+				let y = Y_OF_FIELD
+					+ (FIELD_HEIGHT as i32) * (TILE_HEIGHT as i32) / 2
+					- (self.left_door_height as i32) / 2
+					+ i;
+				let h = (self.left_door_height as i32) - 2 * i;
+				if h >= 2
+				{
+					vline(i, y, h as u32);
+				}
+			}
+		}
+		if self.right_door_height > 0
+		{
+			for i in [0, 1, 3, 5]
+			{
+				let y = Y_OF_FIELD
+					+ (FIELD_HEIGHT as i32) * (TILE_HEIGHT as i32) / 2
+					- (self.right_door_height as i32) / 2
+					+ i;
+				let h = (self.right_door_height as i32) - 2 * i;
+				if h >= 2
+				{
+					vline(160 - 1 - i, y, h as u32);
+				}
+			}
+		}
 
 		let num_lines: usize = self
 			.communication
@@ -247,6 +298,7 @@ impl Level
 
 	fn determine_geometry(&self) -> Geometry
 	{
+		let can_escape = self.right_door_height > 0;
 		let yy = self.hero.y - Y_OF_FIELD;
 		let xx = self.hero.x - X_OF_FIELD;
 		let th = TILE_HEIGHT as i32;
@@ -263,9 +315,10 @@ impl Level
 			|| col_of_left >= (FIELD_WIDTH as i32)
 			|| !self.field.has_wall_at_rc(r as u8, col_of_left as u8);
 		let can_move_right = col_of_right == c
+			|| (col_of_right >= (FIELD_WIDTH as i32) && can_escape)
 			|| col_of_right < 0
-			|| col_of_right >= (FIELD_WIDTH as i32)
-			|| !self.field.has_wall_at_rc(r as u8, col_of_right as u8);
+			|| (col_of_right < (FIELD_WIDTH as i32)
+				&& !self.field.has_wall_at_rc(r as u8, col_of_right as u8));
 		let can_move_up = row_of_up == r
 			|| (row_of_up >= 0 && is_off)
 			|| (row_of_up >= 0
