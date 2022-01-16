@@ -7,7 +7,6 @@
 use crate::field::*;
 use crate::hero::*;
 use crate::palette;
-use crate::sprites;
 use crate::wasm4::*;
 
 const WALL_HEIGHT: u32 = 45;
@@ -145,35 +144,41 @@ impl Level
 		let hero_position = self.get_hero_position();
 		for r in 0..FIELD_HEIGHT
 		{
-			if let Some(pos) = hero_position
-			{
-				if pos.row < r
-				{
-					continue;
-				}
-			}
 			for c in 0..FIELD_WIDTH
 			{
-				self.draw_tile(r, c, hero_position);
+				let xx = X_OF_FIELD + (TILE_WIDTH as i32) * (c as i32);
+				let yy = Y_OF_FIELD + (TILE_HEIGHT as i32) * (r as i32);
+				unsafe { *DRAW_COLORS = 0x01 };
+				rect(xx + 1, yy + 1, TILE_WIDTH - 2, TILE_HEIGHT - 2);
+
+				if self.field.has_wall_at_rc(r, c)
+				{
+					unsafe { *DRAW_COLORS = 0x01 };
+					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
+				}
+				else if self.field.has_bomb_at_rc(r, c)
+					&& self.field_work.is_visible_at_rc(r, c)
+				{
+					unsafe { *DRAW_COLORS = 0x04 };
+					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
+				}
+				else if self.field_work.is_visible_at_rc(r, c)
+					&& (self.is_big_light_on
+						|| hero_position == Some(Position { row: r, col: c }))
+				{
+					let count = self.field.flag_count_from_rc(r, c);
+					unsafe { *DRAW_COLORS = 0x30 };
+					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
+					unsafe { *DRAW_COLORS = 0x4 };
+					if count > 0
+					{
+						text(format!("{}", count), xx + 3, yy + 3);
+					}
+				}
 			}
 		}
 
 		self.hero.draw();
-
-		for r in 0..FIELD_HEIGHT
-		{
-			if let Some(pos) = hero_position
-			{
-				if r <= pos.row
-				{
-					continue;
-				}
-			}
-			for c in 0..FIELD_WIDTH
-			{
-				self.draw_tile(r, c, hero_position);
-			}
-		}
 
 		unsafe { *DRAW_COLORS = 0x01 };
 		{
@@ -191,55 +196,6 @@ impl Level
 		);
 		unsafe { *DRAW_COLORS = 1 };
 		text(format!("{:03}", self.hero.health), 133, 150);
-	}
-
-	fn draw_tile(&self, r: u8, c: u8, hero_position: Option<Position>)
-	{
-		let xx = X_OF_FIELD + (TILE_WIDTH as i32) * (c as i32);
-		let yy = Y_OF_FIELD + (TILE_HEIGHT as i32) * (r as i32);
-
-		if self.field.has_wall_at_rc(r, c)
-		{
-			unsafe { *DRAW_COLORS = 0x10 };
-			if r + 1 == FIELD_HEIGHT
-			{
-				sprites::rockwall_from_bottom::draw(xx, yy - 4);
-			}
-			else if !self.field.has_wall_at_rc(r + 1, c)
-			{
-				sprites::rockwall::draw(xx, yy - 4);
-			}
-			else
-			{
-				sprites::rockwall_top_only::draw(xx, yy - 4);
-			}
-		}
-		else if self.field.has_bomb_at_rc(r, c)
-			&& self.field_work.is_visible_at_rc(r, c)
-		{
-			unsafe { *DRAW_COLORS = 0x04 };
-			rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
-		}
-		else if self.field_work.is_visible_at_rc(r, c)
-			&& (self.is_big_light_on
-				|| hero_position == Some(Position { row: r, col: c }))
-		{
-			unsafe { *DRAW_COLORS = 0x01 };
-			rect(xx + 1, yy + 1, TILE_WIDTH - 2, TILE_HEIGHT - 2);
-			let count = self.field.flag_count_from_rc(r, c);
-			unsafe { *DRAW_COLORS = 0x30 };
-			rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
-			unsafe { *DRAW_COLORS = 0x4 };
-			if count > 0
-			{
-				text(format!("{}", count), xx + 3, yy + 3);
-			}
-		}
-		else
-		{
-			unsafe { *DRAW_COLORS = 0x01 };
-			rect(xx + 1, yy + 1, TILE_WIDTH - 2, TILE_HEIGHT - 2);
-		}
 	}
 
 	fn determine_geometry(&self) -> Geometry
@@ -316,7 +272,7 @@ pub enum Transition
 	},
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 struct Position
 {
 	row: u8,
