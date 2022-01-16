@@ -149,6 +149,12 @@ impl Level
 			{
 				let xx = X_OF_FIELD + (TILE_WIDTH as i32) * (c as i32);
 				let yy = Y_OF_FIELD + (TILE_HEIGHT as i32) * (r as i32);
+				let seed = 0x7c7d07u32
+					.wrapping_add(self.field_offset as u32)
+					.wrapping_mul(0x06b6f7)
+					.wrapping_add(r as u32)
+					.wrapping_mul(0xda8b11)
+					.wrapping_add(c as u32);
 
 				if self.field.has_wall_at_rc(r, c)
 				{
@@ -160,8 +166,8 @@ impl Level
 						|| hero_position == Some(Position { row: r, col: c }))
 				{
 					let count = self.field.flag_count_from_rc(r, c);
-					unsafe { *DRAW_COLORS = 0x10 };
-					sprites::alien_tile::draw(xx, yy);
+					unsafe { *DRAW_COLORS = 0x01 };
+					sprites::alien_tile::draw_tile(xx, yy, seed);
 					unsafe { *DRAW_COLORS = 0x30 };
 					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
 					unsafe { *DRAW_COLORS = 0x13 };
@@ -172,8 +178,8 @@ impl Level
 				}
 				else
 				{
-					unsafe { *DRAW_COLORS = 0x10 };
-					sprites::alien_tile::draw(xx, yy);
+					unsafe { *DRAW_COLORS = 0x01 };
+					sprites::alien_tile::draw_tile(xx, yy, seed);
 				}
 			}
 		}
