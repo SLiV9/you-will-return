@@ -15,9 +15,9 @@ pub const MENU: [u32; 4] = [
 #[rustfmt::skip]
 pub const LEVEL: [u32; 4] = [
 	0x26201d,
-	0x52534c,
-	0x8f9389,
+	0x4d533a,
 	0xcbd1be,
+	0x160712,
 ];
 
 // Bluem0ld by warpixel

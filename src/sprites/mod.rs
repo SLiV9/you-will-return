@@ -4,5 +4,5 @@
 // License: MIT
 //
 
-pub mod little_guy;
+pub mod astronaut;
 pub mod stars;

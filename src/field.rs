@@ -4,15 +4,14 @@
 // License: MIT
 //
 
-pub const FIELD_SIZE: u8 = 5;
-pub const TILE_WIDTH: u32 = 24;
-pub const TILE_HEIGHT: u32 = 16;
+pub const FIELD_WIDTH: u8 = 8;
+pub const FIELD_HEIGHT: u8 = 5;
 
-const NUM_TILES: usize = (FIELD_SIZE * FIELD_SIZE) as usize;
-const WALL_DATA_SIZE: usize = FIELD_SIZE as usize;
-const BOMB_DATA_SIZE: usize = FIELD_SIZE as usize;
+const NUM_TILES: usize = (FIELD_WIDTH * FIELD_HEIGHT) as usize;
+const WALL_DATA_SIZE: usize = FIELD_HEIGHT as usize;
+const BOMB_DATA_SIZE: usize = FIELD_HEIGHT as usize;
 const FLAG_DATA_SIZE: usize = (NUM_TILES + 1) / 2;
-const VISIBILITY_DATA_SIZE: usize = FIELD_SIZE as usize;
+const VISIBILITY_DATA_SIZE: usize = FIELD_HEIGHT as usize;
 
 pub struct Field
 {
@@ -30,17 +29,17 @@ impl Field
 {
 	pub fn has_wall_at_rc(&self, r: u8, c: u8) -> bool
 	{
-		(self.wall_data[r as usize] >> (FIELD_SIZE - 1 - c)) & 0b1 == 0b1
+		(self.wall_data[r as usize] >> (FIELD_WIDTH - 1 - c)) & 0b1 == 0b1
 	}
 
 	pub fn has_bomb_at_rc(&self, r: u8, c: u8) -> bool
 	{
-		(self.bomb_data[r as usize] >> (FIELD_SIZE - 1 - c)) & 0b1 == 0b1
+		(self.bomb_data[r as usize] >> (FIELD_WIDTH - 1 - c)) & 0b1 == 0b1
 	}
 
 	pub fn flag_count_from_rc(&self, r: u8, c: u8) -> u8
 	{
-		let data_offset = r * FIELD_SIZE + c;
+		let data_offset = r * FIELD_WIDTH + c;
 		let byte_offset = (data_offset / 2) as usize;
 		let needs_bit_shift: bool = (data_offset % 2) == 0;
 		if needs_bit_shift
@@ -65,12 +64,12 @@ impl FieldWork
 
 	pub fn is_visible_at_rc(&self, r: u8, c: u8) -> bool
 	{
-		(self.visibility_data[r as usize] >> (FIELD_SIZE - 1 - c)) & 0b1 == 0b1
+		(self.visibility_data[r as usize] >> (FIELD_WIDTH - 1 - c)) & 0b1 == 0b1
 	}
 
 	pub fn activate(&mut self, r: u8, c: u8)
 	{
-		self.visibility_data[r as usize] |= 0b1 << (FIELD_SIZE - 1 - c);
+		self.visibility_data[r as usize] |= 0b1 << (FIELD_WIDTH - 1 - c);
 	}
 }
 
@@ -104,15 +103,15 @@ const fn generate_flag_data(
 {
 	let mut flag_data = [0u8; FLAG_DATA_SIZE];
 	let mut r = 0;
-	while r < FIELD_SIZE
+	while r < FIELD_HEIGHT
 	{
 		let mut c = 0;
-		while c < FIELD_SIZE
+		while c < FIELD_WIDTH
 		{
 			let flag_count_top = if r > 0
 			{
 				let byte = bomb_data[(r - 1) as usize] as u16;
-				let bits = (((byte << 2) >> (FIELD_SIZE - c)) & 0b111) as u8;
+				let bits = (((byte << 2) >> (FIELD_WIDTH - c)) & 0b111) as u8;
 				(bits & 0b001) + ((bits & 0b010) >> 1) + ((bits & 0b100) >> 2)
 			}
 			else
@@ -121,13 +120,13 @@ const fn generate_flag_data(
 			};
 			let flag_count_mid = {
 				let byte = bomb_data[r as usize] as u16;
-				let bits = (((byte << 2) >> (FIELD_SIZE - c)) & 0b101) as u8;
+				let bits = (((byte << 2) >> (FIELD_WIDTH - c)) & 0b101) as u8;
 				(bits & 0b001) + ((bits & 0b100) >> 2)
 			};
-			let flag_count_bot = if r + 1 < FIELD_SIZE
+			let flag_count_bot = if r + 1 < FIELD_HEIGHT
 			{
 				let byte = bomb_data[(r + 1) as usize] as u16;
-				let bits = (((byte << 2) >> (FIELD_SIZE - c)) & 0b111) as u8;
+				let bits = (((byte << 2) >> (FIELD_WIDTH - c)) & 0b111) as u8;
 				(bits & 0b001) + ((bits & 0b010) >> 1) + ((bits & 0b100) >> 2)
 			}
 			else
@@ -136,7 +135,7 @@ const fn generate_flag_data(
 			};
 			let flag_count = flag_count_top + flag_count_mid + flag_count_bot;
 
-			let data_offset = r * FIELD_SIZE + c;
+			let data_offset = r * FIELD_WIDTH + c;
 			let byte_offset = (data_offset / 2) as usize;
 			let needs_bit_shift: bool = (data_offset % 2) == 0;
 			if needs_bit_shift

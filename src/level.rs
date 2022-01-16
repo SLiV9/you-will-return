@@ -12,12 +12,15 @@ use crate::wasm4::*;
 const WALL_HEIGHT: u32 = 45;
 const HUD_HEIGHT: u32 = 23;
 
+const TILE_WIDTH: u32 = 16;
+const TILE_HEIGHT: u32 = 16;
+
 const PROXIMITY_LIGHT_WIDTH: u32 = TILE_WIDTH * 3 / 2;
 const PROXIMITY_LIGHT_HEIGHT: u32 = TILE_HEIGHT * 3 / 2;
 
 const Y_OF_FIELD: i32 = WALL_HEIGHT as i32 + 5;
 const X_OF_FIELD: i32 =
-	(SCREEN_SIZE as i32) / 2 - (((FIELD_SIZE as u32) * TILE_WIDTH) as i32) / 2;
+	(SCREEN_SIZE as i32) / 2 - (((FIELD_WIDTH as u32) * TILE_WIDTH) as i32) / 2;
 
 pub struct Level
 {
@@ -66,7 +69,7 @@ impl Level
 			self.field_work.activate(pos.row, pos.col);
 			if self.field.has_bomb_at_rc(pos.row, pos.col)
 			{
-				self.hero.kill();
+				self.hero.become_grabbed();
 			}
 			else if self.is_big_light_on
 			{
@@ -75,7 +78,7 @@ impl Level
 				if self.hero.health <= 0
 				{
 					self.hero.health = 0;
-					self.hero.kill();
+					self.hero.collapse();
 				}
 			}
 		}
@@ -139,9 +142,9 @@ impl Level
 		text("FOR YOU", 10, 24);
 
 		let hero_position = self.get_hero_position();
-		for r in 0..FIELD_SIZE
+		for r in 0..FIELD_HEIGHT
 		{
-			for c in 0..FIELD_SIZE
+			for c in 0..FIELD_WIDTH
 			{
 				let xx = X_OF_FIELD + (TILE_WIDTH as i32) * (c as i32);
 				let yy = Y_OF_FIELD + (TILE_HEIGHT as i32) * (r as i32);
@@ -179,19 +182,19 @@ impl Level
 
 		unsafe { *DRAW_COLORS = 0x01 };
 		{
-			let yy = Y_OF_FIELD + (FIELD_SIZE as i32) * (TILE_HEIGHT as i32);
+			let yy = Y_OF_FIELD + (FIELD_HEIGHT as i32) * (TILE_HEIGHT as i32);
 			rect(0, yy, 160, 160 - HUD_HEIGHT - (yy as u32));
 		}
-		unsafe { *DRAW_COLORS = 0x31 };
+		unsafe { *DRAW_COLORS = 0x22 };
 		rect(0, 160 - HUD_HEIGHT as i32, 160, HUD_HEIGHT);
 
-		unsafe { *DRAW_COLORS = 2 };
+		unsafe { *DRAW_COLORS = 1 };
 		text(
 			format!("/EMPLOYEE/{}-{:03}/*", self.hero.code, self.hero.number),
 			5,
 			140,
 		);
-		unsafe { *DRAW_COLORS = 3 };
+		unsafe { *DRAW_COLORS = 1 };
 		text(format!("{:03}", self.hero.health), 133, 150);
 	}
 
@@ -207,22 +210,22 @@ impl Level
 		let c = (xx + 100 * tw) / tw - 100;
 		let col_of_left = (xx - 1 + 100 * tw) / tw - 100;
 		let col_of_right = (xx + 1 + 100 * tw) / tw - 100;
-		let is_off = c < 0 || c >= (FIELD_SIZE as i32);
+		let is_off = c < 0 || c >= (FIELD_WIDTH as i32);
 		let can_move_left = col_of_left == c
 			|| col_of_left < 0
-			|| col_of_left >= (FIELD_SIZE as i32)
+			|| col_of_left >= (FIELD_WIDTH as i32)
 			|| !self.field.has_wall_at_rc(r as u8, col_of_left as u8);
 		let can_move_right = col_of_right == c
 			|| col_of_right < 0
-			|| col_of_right >= (FIELD_SIZE as i32)
+			|| col_of_right >= (FIELD_WIDTH as i32)
 			|| !self.field.has_wall_at_rc(r as u8, col_of_right as u8);
 		let can_move_up = row_of_up == r
 			|| (row_of_up >= 0 && is_off)
 			|| (row_of_up >= 0
 				&& !self.field.has_wall_at_rc(row_of_up as u8, c as u8));
 		let can_move_down = ((yy + 1) % th) != 0
-			|| (row_of_down < (FIELD_SIZE as i32) && is_off)
-			|| (row_of_down < (FIELD_SIZE as i32)
+			|| (row_of_down < (FIELD_HEIGHT as i32) && is_off)
+			|| (row_of_down < (FIELD_HEIGHT as i32)
 				&& !self.field.has_wall_at_rc(row_of_down as u8, c as u8));
 		Geometry {
 			can_move_left,
@@ -246,8 +249,8 @@ impl Level
 		let r = (yy + 100 * th) / th - 100;
 		let c = (xx + 100 * tw) / tw - 100;
 		if r >= 0
-			&& r < (FIELD_SIZE as i32)
-			&& c >= 0 && c < (FIELD_SIZE as i32)
+			&& r < (FIELD_HEIGHT as i32)
+			&& c >= 0 && c < (FIELD_WIDTH as i32)
 		{
 			Some(Position {
 				row: r as u8,

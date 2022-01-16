@@ -19,7 +19,7 @@ pub struct Hero
 	pub y: i32,
 	pub is_dead: bool,
 	pub num_death_ticks: u32,
-	sprite: sprites::little_guy::Animation,
+	sprite: sprites::astronaut::Animation,
 }
 
 pub struct Geometry
@@ -42,7 +42,7 @@ impl Hero
 			y: 90,
 			is_dead: false,
 			num_death_ticks: 0,
-			sprite: sprites::little_guy::Animation::new(),
+			sprite: sprites::astronaut::Animation::new(),
 		}
 	}
 
@@ -100,10 +100,16 @@ impl Hero
 		}
 	}
 
-	pub fn kill(&mut self)
+	pub fn become_grabbed(&mut self)
 	{
 		self.is_dead = true;
-		self.sprite.die();
+		self.sprite.become_grabbed();
+	}
+
+	pub fn collapse(&mut self)
+	{
+		self.is_dead = true;
+		self.sprite.collapse();
 	}
 
 	pub fn is_alive(&self) -> bool
