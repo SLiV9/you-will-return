@@ -11,9 +11,10 @@ pub const MAX_DEATH_TICKS: u32 = 150;
 
 pub struct Hero
 {
-	pub code: &'static str,
-	pub number: i32,
-	pub health: i32,
+	pub name: &'static str,
+	pub initial: &'static str,
+	pub number: u8,
+	pub health: u8,
 	pub x: i32,
 	pub y: i32,
 	pub is_dead: bool,
@@ -29,13 +30,28 @@ pub struct Geometry
 	pub can_move_down: bool,
 }
 
+pub const NUM_NAMES: usize = 17;
+pub const NAMES: [&'static str; NUM_NAMES] = [
+	"WEIR", "ADAMS", "ZIMSKY", "PARKER", "SMITH", "MILLER", "KANE", "BLAIR",
+	"NORRIS", "PRICE", "MACE", "KANEDA", "HUDSON", "LELAND", "COOPER",
+	"DALLAS", "GORMAN",
+];
+
+pub const NUM_INITIALS: usize = 32;
+pub const INITIALS: [&'static str; NUM_INITIALS] = [
+	"I", "S", "L", "M", "C", "G", "K", "J", "R", "D", "L", "B", "P", "T", "N",
+	"J", "M", "B", "H", "E", "R", "J", "T", "S", "D", "A", "F", "C", "A", "W",
+	"V", "K",
+];
+
 impl Hero
 {
-	pub fn new() -> Self
+	pub fn new(number: u8) -> Self
 	{
 		Self {
-			code: "EKA",
-			number: 1,
+			name: NAMES[(number as usize) % NUM_NAMES],
+			initial: INITIALS[(number as usize) % NUM_INITIALS],
+			number,
 			health: 100,
 			x: -10,
 			y: 90,

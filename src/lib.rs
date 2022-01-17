@@ -42,6 +42,7 @@ enum Progress
 	Level
 	{
 		field_offset: u8,
+		hero_number: u8,
 	},
 }
 
@@ -68,10 +69,10 @@ fn update()
 				Some(cutscene::Transition::Continue) => match cutscene.tag()
 				{
 					cutscene::Tag::Prologue => Some(Progress::Entry),
-					cutscene::Tag::Entry =>
-					{
-						Some(Progress::Level { field_offset: 0 })
-					}
+					cutscene::Tag::Entry => Some(Progress::Level {
+						field_offset: 0,
+						hero_number: 1,
+					}),
 				},
 				None => None,
 			}
@@ -81,10 +82,13 @@ fn update()
 			let transition = level.update();
 			match transition
 			{
-				Some(level::Transition::Next { field_offset }) =>
-				{
-					Some(Progress::Level { field_offset })
-				}
+				Some(level::Transition::Next {
+					field_offset,
+					hero_number,
+				}) => Some(Progress::Level {
+					field_offset,
+					hero_number,
+				}),
 				None => None,
 			}
 		}
@@ -103,9 +107,12 @@ fn update()
 		{
 			*game = Game::Cutscene(Cutscene::new(cutscene::Tag::Entry));
 		}
-		Some(Progress::Level { field_offset }) =>
+		Some(Progress::Level {
+			field_offset,
+			hero_number,
+		}) =>
 		{
-			*game = Game::Level(Level::new(field_offset));
+			*game = Game::Level(Level::new(field_offset, hero_number));
 		}
 		None => (),
 	}

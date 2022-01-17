@@ -39,7 +39,7 @@ pub struct Level
 
 impl Level
 {
-	pub fn new(field_offset: u8) -> Self
+	pub fn new(field_offset: u8, hero_number: u8) -> Self
 	{
 		assert!((field_offset as usize) < NUM_FIELDS);
 		Self {
@@ -48,7 +48,7 @@ impl Level
 			communication: &COMMUNICATIONS[field_offset as usize],
 			field_work: FieldWork::new(),
 			ticks: 0,
-			hero: Hero::new(),
+			hero: Hero::new(hero_number),
 			is_big_light_on: false,
 			left_door_height: (FIELD_HEIGHT as u32) * TILE_HEIGHT,
 			right_door_height: 0,
@@ -82,8 +82,11 @@ impl Level
 			else if self.is_big_light_on
 			{
 				let damage = self.field.flag_count_from_rc(pos.row, pos.col);
-				self.hero.health -= damage as i32;
-				if self.hero.health <= 0
+				if self.hero.health > damage
+				{
+					self.hero.health -= damage;
+				}
+				else
 				{
 					self.hero.health = 0;
 					self.hero.collapse();
@@ -93,7 +96,7 @@ impl Level
 
 		if !self.hero.is_visible()
 		{
-			self.hero = Hero::new();
+			self.hero = Hero::new(self.hero.number.wrapping_add(1));
 		}
 
 		if self.get_translation_progress_percentage() >= 100
@@ -116,6 +119,7 @@ impl Level
 		{
 			Some(Transition::Next {
 				field_offset: self.field_offset + 1,
+				hero_number: self.hero.number,
 			})
 		}
 		else
@@ -296,7 +300,10 @@ impl Level
 
 		unsafe { *DRAW_COLORS = 1 };
 		text(
-			format!("/EMPLOYEE/{}-{:03}/*", self.hero.code, self.hero.number),
+			format!(
+				"//ID/{:03}/{:/>6}/{}//",
+				self.hero.number, self.hero.name, self.hero.initial
+			),
 			5,
 			140,
 		);
@@ -384,7 +391,7 @@ pub enum Transition
 {
 	Next
 	{
-		field_offset: u8
+		field_offset: u8, hero_number: u8
 	},
 }
 
