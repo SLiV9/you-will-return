@@ -100,15 +100,19 @@ impl Level
 			}
 			else if self.is_big_light_on
 			{
-				let damage = self.field.flag_count_from_rc(pos.row, pos.col);
-				if self.hero.health > damage
+				let strength = self.field.flag_count_from_rc(pos.row, pos.col);
+				if strength > 1
 				{
-					self.hero.health -= damage;
-				}
-				else
-				{
-					self.hero.health = 0;
-					self.hero.collapse();
+					let damage = strength - 1;
+					if self.hero.health > damage
+					{
+						self.hero.health -= damage;
+					}
+					else
+					{
+						self.hero.health = 0;
+						self.hero.collapse();
+					}
 				}
 			}
 
