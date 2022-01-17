@@ -5,6 +5,7 @@
 //
 
 use crate::communication::*;
+use crate::dialog::*;
 use crate::field::*;
 use crate::hero::*;
 use crate::palette;
@@ -24,17 +25,22 @@ const Y_OF_FIELD: i32 = WALL_HEIGHT as i32 + 5;
 const X_OF_FIELD: i32 =
 	(SCREEN_SIZE as i32) / 2 - (((FIELD_WIDTH as u32) * TILE_WIDTH) as i32) / 2;
 
+const CONFIDENCE_PERCENTAGE: u8 = 90;
+
 pub struct Level
 {
 	field_offset: u8,
 	field: &'static Field,
 	communication: &'static Communication,
+	dialog_tree: &'static DialogTree,
 	field_work: FieldWork,
+	dialog: Option<&'static str>,
 	ticks: i32,
 	hero: Hero,
 	is_big_light_on: bool,
 	left_door_height: u32,
 	right_door_height: u32,
+	first_hero_number: u8,
 }
 
 impl Level
@@ -46,12 +52,15 @@ impl Level
 			field_offset,
 			field: &FIELDS[field_offset as usize],
 			communication: &COMMUNICATIONS[field_offset as usize],
+			dialog_tree: &DIALOG_TREES[field_offset as usize],
 			field_work: FieldWork::new(),
+			dialog: None,
 			ticks: 0,
 			hero: Hero::new(hero_number),
 			is_big_light_on: false,
 			left_door_height: (FIELD_HEIGHT as u32) * TILE_HEIGHT,
 			right_door_height: 0,
+			first_hero_number: hero_number,
 		}
 	}
 
@@ -59,18 +68,21 @@ impl Level
 	{
 		self.ticks += 1;
 
-		self.is_big_light_on = if self.hero.is_alive()
+		let gamepad = unsafe { *GAMEPAD1 };
+		self.is_big_light_on =
+			self.hero.is_alive() && (gamepad & BUTTON_2 != 0);
+		if self.dialog.is_some() && (gamepad & BUTTON_1 != 0)
 		{
-			let gamepad = unsafe { *GAMEPAD1 };
-			gamepad & BUTTON_1 != 0
+			if !self.hero.is_visible()
+			{
+				self.hero = Hero::new(self.hero.number.wrapping_add(1));
+			}
+			self.dialog = None;
 		}
-		else
-		{
-			false
-		};
 
 		let geometry = self.determine_geometry();
-		self.hero.update(&geometry, self.is_big_light_on);
+		let is_scanning = self.is_big_light_on || self.dialog.is_some();
+		self.hero.update(&geometry, is_scanning);
 
 		if let Some(pos) = self.get_hero_position()
 		{
@@ -96,12 +108,24 @@ impl Level
 
 		if !self.hero.is_visible()
 		{
-			self.hero = Hero::new(self.hero.number.wrapping_add(1));
+			if self.hero.number == self.first_hero_number
+			{
+				self.dialog = self.dialog_tree.on_first_death;
+			}
+			else
+			{
+				self.hero = Hero::new(self.hero.number.wrapping_add(1));
+			}
 		}
 
-		if self.get_translation_progress_percentage() >= 100
+		if self.get_translation_progress_percentage() >= CONFIDENCE_PERCENTAGE
 		{
-			if self.right_door_height < 10
+			if self.right_door_height == 0
+			{
+				self.dialog = self.dialog_tree.on_confident_translation;
+				self.right_door_height = 1;
+			}
+			else if self.right_door_height < 10
 			{
 				self.right_door_height += 1;
 			}
@@ -213,7 +237,7 @@ impl Level
 		{
 			let progress = self.get_translation_progress_percentage() as usize;
 			let y_start = 2 + (10 * (NUM_LINES - num_lines) / num_lines) as i32;
-			let chunk_size = 90 / (2 * num_lines);
+			let chunk_size = (CONFIDENCE_PERCENTAGE as usize) / (2 * num_lines);
 			for i in 0..num_lines
 			{
 				let y = y_start + (10 * i) as i32;
@@ -232,13 +256,13 @@ impl Level
 					}
 				}
 
-				if progress > (num_lines + i + 1) * chunk_size
+				if progress >= (num_lines + i + 1) * chunk_size
 				{
 					let line = self.communication.confident[i];
 					unsafe { *DRAW_COLORS = 0x13 };
 					text(line, 2, y);
 				}
-				else if progress > (i + 1) * chunk_size
+				else if progress >= (i + 1) * chunk_size
 				{
 					let line = self.communication.rough[i];
 					unsafe { *DRAW_COLORS = 0x12 };
@@ -295,20 +319,42 @@ impl Level
 			let yy = Y_OF_FIELD + (FIELD_HEIGHT as i32) * (TILE_HEIGHT as i32);
 			rect(0, yy, 160, 160 - HUD_HEIGHT - (yy as u32));
 		}
-		unsafe { *DRAW_COLORS = 0x22 };
-		rect(0, 160 - HUD_HEIGHT as i32, 160, HUD_HEIGHT);
 
-		unsafe { *DRAW_COLORS = 1 };
-		text(
-			format!(
-				"//ID/{:03}/{:/>6}/{}//",
-				self.hero.number, self.hero.name, self.hero.initial
-			),
-			5,
-			140,
-		);
-		unsafe { *DRAW_COLORS = 1 };
-		text(format!("{:03}", self.hero.health), 133, 150);
+		if let Some(dialog_line) = self.dialog
+		{
+			unsafe { *DRAW_COLORS = 0x22 };
+			rect(0, 160 - HUD_HEIGHT as i32, 160, HUD_HEIGHT);
+
+			unsafe { *DRAW_COLORS = 1 };
+			let speaker_number = self.hero.number.wrapping_add(1) as usize;
+			text(
+				format!(
+					"[{}, {}.]",
+					NAMES[speaker_number], INITIALS[speaker_number]
+				),
+				5,
+				140,
+			);
+			text("X", 147, 140);
+			text(dialog_line, 5, 150);
+		}
+		else
+		{
+			unsafe { *DRAW_COLORS = 0x21 };
+			rect(0, 160 - HUD_HEIGHT as i32, 160, HUD_HEIGHT);
+
+			unsafe { *DRAW_COLORS = 2 };
+			text(
+				format!(
+					"//ID/{:03}/{:/>6}/{}//",
+					self.hero.number, self.hero.name, self.hero.initial
+				),
+				5,
+				140,
+			);
+			unsafe { *DRAW_COLORS = 2 };
+			text(format!("{:03}", self.hero.health), 133, 150);
+		}
 	}
 
 	fn determine_geometry(&self) -> Geometry

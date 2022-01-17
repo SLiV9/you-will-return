@@ -11,6 +11,7 @@ mod alloc;
 
 mod communication;
 mod cutscene;
+mod dialog;
 mod field;
 mod global_state;
 mod hero;
