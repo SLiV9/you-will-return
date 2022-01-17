@@ -159,9 +159,16 @@ impl Level
 		rect(0, 0, 160, WALL_HEIGHT);
 		rect(0, WALL_HEIGHT as i32, 160, Y_OF_FIELD as u32 - WALL_HEIGHT);
 
-		unsafe { *DRAW_COLORS = 2 };
 		if self.left_door_height > 0
 		{
+			if self.field_offset == 0
+			{
+				unsafe { *DRAW_COLORS = 3 };
+			}
+			else
+			{
+				unsafe { *DRAW_COLORS = 2 };
+			}
 			for i in [0, 1, 3, 5]
 			{
 				let y = Y_OF_FIELD
@@ -177,6 +184,7 @@ impl Level
 		}
 		if self.right_door_height > 0
 		{
+			unsafe { *DRAW_COLORS = 2 };
 			for i in [0, 1, 3, 5]
 			{
 				let y = Y_OF_FIELD

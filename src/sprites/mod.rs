@@ -6,4 +6,5 @@
 
 pub mod alien_tile;
 pub mod astronaut;
+pub mod open_sesame;
 pub mod stars;

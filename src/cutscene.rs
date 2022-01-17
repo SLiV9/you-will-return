@@ -5,6 +5,7 @@
 //
 
 use crate::palette;
+use crate::sprites;
 use crate::wasm4::*;
 
 pub struct Cutscene
@@ -49,11 +50,10 @@ impl Cutscene
 			if gamepad & BUTTON_1 != 0
 			{
 				self.is_continuing = true;
-				self.ticks = 0;
 			}
 		}
 
-		if self.is_continuing && self.ticks > 30
+		if self.is_continuing
 		{
 			Some(Transition::Continue)
 		}
@@ -71,7 +71,7 @@ impl Cutscene
 			{
 				unsafe { *PALETTE = palette::PROLOGUE };
 				let progress = (self.ticks / 7) as usize;
-				unsafe { *DRAW_COLORS = 0x33 }
+				unsafe { *DRAW_COLORS = 0x33 };
 				let h_of_box = std::cmp::min(
 					10 * PROLOGUE_LINES.len() + 2,
 					3 + (self.ticks / 8) as usize,
@@ -80,7 +80,7 @@ impl Cutscene
 				let x = 5;
 				let mut y = 5;
 				let mut t = 10;
-				unsafe { *DRAW_COLORS = 0x31 }
+				unsafe { *DRAW_COLORS = 0x31 };
 				for line in PROLOGUE_LINES
 				{
 					if progress >= t + line.len()
@@ -92,7 +92,7 @@ impl Cutscene
 					else if progress >= t + 1
 					{
 						text(line, x, y);
-						unsafe { *DRAW_COLORS = 0x33 }
+						unsafe { *DRAW_COLORS = 0x33 };
 						let xx = (x as usize) + 8 * (progress - t);
 						rect(xx as i32, y, 160 - 3 - xx as u32, 10);
 						t += line.len() + 3;
@@ -111,7 +111,46 @@ impl Cutscene
 			}
 			Tag::Entry =>
 			{
-				// TODO
+				unsafe { *PALETTE = palette::ENTRY };
+				let w = if self.ticks < 50
+				{
+					0
+				}
+				else if self.ticks < 100
+				{
+					2
+				}
+				else if self.ticks < 120
+				{
+					std::cmp::min(2 + (self.ticks - 100) / 4, 140)
+				}
+				else if self.ticks < 140
+				{
+					std::cmp::min(7 + (self.ticks - 120) / 2, 140)
+				}
+				else
+				{
+					std::cmp::min(17 + (self.ticks - 140), 140)
+				};
+
+				if w >= 140
+				{
+					self.is_done = true;
+				}
+
+				if w > 2
+				{
+					unsafe { *DRAW_COLORS = 0x33 };
+					rect(80 - (w as i32) / 2, 20, w, 120);
+				}
+				else if w == 2
+				{
+					unsafe { *DRAW_COLORS = 0x33 };
+					rect(80 - (w as i32) / 2, 20, w, 115);
+				}
+
+				unsafe { *DRAW_COLORS = 0x10 };
+				sprites::open_sesame::draw(80, 140);
 			}
 		}
 
