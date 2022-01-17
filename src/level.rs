@@ -51,7 +51,7 @@ impl Level
 			hero: Hero::new(),
 			is_big_light_on: false,
 			left_door_height: (FIELD_HEIGHT as u32) * TILE_HEIGHT,
-			right_door_height: 1,
+			right_door_height: 0,
 		}
 	}
 
