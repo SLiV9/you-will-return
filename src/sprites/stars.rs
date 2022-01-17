@@ -9,34 +9,27 @@ use crate::wasm4::*;
 pub fn draw(y: i32)
 {
 	unsafe { *DRAW_COLORS = 0x30 };
-	blit(
-		&STARS_EXPORT,
-		0,
-		y,
-		STARS_EXPORT_WIDTH,
-		STARS_EXPORT_HEIGHT,
-		STARS_EXPORT_FLAGS,
-	);
+	blit(&STARS, 0, y, STARS_WIDTH, STARS_HEIGHT, STARS_FLAGS);
 }
 
 pub fn draw_bg(y: i32)
 {
 	unsafe { *DRAW_COLORS = 0x20 };
 	blit(
-		&STARS_EXPORT_BG,
+		&STARS_BG,
 		0,
 		y,
-		STARS_EXPORT_BG_WIDTH,
-		STARS_EXPORT_BG_HEIGHT,
-		STARS_EXPORT_BG_FLAGS,
+		STARS_BG_WIDTH,
+		STARS_BG_HEIGHT,
+		STARS_BG_FLAGS,
 	);
 }
 
-// stars_export
-const STARS_EXPORT_WIDTH: u32 = 160;
-const STARS_EXPORT_HEIGHT: u32 = 160;
-const STARS_EXPORT_FLAGS: u32 = BLIT_1BPP;
-const STARS_EXPORT: [u8; 3200] = [
+// stars
+const STARS_WIDTH: u32 = 160;
+const STARS_HEIGHT: u32 = 160;
+const STARS_FLAGS: u32 = BLIT_1BPP;
+const STARS: [u8; 3200] = [
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -306,11 +299,11 @@ const STARS_EXPORT: [u8; 3200] = [
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 ];
 
-// stars_export_bg
-const STARS_EXPORT_BG_WIDTH: u32 = 160;
-const STARS_EXPORT_BG_HEIGHT: u32 = 160;
-const STARS_EXPORT_BG_FLAGS: u32 = BLIT_1BPP;
-const STARS_EXPORT_BG: [u8; 3200] = [
+// stars_bg
+const STARS_BG_WIDTH: u32 = 160;
+const STARS_BG_HEIGHT: u32 = 160;
+const STARS_BG_FLAGS: u32 = BLIT_1BPP;
+const STARS_BG: [u8; 3200] = [
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
