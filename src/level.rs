@@ -34,13 +34,15 @@ pub struct Level
 	communication: &'static Communication,
 	dialog_tree: &'static DialogTree,
 	field_work: FieldWork,
-	dialog: Option<&'static str>,
+	dialog: Option<Dialog>,
 	ticks: i32,
 	hero: Hero,
 	is_big_light_on: bool,
+	is_translating: bool,
 	left_door_height: u32,
 	right_door_height: u32,
 	first_hero_number: u8,
+	max_col_reached: u8,
 }
 
 impl Level
@@ -58,9 +60,11 @@ impl Level
 			ticks: 0,
 			hero: Hero::new(hero_number),
 			is_big_light_on: false,
+			is_translating: field_offset > 0,
 			left_door_height: (FIELD_HEIGHT as u32) * TILE_HEIGHT,
 			right_door_height: 0,
 			first_hero_number: hero_number,
+			max_col_reached: 0,
 		}
 	}
 
@@ -86,7 +90,10 @@ impl Level
 
 		if let Some(pos) = self.get_hero_position()
 		{
-			self.field_work.activate(pos.row, pos.col);
+			if self.is_translating
+			{
+				self.field_work.activate(pos.row, pos.col);
+			}
 			if self.field.has_bomb_at_rc(pos.row, pos.col)
 			{
 				self.hero.become_grabbed();
@@ -102,6 +109,24 @@ impl Level
 				{
 					self.hero.health = 0;
 					self.hero.collapse();
+				}
+			}
+
+			if self.hero.is_alive() && pos.col > self.max_col_reached
+			{
+				self.max_col_reached = pos.col;
+				match pos.col
+				{
+					2 => self.dialog = self.dialog_tree.on_col_2,
+					4 =>
+					{
+						self.dialog = self.dialog_tree.on_col_4;
+						if self.field_offset == 0
+						{
+							self.is_translating = true;
+						}
+					}
+					_ => (),
 				}
 			}
 		}
@@ -320,23 +345,24 @@ impl Level
 			rect(0, yy, 160, 160 - HUD_HEIGHT - (yy as u32));
 		}
 
-		if let Some(dialog_line) = self.dialog
+		if let Some(dialog) = &self.dialog
 		{
 			unsafe { *DRAW_COLORS = 0x22 };
 			rect(0, 160 - HUD_HEIGHT as i32, 160, HUD_HEIGHT);
 
 			unsafe { *DRAW_COLORS = 1 };
-			let speaker_number = self.hero.number.wrapping_add(1) as usize;
-			text(
-				format!(
-					"[{}, {}.]",
-					NAMES[speaker_number], INITIALS[speaker_number]
-				),
-				5,
-				140,
-			);
+			let i = self.hero.number as usize;
+			let j = self.hero.number.wrapping_add(1) as usize;
+			if dialog.is_self
+			{
+				text(format!("{} >> {}", NAMES[i], NAMES[j]), 5, 140);
+			}
+			else
+			{
+				text(format!("{} >> {}", NAMES[j], NAMES[i]), 5, 140);
+			};
 			text("X", 147, 140);
-			text(dialog_line, 5, 150);
+			text(dialog.line, 5, 150);
 		}
 		else
 		{

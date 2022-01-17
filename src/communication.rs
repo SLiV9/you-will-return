@@ -22,13 +22,23 @@ pub const COMMUNICATIONS: [Communication; NUM_FIELDS] = [
 		confident: ["THIS PLACE", "IS NOT", "A TOMB", ""],
 	},
 	Communication {
-		untranslated: ["X", "X", "", ""],
-		rough: ["??", "??", "", ""],
-		confident: ["THIS PLACE IS", "A GIFT", "", ""],
+		untranslated: ["DIT X", "PRAAT", "DNGR PRAAT", ""],
+		rough: ["this <copula>", "send/give/convey?", "power? send", ""],
+		confident: ["THIS IS", "A GIFT", "A GIFT OF ENERGY", ""],
 	},
 	Communication {
-		untranslated: ["X", "X", "X", "X"],
-		rough: ["??", "??", "??", "??"],
+		untranslated: [
+			"WY MAAK DIT PRAAT",
+			"FUR JIJ",
+			"JIJ ZAL NEEM",
+			"DIT PRAAT",
+		],
+		rough: [
+			"we make? this gift",
+			"onto? you",
+			"you <fut>? take",
+			"this gift",
+		],
 		confident: [
 			"WE MADE THIS GIFT",
 			"FOR YOU",
@@ -37,8 +47,8 @@ pub const COMMUNICATIONS: [Communication; NUM_FIELDS] = [
 		],
 	},
 	Communication {
-		untranslated: ["X", "X", "X", ""],
-		rough: ["??", "??", "??", ""],
-		confident: ["YOU", "WILL", "RETURN", ""],
+		untranslated: ["WY X ZEKER", "JIJ ZAL", "KEER TERUG", ""],
+		rough: ["we are strong?", "you will", "revolve? back", ""],
+		confident: ["WE ARE CONVINCED", "YOU WILL", "RETURN", ""],
 	},
 ];
