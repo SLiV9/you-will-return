@@ -13,6 +13,14 @@ pub const MENU: [u32; 4] = [
 ];
 
 #[rustfmt::skip]
+pub const PROLOGUE: [u32; 4] = [
+	0x26201d,
+	0x4d533a,
+	0x4d533a,
+	0xcbd1be,
+];
+
+#[rustfmt::skip]
 pub const LEVEL: [u32; 4] = [
 	0x26201d,
 	0x4d533a,

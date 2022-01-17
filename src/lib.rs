@@ -10,6 +10,7 @@ mod wasm4;
 mod alloc;
 
 mod communication;
+mod cutscene;
 mod field;
 mod global_state;
 mod hero;
@@ -18,6 +19,7 @@ mod menu;
 mod palette;
 mod sprites;
 
+use cutscene::Cutscene;
 use global_state::Wrapper;
 use level::Level;
 use menu::Menu;
@@ -27,6 +29,7 @@ static GAME: Wrapper<Game> = Wrapper::new(Game::Menu(Menu::new()));
 enum Game
 {
 	Menu(Menu),
+	Cutscene(Cutscene),
 	Level(Level),
 }
 
@@ -34,9 +37,11 @@ enum Progress
 {
 	#[allow(dead_code)]
 	Menu,
+	Prologue,
+	Entry,
 	Level
 	{
-		field_offset: u8
+		field_offset: u8,
 	},
 }
 
@@ -51,10 +56,23 @@ fn update()
 			let transition = menu.update();
 			match transition
 			{
-				Some(menu::Transition::Start) =>
+				Some(menu::Transition::Start) => Some(Progress::Prologue),
+				None => None,
+			}
+		}
+		Game::Cutscene(cutscene) =>
+		{
+			let transition = cutscene.update();
+			match transition
+			{
+				Some(cutscene::Transition::Continue) => match cutscene.tag()
 				{
-					Some(Progress::Level { field_offset: 0 })
-				}
+					cutscene::Tag::Prologue => Some(Progress::Entry),
+					cutscene::Tag::Entry =>
+					{
+						Some(Progress::Level { field_offset: 0 })
+					}
+				},
 				None => None,
 			}
 		}
@@ -77,6 +95,14 @@ fn update()
 		{
 			*game = Game::Menu(Menu::new());
 		}
+		Some(Progress::Prologue) =>
+		{
+			*game = Game::Cutscene(Cutscene::new(cutscene::Tag::Prologue));
+		}
+		Some(Progress::Entry) =>
+		{
+			*game = Game::Cutscene(Cutscene::new(cutscene::Tag::Entry));
+		}
 		Some(Progress::Level { field_offset }) =>
 		{
 			*game = Game::Level(Level::new(field_offset));
@@ -87,6 +113,7 @@ fn update()
 	match game
 	{
 		Game::Menu(menu) => menu.draw(),
+		Game::Cutscene(cutscene) => cutscene.draw(),
 		Game::Level(level) => level.draw(),
 	}
 }

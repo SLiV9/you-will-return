@@ -131,7 +131,7 @@ impl Menu
 		if self.ticks > 260
 		{
 			unsafe { *DRAW_COLORS = 3 }
-			text("PRESS X TO START", 3, 150);
+			text("Press X to start", 3, 150);
 		}
 	}
 }
