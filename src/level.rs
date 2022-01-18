@@ -49,6 +49,7 @@ pub struct Level
 	first_hero_number: u8,
 	max_col_reached: u8,
 	respawn_ticks: u8,
+	dialog_ticks: u8,
 	heart_ticks: u8,
 	current_heart_rate_in_ticks: u8,
 	target_heart_rate_in_ticks: u8,
@@ -86,6 +87,7 @@ impl Level
 			first_hero_number: hero_number,
 			max_col_reached: 0,
 			respawn_ticks: 0,
+			dialog_ticks: 0,
 			heart_ticks: 0,
 			current_heart_rate_in_ticks: NORMAL_HEART_RATE_IN_TICKS,
 			target_heart_rate_in_ticks: NORMAL_HEART_RATE_IN_TICKS,
@@ -96,6 +98,30 @@ impl Level
 	pub fn update(&mut self) -> Option<Transition>
 	{
 		self.ticks += 1;
+
+		if let Some(dialog) = &self.dialog
+		{
+			if self.dialog_ticks < 100
+			{
+				self.dialog_ticks += 1;
+				if self.dialog_ticks == 5
+				{
+					sfx::text_beep();
+				}
+				else if self.dialog_ticks == 10 && !dialog.is_self
+				{
+					sfx::text_beep();
+				}
+				else if self.dialog_ticks == 15 && !dialog.is_self
+				{
+					sfx::text_beep();
+				}
+				else if self.dialog_ticks == 20 && dialog.is_self
+				{
+					sfx::text_beep();
+				}
+			}
+		}
 
 		let gamepad = unsafe { *GAMEPAD1 };
 		self.is_big_light_on =
@@ -193,10 +219,16 @@ impl Level
 				self.max_col_reached = pos.col;
 				match pos.col
 				{
-					2 => self.dialog = self.dialog_tree.on_col_2,
+					2 =>
+					{
+						self.dialog = self.dialog_tree.on_col_2;
+
+						self.dialog_ticks = 0;
+					}
 					4 =>
 					{
 						self.dialog = self.dialog_tree.on_col_4;
+						self.dialog_ticks = 0;
 						if self.field_offset == 0
 						{
 							self.is_translating = true;
@@ -256,6 +288,7 @@ impl Level
 			if self.hero.number == self.first_hero_number
 			{
 				self.dialog = self.dialog_tree.on_first_death;
+				self.dialog_ticks = 0;
 			}
 
 			if self.respawn_ticks == 0
@@ -277,6 +310,7 @@ impl Level
 			if self.right_door_height == 0
 			{
 				self.dialog = self.dialog_tree.on_confident_translation;
+				self.dialog_ticks = 0;
 				self.right_door_height = 1;
 			}
 			else if self.right_door_height < 10
