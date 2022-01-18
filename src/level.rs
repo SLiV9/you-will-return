@@ -57,7 +57,7 @@ impl Level
 		}
 		else
 		{
-			field_offset = 0;
+			field_offset = (NUM_FIELDS / 2) as u8;
 			&F_TEST
 		};
 
@@ -213,21 +213,23 @@ impl Level
 			{
 				rect(0, 0, SCREEN_SIZE, SCREEN_SIZE);
 			}
-			else
+			else if self.hero.num_death_ticks == 0
 			{
-				let max = crate::hero::MAX_DEATH_TICKS;
-				if self.hero.num_death_ticks < max
-				{
-					let strength = max - self.hero.num_death_ticks;
-					let w = PROXIMITY_LIGHT_WIDTH * strength / max;
-					let h = PROXIMITY_LIGHT_HEIGHT * strength / max;
-					oval(
-						self.hero.x - (w as i32) / 2,
-						self.hero.y - (h as i32) / 2,
-						w,
-						h,
-					);
-				}
+				let w = PROXIMITY_LIGHT_WIDTH;
+				let h = PROXIMITY_LIGHT_HEIGHT;
+				let x = self.hero.x - (w as i32) / 2;
+				let y = self.hero.y - (h as i32) / 2;
+				oval(x, y, w, h);
+			}
+			else if self.hero.num_death_ticks < self.hero.max_death_ticks
+			{
+				let max = self.hero.max_death_ticks;
+				let strength = max - self.hero.num_death_ticks;
+				let w = PROXIMITY_LIGHT_WIDTH * strength / max;
+				let h = PROXIMITY_LIGHT_HEIGHT * strength / max;
+				let x = self.hero.x - (w as i32) / 2;
+				let y = self.hero.y - (h as i32) / 2;
+				oval(x, y, w, h);
 			}
 		}
 

@@ -7,8 +7,6 @@
 use crate::sprites;
 use crate::wasm4::*;
 
-pub const MAX_DEATH_TICKS: u32 = 150;
-
 pub struct Hero
 {
 	pub name: &'static str,
@@ -19,6 +17,7 @@ pub struct Hero
 	pub y: i32,
 	pub is_dead: bool,
 	pub num_death_ticks: u32,
+	pub max_death_ticks: u32,
 	sprite: sprites::astronaut::Animation,
 }
 
@@ -57,6 +56,7 @@ impl Hero
 			y: 90,
 			is_dead: false,
 			num_death_ticks: 0,
+			max_death_ticks: 0,
 			sprite: sprites::astronaut::Animation::new(),
 		}
 	}
@@ -122,12 +122,14 @@ impl Hero
 	pub fn become_grabbed(&mut self)
 	{
 		self.is_dead = true;
+		self.max_death_ticks = 150;
 		self.sprite.become_grabbed();
 	}
 
 	pub fn collapse(&mut self)
 	{
 		self.is_dead = true;
+		self.max_death_ticks = 20;
 		self.sprite.collapse();
 	}
 
