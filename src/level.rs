@@ -127,9 +127,9 @@ impl Level
 						|| self.target_heart_rate_in_ticks
 							> FATAL_HEART_RATE_IN_TICKS)
 				{
-					sfx::interference(5 * strength as u32);
 					if strength > 1 && self.is_big_light_on
 					{
+						sfx::interference(50);
 						let damage = 3 * (strength - 1) + strength - 2;
 						if self.hero.health > damage
 						{
@@ -148,9 +148,15 @@ impl Level
 							self.respawn_ticks = 60;
 						}
 					}
+					else if strength > 1
+					{
+						sfx::interference(6 * strength as u32);
+						self.target_heart_rate_in_ticks = 60 / strength;
+					}
 					else
 					{
-						self.target_heart_rate_in_ticks = 150 / (strength + 2);
+						sfx::interference(4);
+						self.target_heart_rate_in_ticks = 50;
 					}
 				}
 				else if strength == 0
@@ -281,10 +287,14 @@ impl Level
 	{
 		unsafe { *PALETTE = palette::LEVEL };
 
+		let scan_interference =
+			self.target_heart_rate_in_ticks == FATAL_HEART_RATE_IN_TICKS;
+
 		if self.hero.x > 0 && self.hero.x < SCREEN_SIZE as i32
 		{
+			let max = std::cmp::min(110, self.hero.max_death_ticks);
 			unsafe { *DRAW_COLORS = 0x22 };
-			if self.is_big_light_on
+			if self.is_big_light_on && !scan_interference
 			{
 				rect(0, Y_OF_FIELD, SCREEN_SIZE, H_OF_FIELD);
 			}
@@ -296,9 +306,8 @@ impl Level
 				let y = self.hero.y - (h as i32) / 2;
 				oval(x, y, w, h);
 			}
-			else if self.hero.num_death_ticks < self.hero.max_death_ticks
+			else if self.hero.num_death_ticks < max
 			{
-				let max = self.hero.max_death_ticks;
 				let strength = max - self.hero.num_death_ticks;
 				let w = PROXIMITY_LIGHT_WIDTH * strength / max;
 				let h = PROXIMITY_LIGHT_HEIGHT * strength / max;
@@ -413,6 +422,20 @@ impl Level
 				{
 					unsafe { *DRAW_COLORS = 0x01 };
 					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
+				}
+				else if scan_interference
+				{
+					unsafe { *DRAW_COLORS = 0x01 };
+					sprites::alien_tile::draw_tile(xx, yy, seed);
+					if seed.wrapping_add((self.ticks as u32) / 35) % 3 == 0
+					{
+						unsafe { *DRAW_COLORS = 0x30 };
+						rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
+						let count =
+							seed.wrapping_add((self.ticks as u32) / 10) % 4;
+						unsafe { *DRAW_COLORS = 0x13 };
+						text(format!("{}", count), xx + 4, yy + 4);
+					}
 				}
 				else if self.field_work.is_visible_at_rc(r, c)
 					&& (self.is_big_light_on
