@@ -60,6 +60,10 @@ fn update()
 			match transition
 			{
 				Some(menu::Transition::Start) => Some(Progress::Prologue),
+				Some(menu::Transition::Test) => Some(Progress::Level {
+					field_offset: 255,
+					hero_number: 255,
+				}),
 				None => None,
 			}
 		}

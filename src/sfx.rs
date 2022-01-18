@@ -30,3 +30,18 @@ pub fn door_echo(volume: u32)
 {
 	tone(110 + 40 * volume / 100, 20 << 8, volume / 2, TONE_NOISE);
 }
+
+pub fn interference(volume: u32)
+{
+	tone(230, 11, volume, TONE_NOISE);
+}
+
+pub fn migraine()
+{
+	tone(
+		670,
+		(2 << 24) | (2 << 16) | 4 | (4 << 8),
+		8,
+		TONE_PULSE1 | TONE_MODE2,
+	);
+}

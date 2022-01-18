@@ -9,6 +9,7 @@ use crate::dialog::*;
 use crate::field::*;
 use crate::hero::*;
 use crate::palette;
+use crate::sfx;
 use crate::sprites;
 use crate::wasm4::*;
 
@@ -47,12 +48,22 @@ pub struct Level
 
 impl Level
 {
-	pub fn new(field_offset: u8, hero_number: u8) -> Self
+	pub fn new(mut field_offset: u8, hero_number: u8) -> Self
 	{
-		assert!((field_offset as usize) < NUM_FIELDS);
+		let is_translating = field_offset > 0;
+		let field = if (field_offset as usize) < NUM_FIELDS
+		{
+			&FIELDS[field_offset as usize]
+		}
+		else
+		{
+			field_offset = 0;
+			&F_TEST
+		};
+
 		Self {
 			field_offset,
-			field: &FIELDS[field_offset as usize],
+			field,
 			communication: &COMMUNICATIONS[field_offset as usize],
 			dialog_tree: &DIALOG_TREES[field_offset as usize],
 			field_work: FieldWork::new(),
@@ -60,7 +71,7 @@ impl Level
 			ticks: 0,
 			hero: Hero::new(hero_number),
 			is_big_light_on: false,
-			is_translating: field_offset > 0,
+			is_translating,
 			left_door_height: (FIELD_HEIGHT as u32) * TILE_HEIGHT,
 			right_door_height: 0,
 			first_hero_number: hero_number,
@@ -94,14 +105,24 @@ impl Level
 			{
 				self.field_work.activate(pos.row, pos.col);
 			}
+
 			if self.field.has_bomb_at_rc(pos.row, pos.col)
 			{
 				self.hero.become_grabbed();
 			}
-			else if self.is_big_light_on
+			else
 			{
 				let strength = self.field.flag_count_from_rc(pos.row, pos.col);
-				if strength > 1
+				if strength > 0 && (self.ticks % 10) == 0
+				{
+					sfx::interference(5 * strength as u32);
+					if strength > 1 && self.is_big_light_on
+					{
+						sfx::migraine();
+					}
+				}
+
+				if strength > 1 && self.is_big_light_on
 				{
 					let damage = strength - 1;
 					if self.hero.health > damage
@@ -355,8 +376,8 @@ impl Level
 			rect(0, 160 - HUD_HEIGHT as i32, 160, HUD_HEIGHT);
 
 			unsafe { *DRAW_COLORS = 1 };
-			let i = self.hero.number as usize;
-			let j = self.hero.number.wrapping_add(1) as usize;
+			let i = (self.hero.number as usize) % NUM_NAMES;
+			let j = (self.hero.number.wrapping_add(1) as usize) & NUM_NAMES;
 			if dialog.is_self
 			{
 				text(format!("{} >> {}", NAMES[i], NAMES[j]), 5, 140);

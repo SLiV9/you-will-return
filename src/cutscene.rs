@@ -193,7 +193,7 @@ impl Cutscene
 			unsafe { *DRAW_COLORS = 0x4 }
 			text("Press X to continue", 3, 150);
 		}
-		else
+		else if self.ticks > 30
 		{
 			unsafe { *DRAW_COLORS = 0x2 }
 			text("Press X to skip", 3, 150);

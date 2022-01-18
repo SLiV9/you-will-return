@@ -178,20 +178,20 @@ const fn generate_flag_data(
 	flag_data
 }
 
-const F_TEST: Field = {
+pub const F_TEST: Field = {
 	#[rustfmt::skip]
 	const WALL_DATA: [u8; WALL_DATA_SIZE] = [
 		0b00000001,
-		0b00000101,
-		0b00000100,
+		0b00000001,
+		0b00000000,
 		0b00000101,
 		0b00000001,
 	];
 	#[rustfmt::skip]
 	const BOMB_DATA: [u8; BOMB_DATA_SIZE] = [
-		0b00000000,
-		0b00000000,
-		0b00100000,
+		0b00000100,
+		0b00011100,
+		0b00110100,
 		0b00000000,
 		0b00000000,
 	];

@@ -36,6 +36,10 @@ impl Menu
 				self.is_starting = true;
 				self.ticks = 0;
 			}
+			else if gamepad & BUTTON_2 != 0
+			{
+				return Some(Transition::Test);
+			}
 		}
 
 		if self.is_starting && self.ticks > 30
@@ -139,4 +143,5 @@ impl Menu
 pub enum Transition
 {
 	Start,
+	Test,
 }
