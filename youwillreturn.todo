@@ -33,6 +33,8 @@ Sprites:
   ☐ Some creature that runs around the edges of your peripheral vision
     and disappears if you turn on the light
     ☐ And creatures that look like floating corpses
+  ☐ Reveal over time during scanning
+    ☐ Reveal garbage when scanning in interference
 
 Audio:
   ✔ Interference on flag tiles @done (2022-01-18 22:11)
@@ -44,7 +46,7 @@ Audio:
   ☐ Water drips (?)
   ☐ Ambient "music"
   ✔ Footsteps @done (2022-01-18 22:33)
-  ☐ Snatch animation sfx
+  ✔ Snatch animation sfx @done (2022-01-18 23:07)
 
 Cinematics:
   ✔ Menu screen cinematic @done (2022-01-15 23:10)

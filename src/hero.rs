@@ -77,6 +77,23 @@ impl Hero
 		if self.is_dead
 		{
 			self.num_death_ticks += 1;
+
+			if self.num_death_ticks == 22
+			{
+				sfx::snatch_pull();
+			}
+			else if self.num_death_ticks == 160
+			{
+				sfx::swallow();
+			}
+			else if self.num_death_ticks == 170
+			{
+				sfx::crunch();
+			}
+			else if self.num_death_ticks == 179
+			{
+				sfx::crunch();
+			}
 		}
 		else if is_scanning
 		{
@@ -137,8 +154,9 @@ impl Hero
 	pub fn become_grabbed(&mut self)
 	{
 		self.is_dead = true;
-		self.max_death_ticks = 150;
+		self.max_death_ticks = 180;
 		self.sprite.become_grabbed();
+		sfx::snatch_hit();
 	}
 
 	pub fn collapse(&mut self)

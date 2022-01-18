@@ -61,6 +61,11 @@ pub fn flatline()
 	);
 }
 
+pub fn flatline_quiet()
+{
+	tone(670, 100 | (4 << 8), 2, TONE_PULSE1 | TONE_MODE2);
+}
+
 pub fn footstep(frequency: u32)
 {
 	tone(frequency | (20 << 16), 4, 12, TONE_PULSE2);
@@ -69,4 +74,30 @@ pub fn footstep(frequency: u32)
 pub fn other_footstep(frequency: u32)
 {
 	tone(frequency | (20 << 16), 4, 6, TONE_PULSE2 | TONE_MODE2);
+}
+
+pub fn snatch_hit()
+{
+	tone(20 | (40 << 16), (8 << 24) | (8 << 8), 40, TONE_PULSE2);
+}
+
+pub fn snatch_pull()
+{
+	tone(20, (12 << 24) | (18 << 16) | 4 | (8 << 8), 40, TONE_PULSE2);
+}
+
+pub fn crunch()
+{
+	tone(5 | (2 << 16), 20 << 16, 80, TONE_PULSE2);
+}
+
+pub fn swallow()
+{
+	tone(140 | (80 << 16), (4 << 24) | 4, 80, TONE_NOISE);
+}
+
+#[allow(unused)]
+pub fn something()
+{
+	tone(10, (12 << 24) | (18 << 16) | 4 | 28, 40, TONE_PULSE2);
 }

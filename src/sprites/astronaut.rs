@@ -170,7 +170,7 @@ impl Animation
 			AnimationTag::Hanging =>
 			{
 				self.hang_height += 1;
-				if self.hang_height > 160
+				if self.hang_height > 190
 				{
 					self.tag = AnimationTag::Gone;
 				}

@@ -48,6 +48,7 @@ pub struct Level
 	right_door_height: u32,
 	first_hero_number: u8,
 	max_col_reached: u8,
+	respawn_ticks: u8,
 	heart_ticks: u8,
 	current_heart_rate_in_ticks: u8,
 	target_heart_rate_in_ticks: u8,
@@ -83,6 +84,7 @@ impl Level
 			right_door_height: 0,
 			first_hero_number: hero_number,
 			max_col_reached: 0,
+			respawn_ticks: 0,
 			heart_ticks: 0,
 			current_heart_rate_in_ticks: NORMAL_HEART_RATE_IN_TICKS,
 			target_heart_rate_in_ticks: NORMAL_HEART_RATE_IN_TICKS,
@@ -98,13 +100,6 @@ impl Level
 			self.hero.is_alive() && (gamepad & BUTTON_2 != 0);
 		if self.dialog.is_some() && (gamepad & BUTTON_1 != 0)
 		{
-			if !self.hero.is_visible()
-			{
-				self.hero = Hero::new(self.hero.number.wrapping_add(1));
-				self.heart_ticks = 0;
-				self.current_heart_rate_in_ticks = NORMAL_HEART_RATE_IN_TICKS;
-				self.target_heart_rate_in_ticks = NORMAL_HEART_RATE_IN_TICKS;
-			}
 			self.dialog = None;
 		}
 
@@ -150,8 +145,7 @@ impl Level
 							self.hero.health = 0;
 							self.hero.collapse();
 							sfx::flatline();
-							self.current_heart_rate_in_ticks = 0;
-							self.target_heart_rate_in_ticks = 0;
+							self.respawn_ticks = 60;
 						}
 					}
 					else
@@ -185,6 +179,26 @@ impl Level
 			}
 		}
 
+		if self.hero.num_death_ticks == 175
+		{
+			self.hero.health = 0;
+			sfx::flatline_quiet();
+			self.respawn_ticks = 60;
+		}
+		else if self.hero.num_death_ticks >= 170
+		{
+			if self.hero.health > 19
+			{
+				self.hero.health -= 19;
+			}
+		}
+
+		if self.hero.health == 0
+		{
+			self.current_heart_rate_in_ticks = 0;
+			self.target_heart_rate_in_ticks = 0;
+		}
+
 		if self.current_heart_rate_in_ticks > 0
 		{
 			if self.heart_ticks > 0
@@ -193,10 +207,10 @@ impl Level
 			}
 			else
 			{
-				self.current_heart_rate_in_ticks = (self
-					.current_heart_rate_in_ticks
-					+ self.target_heart_rate_in_ticks
-					+ 1) / 2;
+				self.current_heart_rate_in_ticks = ((3
+					+ self.current_heart_rate_in_ticks as u32
+					+ (3 * self.target_heart_rate_in_ticks as u32))
+					/ 4) as u8;
 				self.heart_ticks = self.current_heart_rate_in_ticks;
 				if (self.current_heart_rate_in_ticks
 					< NORMAL_HEART_RATE_IN_TICKS
@@ -216,12 +230,16 @@ impl Level
 				self.dialog = self.dialog_tree.on_first_death;
 			}
 
-			if self.dialog.is_none()
+			if self.respawn_ticks == 0
 			{
 				self.hero = Hero::new(self.hero.number.wrapping_add(1));
 				self.heart_ticks = 0;
 				self.current_heart_rate_in_ticks = NORMAL_HEART_RATE_IN_TICKS;
 				self.target_heart_rate_in_ticks = NORMAL_HEART_RATE_IN_TICKS;
+			}
+			else if self.dialog.is_none()
+			{
+				self.respawn_ticks -= 1;
 			}
 		}
 
