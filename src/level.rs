@@ -103,6 +103,14 @@ impl Level
 		if self.dialog.is_some() && (gamepad & BUTTON_1 != 0)
 		{
 			self.dialog = None;
+			if !self.hero.is_visible()
+			{
+				self.hero = Hero::new(self.hero.number.wrapping_add(1));
+				self.heart_ticks = 0;
+				self.current_heart_rate_in_ticks = NORMAL_HEART_RATE_IN_TICKS;
+				self.target_heart_rate_in_ticks = NORMAL_HEART_RATE_IN_TICKS;
+				self.signal_percentage = 99;
+			}
 		}
 
 		let geometry = self.determine_geometry();
@@ -490,7 +498,7 @@ impl Level
 
 			unsafe { *DRAW_COLORS = 1 };
 			let i = (self.hero.number as usize) % NUM_NAMES;
-			let j = (self.hero.number.wrapping_add(1) as usize) & NUM_NAMES;
+			let j = (self.hero.number.wrapping_add(1) as usize) % NUM_NAMES;
 			if dialog.is_self
 			{
 				text(format!("{} >> {}", NAMES[i], NAMES[j]), 5, 140);
@@ -516,6 +524,13 @@ impl Level
 				5,
 				140,
 			);
+
+			unsafe { *DRAW_COLORS = 2 };
+			let depth_in_px = (self.field_offset as i32) * 216 + self.hero.x;
+			let snatch_h = std::cmp::min(self.hero.num_death_ticks, 150);
+			let depth =
+				std::cmp::max(0, depth_in_px) / 8 - (snatch_h / 10) as i32;
+			text(format!("{:03} m", depth), 5, 150);
 
 			if self.hero.is_alive() && self.signal_percentage < 90
 			{
