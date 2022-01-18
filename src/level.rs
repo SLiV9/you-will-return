@@ -102,7 +102,7 @@ impl Level
 			{
 				self.hero = Hero::new(self.hero.number.wrapping_add(1));
 				self.heart_ticks = 0;
-				self.current_heart_rate_in_ticks = 180;
+				self.current_heart_rate_in_ticks = NORMAL_HEART_RATE_IN_TICKS;
 				self.target_heart_rate_in_ticks = NORMAL_HEART_RATE_IN_TICKS;
 			}
 			self.dialog = None;
@@ -193,9 +193,10 @@ impl Level
 			}
 			else
 			{
-				self.current_heart_rate_in_ticks =
-					self.current_heart_rate_in_ticks / 2
-						+ (self.target_heart_rate_in_ticks + 1) / 2;
+				self.current_heart_rate_in_ticks = (self
+					.current_heart_rate_in_ticks
+					+ self.target_heart_rate_in_ticks
+					+ 1) / 2;
 				self.heart_ticks = self.current_heart_rate_in_ticks;
 				if (self.current_heart_rate_in_ticks
 					< NORMAL_HEART_RATE_IN_TICKS
@@ -219,7 +220,7 @@ impl Level
 			{
 				self.hero = Hero::new(self.hero.number.wrapping_add(1));
 				self.heart_ticks = 0;
-				self.current_heart_rate_in_ticks = 180;
+				self.current_heart_rate_in_ticks = NORMAL_HEART_RATE_IN_TICKS;
 				self.target_heart_rate_in_ticks = NORMAL_HEART_RATE_IN_TICKS;
 			}
 		}
@@ -473,15 +474,15 @@ impl Level
 					/ (self.current_heart_rate_in_ticks as i32);
 				for t in 0..16
 				{
-					let (y, h) = if t == t_of_beat
+					let (y, h) = if t + 4 == t_of_beat
 					{
 						(150, 5)
 					}
-					else if t == t_of_beat - 1
+					else if t + 5 == t_of_beat
 					{
 						(155, 1)
 					}
-					else if t == t_of_beat + 1
+					else if t + 3 == t_of_beat
 					{
 						(155, 2)
 					}

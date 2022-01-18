@@ -35,14 +35,16 @@ Sprites:
     ☐ And creatures that look like floating corpses
 
 Audio:
-  ☐ Interference on flag tiles
+  ✔ Interference on flag tiles @done (2022-01-18 22:11)
   ☐ Brown noise that gets louder
   ✔ Heartbeat @done (2022-01-18 19:22)
-  ☐ Breathing
+  ✘ Breathing @cancelled (2022-01-18 22:11)
   ☐ Alien sounds
   ✔ Sound of massive doors opening and closing @done (2022-01-18 17:05)
   ☐ Water drips (?)
   ☐ Ambient "music"
+  ✔ Footsteps @done (2022-01-18 22:33)
+  ☐ Snatch animation sfx
 
 Cinematics:
   ✔ Menu screen cinematic @done (2022-01-15 23:10)

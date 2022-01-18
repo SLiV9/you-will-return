@@ -60,3 +60,13 @@ pub fn flatline()
 		TONE_PULSE1 | TONE_MODE2,
 	);
 }
+
+pub fn footstep(frequency: u32)
+{
+	tone(frequency | (20 << 16), 4, 12, TONE_PULSE2);
+}
+
+pub fn other_footstep(frequency: u32)
+{
+	tone(frequency | (20 << 16), 4, 6, TONE_PULSE2 | TONE_MODE2);
+}

@@ -4,6 +4,7 @@
 // License: MIT
 //
 
+use crate::sfx;
 use crate::sprites;
 use crate::wasm4::*;
 
@@ -18,6 +19,7 @@ pub struct Hero
 	pub is_dead: bool,
 	pub num_death_ticks: u32,
 	pub max_death_ticks: u32,
+	move_audio_ticks: u32,
 	sprite: sprites::astronaut::Animation,
 }
 
@@ -57,6 +59,7 @@ impl Hero
 			is_dead: false,
 			num_death_ticks: 0,
 			max_death_ticks: 0,
+			move_audio_ticks: 0,
 			sprite: sprites::astronaut::Animation::new(),
 		}
 	}
@@ -116,6 +119,18 @@ impl Hero
 		else
 		{
 			self.sprite.idle();
+		}
+
+		if self.sprite.is_running()
+		{
+			self.move_audio_ticks += 1;
+			if self.move_audio_ticks > 10
+			{
+				self.move_audio_ticks = 0;
+				sfx::footstep(
+					150 + 4 * (self.x % 7) as u32 + 3 * (self.y % 9) as u32,
+				);
+			}
 		}
 	}
 

@@ -287,6 +287,18 @@ impl Animation
 			_ => true,
 		}
 	}
+
+	pub fn is_running(&self) -> bool
+	{
+		match self.tag
+		{
+			AnimationTag::RunLeft
+			| AnimationTag::RunRight
+			| AnimationTag::RunUp
+			| AnimationTag::RunDown => true,
+			_ => false,
+		}
+	}
 }
 
 const ASTRONAUT_WIDTH: u32 = 12;
