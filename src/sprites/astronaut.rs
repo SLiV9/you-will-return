@@ -239,6 +239,32 @@ impl Animation
 		};
 		let offset: u32 = start + (self.frame as u32);
 
+		match self.tag
+		{
+			AnimationTag::Grabbed | AnimationTag::Hanging =>
+			{
+				if self.hang_height > 20
+				{
+					let r = std::cmp::min(25, self.hang_height - 20) as i32
+						+ (2 * ((self.hang_height as i32) / 6) % 3);
+					unsafe { *DRAW_COLORS = 0x11 };
+					let yy = y - 4 - (self.hang_height as i32);
+					oval(x - r / 2, yy - r / 2, r as u32, r as u32);
+				}
+
+				let y_of_grab = y - 3;
+				if (self.hang_height as i32) < y_of_grab
+				{
+					let len = (y_of_grab - (self.hang_height as i32)) as u32;
+					unsafe { *DRAW_COLORS = 1 };
+					rect(x - 2, 0, 3, len);
+					unsafe { *DRAW_COLORS = 2 };
+					vline(x - 1, 0, len);
+				}
+			}
+			_ => (),
+		}
+
 		unsafe { *DRAW_COLORS = 0x1320 };
 		blit_sub(
 			&ASTRONAUT_SHEET,
@@ -251,21 +277,6 @@ impl Animation
 			ASTRONAUT_SHEET_WIDTH,
 			BLIT_2BPP,
 		);
-
-		match self.tag
-		{
-			AnimationTag::Grabbed | AnimationTag::Hanging =>
-			{
-				let y_of_grab = y - 3;
-				if (self.hang_height as i32) < y_of_grab
-				{
-					let len = (y_of_grab - (self.hang_height as i32)) as u32;
-					unsafe { *DRAW_COLORS = 2 };
-					vline(x - 1, 0, len);
-				}
-			}
-			_ => (),
-		}
 	}
 
 	pub fn is_visible(&self) -> bool
