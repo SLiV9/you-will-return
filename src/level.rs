@@ -52,6 +52,7 @@ pub struct Level
 	heart_ticks: u8,
 	current_heart_rate_in_ticks: u8,
 	target_heart_rate_in_ticks: u8,
+	signal_percentage: u8,
 }
 
 impl Level
@@ -88,6 +89,7 @@ impl Level
 			heart_ticks: 0,
 			current_heart_rate_in_ticks: NORMAL_HEART_RATE_IN_TICKS,
 			target_heart_rate_in_ticks: NORMAL_HEART_RATE_IN_TICKS,
+			signal_percentage: 99,
 		}
 	}
 
@@ -127,6 +129,16 @@ impl Level
 						|| self.target_heart_rate_in_ticks
 							> FATAL_HEART_RATE_IN_TICKS)
 				{
+					self.signal_percentage = if strength < 3
+					{
+						100 - strength * 40
+							+ ((7 * (self.ticks / 30)) % 23) as u8
+					}
+					else
+					{
+						((7 * (self.ticks / 30)) % 13) as u8
+					};
+
 					if strength > 1 && self.is_big_light_on
 					{
 						sfx::interference(50);
@@ -150,7 +162,7 @@ impl Level
 					}
 					else if strength > 1
 					{
-						sfx::interference(6 * strength as u32);
+						sfx::interference(4 + 4 * strength as u32);
 						self.target_heart_rate_in_ticks = 60 / strength;
 					}
 					else
@@ -163,6 +175,8 @@ impl Level
 				{
 					self.target_heart_rate_in_ticks =
 						NORMAL_HEART_RATE_IN_TICKS;
+					self.signal_percentage =
+						95 + ((2 * (self.ticks / 30)) % 5) as u8;
 				}
 			}
 
@@ -242,6 +256,7 @@ impl Level
 				self.heart_ticks = 0;
 				self.current_heart_rate_in_ticks = NORMAL_HEART_RATE_IN_TICKS;
 				self.target_heart_rate_in_ticks = NORMAL_HEART_RATE_IN_TICKS;
+				self.signal_percentage = 99;
 			}
 			else if self.dialog.is_none()
 			{
@@ -501,7 +516,26 @@ impl Level
 				5,
 				140,
 			);
-			if self.target_heart_rate_in_ticks < NORMAL_HEART_RATE_IN_TICKS
+
+			if self.hero.is_alive() && self.signal_percentage < 90
+			{
+				unsafe { *DRAW_COLORS = 3 };
+			}
+			else
+			{
+				unsafe { *DRAW_COLORS = 2 };
+			}
+			for bar in 0..4
+			{
+				if self.signal_percentage >= 25 * bar
+				{
+					let h = (bar as u32) + 1;
+					vline(65 + 2 * (bar as i32), 156 - h as i32, h);
+				}
+			}
+			text(format!("{:>2}%", self.signal_percentage), 77, 150);
+
+			if self.target_heart_rate_in_ticks <= FATAL_HEART_RATE_IN_TICKS
 			{
 				unsafe { *DRAW_COLORS = 3 };
 			}
