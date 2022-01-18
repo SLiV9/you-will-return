@@ -5,6 +5,7 @@
 //
 
 use crate::palette;
+use crate::sfx;
 use crate::sprites;
 use crate::wasm4::*;
 
@@ -91,6 +92,18 @@ impl Cutscene
 					}
 					else if progress >= t + 1
 					{
+						match line.chars().nth(progress - t)
+						{
+							Some(' ') | None => (),
+							Some(_) =>
+							{
+								if (self.ticks % 7) == 0
+								{
+									sfx::text_beep();
+								}
+							}
+						}
+
 						text(line, x, y);
 						unsafe { *DRAW_COLORS = 0x33 };
 						let xx = (x as usize) + 8 * (progress - t);
@@ -111,6 +124,28 @@ impl Cutscene
 			}
 			Tag::Entry =>
 			{
+				if self.ticks == 50
+				{
+					sfx::door_jolt();
+				}
+				else if self.ticks == 100
+				{
+					sfx::door_opening();
+				}
+				else if self.ticks == 224
+				{
+					sfx::door_opened();
+				}
+				else if self.ticks == 244
+				{
+					sfx::door_echo(60);
+				}
+				else if self.ticks == 264
+				{
+					self.is_done = true;
+					sfx::door_echo(30);
+				}
+
 				unsafe { *PALETTE = palette::ENTRY };
 				let w = if self.ticks < 50
 				{
@@ -120,23 +155,22 @@ impl Cutscene
 				{
 					2
 				}
-				else if self.ticks < 120
+				else if self.ticks < 116
 				{
-					std::cmp::min(2 + (self.ticks - 100) / 4, 140)
+					2 + (self.ticks - 100) / 4
 				}
-				else if self.ticks < 140
+				else if self.ticks < 124
 				{
-					std::cmp::min(7 + (self.ticks - 120) / 2, 140)
+					6 + (self.ticks - 116) / 2
+				}
+				else if self.ticks < 224
+				{
+					10 + (self.ticks - 124)
 				}
 				else
 				{
-					std::cmp::min(17 + (self.ticks - 140), 140)
+					110
 				};
-
-				if w >= 140
-				{
-					self.is_done = true;
-				}
 
 				if w > 2
 				{

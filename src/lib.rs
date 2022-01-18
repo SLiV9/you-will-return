@@ -18,6 +18,7 @@ mod hero;
 mod level;
 mod menu;
 mod palette;
+mod sfx;
 mod sprites;
 
 use cutscene::Cutscene;
