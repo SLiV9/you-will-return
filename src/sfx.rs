@@ -36,12 +36,27 @@ pub fn interference(volume: u32)
 	tone(230, 11, volume, TONE_NOISE);
 }
 
+pub fn heart_monitor()
+{
+	tone(670, 4 | (4 << 8), 4, TONE_PULSE1 | TONE_MODE2);
+}
+
 pub fn migraine()
 {
 	tone(
 		670,
 		(2 << 24) | (2 << 16) | 4 | (4 << 8),
 		8,
+		TONE_PULSE1 | TONE_MODE2,
+	);
+}
+
+pub fn flatline()
+{
+	tone(
+		670,
+		(2 << 24) | (2 << 16) | 100 | (4 << 8),
+		16,
 		TONE_PULSE1 | TONE_MODE2,
 	);
 }

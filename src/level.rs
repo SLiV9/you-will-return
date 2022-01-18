@@ -25,8 +25,12 @@ const PROXIMITY_LIGHT_HEIGHT: u32 = TILE_HEIGHT * 3 / 2;
 const Y_OF_FIELD: i32 = WALL_HEIGHT as i32 + 5;
 const X_OF_FIELD: i32 =
 	(SCREEN_SIZE as i32) / 2 - (((FIELD_WIDTH as u32) * TILE_WIDTH) as i32) / 2;
+const H_OF_FIELD: u32 = (FIELD_HEIGHT as u32) * (TILE_HEIGHT as u32);
 
 const CONFIDENCE_PERCENTAGE: u8 = 90;
+const NORMAL_HEART_RATE_IN_TICKS: u8 = 80;
+const TERRIFIED_HEART_RATE_IN_TICKS: u8 = 12;
+const FATAL_HEART_RATE_IN_TICKS: u8 = 10;
 
 pub struct Level
 {
@@ -44,6 +48,9 @@ pub struct Level
 	right_door_height: u32,
 	first_hero_number: u8,
 	max_col_reached: u8,
+	heart_ticks: u8,
+	current_heart_rate_in_ticks: u8,
+	target_heart_rate_in_ticks: u8,
 }
 
 impl Level
@@ -76,6 +83,9 @@ impl Level
 			right_door_height: 0,
 			first_hero_number: hero_number,
 			max_col_reached: 0,
+			heart_ticks: 0,
+			current_heart_rate_in_ticks: NORMAL_HEART_RATE_IN_TICKS,
+			target_heart_rate_in_ticks: NORMAL_HEART_RATE_IN_TICKS,
 		}
 	}
 
@@ -91,6 +101,9 @@ impl Level
 			if !self.hero.is_visible()
 			{
 				self.hero = Hero::new(self.hero.number.wrapping_add(1));
+				self.heart_ticks = 0;
+				self.current_heart_rate_in_ticks = 180;
+				self.target_heart_rate_in_ticks = NORMAL_HEART_RATE_IN_TICKS;
 			}
 			self.dialog = None;
 		}
@@ -101,39 +114,55 @@ impl Level
 
 		if let Some(pos) = self.get_hero_position()
 		{
-			if self.is_translating
-			{
-				self.field_work.activate(pos.row, pos.col);
-			}
-
 			if self.field.has_bomb_at_rc(pos.row, pos.col)
 			{
 				self.hero.become_grabbed();
+				self.target_heart_rate_in_ticks = TERRIFIED_HEART_RATE_IN_TICKS;
 			}
 			else
 			{
+				if self.is_translating
+				{
+					self.field_work.activate(pos.row, pos.col);
+				}
+
 				let strength = self.field.flag_count_from_rc(pos.row, pos.col);
-				if strength > 0 && (self.ticks % 10) == 0
+				if strength > 0
+					&& ((self.ticks % 10) == 0
+						|| self.target_heart_rate_in_ticks
+							> FATAL_HEART_RATE_IN_TICKS)
 				{
 					sfx::interference(5 * strength as u32);
 					if strength > 1 && self.is_big_light_on
 					{
-						sfx::migraine();
-					}
-				}
-
-				if strength > 1 && self.is_big_light_on
-				{
-					let damage = strength - 1;
-					if self.hero.health > damage
-					{
-						self.hero.health -= damage;
+						let damage = 3 * (strength - 1) + strength - 2;
+						if self.hero.health > damage
+						{
+							self.hero.health -= damage;
+							sfx::migraine();
+							self.current_heart_rate_in_ticks =
+								FATAL_HEART_RATE_IN_TICKS;
+							self.target_heart_rate_in_ticks =
+								FATAL_HEART_RATE_IN_TICKS;
+						}
+						else
+						{
+							self.hero.health = 0;
+							self.hero.collapse();
+							sfx::flatline();
+							self.current_heart_rate_in_ticks = 0;
+							self.target_heart_rate_in_ticks = 0;
+						}
 					}
 					else
 					{
-						self.hero.health = 0;
-						self.hero.collapse();
+						self.target_heart_rate_in_ticks = 150 / (strength + 2);
 					}
+				}
+				else if strength == 0
+				{
+					self.target_heart_rate_in_ticks =
+						NORMAL_HEART_RATE_IN_TICKS;
 				}
 			}
 
@@ -156,15 +185,42 @@ impl Level
 			}
 		}
 
+		if self.current_heart_rate_in_ticks > 0
+		{
+			if self.heart_ticks > 0
+			{
+				self.heart_ticks -= 1;
+			}
+			else
+			{
+				self.current_heart_rate_in_ticks =
+					self.current_heart_rate_in_ticks / 2
+						+ (self.target_heart_rate_in_ticks + 1) / 2;
+				self.heart_ticks = self.current_heart_rate_in_ticks;
+				if (self.current_heart_rate_in_ticks
+					< NORMAL_HEART_RATE_IN_TICKS
+					|| self.hero.health < 100)
+					&& self.current_heart_rate_in_ticks
+						> FATAL_HEART_RATE_IN_TICKS
+				{
+					sfx::heart_monitor();
+				}
+			}
+		}
+
 		if !self.hero.is_visible()
 		{
 			if self.hero.number == self.first_hero_number
 			{
 				self.dialog = self.dialog_tree.on_first_death;
 			}
-			else
+
+			if self.dialog.is_none()
 			{
 				self.hero = Hero::new(self.hero.number.wrapping_add(1));
+				self.heart_ticks = 0;
+				self.current_heart_rate_in_ticks = 180;
+				self.target_heart_rate_in_ticks = NORMAL_HEART_RATE_IN_TICKS;
 			}
 		}
 
@@ -211,7 +267,7 @@ impl Level
 			unsafe { *DRAW_COLORS = 0x22 };
 			if self.is_big_light_on
 			{
-				rect(0, 0, SCREEN_SIZE, SCREEN_SIZE);
+				rect(0, Y_OF_FIELD, SCREEN_SIZE, H_OF_FIELD);
 			}
 			else if self.hero.num_death_ticks == 0
 			{
@@ -251,8 +307,7 @@ impl Level
 			}
 			for i in [0, 1, 3, 5]
 			{
-				let y = Y_OF_FIELD
-					+ (FIELD_HEIGHT as i32) * (TILE_HEIGHT as i32) / 2
+				let y = Y_OF_FIELD + (H_OF_FIELD as i32) / 2
 					- (self.left_door_height as i32) / 2
 					+ i;
 				let h = (self.left_door_height as i32) - 2 * i;
@@ -267,8 +322,7 @@ impl Level
 			unsafe { *DRAW_COLORS = 2 };
 			for i in [0, 1, 3, 5]
 			{
-				let y = Y_OF_FIELD
-					+ (FIELD_HEIGHT as i32) * (TILE_HEIGHT as i32) / 2
+				let y = Y_OF_FIELD + (H_OF_FIELD as i32) / 2
 					- (self.right_door_height as i32) / 2
 					+ i;
 				let h = (self.right_door_height as i32) - 2 * i;
@@ -368,7 +422,7 @@ impl Level
 
 		unsafe { *DRAW_COLORS = 0x01 };
 		{
-			let yy = Y_OF_FIELD + (FIELD_HEIGHT as i32) * (TILE_HEIGHT as i32);
+			let yy = Y_OF_FIELD + (H_OF_FIELD as i32);
 			rect(0, yy, 160, 160 - HUD_HEIGHT - (yy as u32));
 		}
 
@@ -405,7 +459,43 @@ impl Level
 				5,
 				140,
 			);
-			unsafe { *DRAW_COLORS = 2 };
+			if self.target_heart_rate_in_ticks < NORMAL_HEART_RATE_IN_TICKS
+			{
+				unsafe { *DRAW_COLORS = 3 };
+			}
+			else
+			{
+				unsafe { *DRAW_COLORS = 2 };
+			}
+			if self.current_heart_rate_in_ticks > 0 && self.heart_ticks > 0
+			{
+				let t_of_beat: i32 = 20 * (self.heart_ticks as i32)
+					/ (self.current_heart_rate_in_ticks as i32);
+				for t in 0..16
+				{
+					let (y, h) = if t == t_of_beat
+					{
+						(150, 5)
+					}
+					else if t == t_of_beat - 1
+					{
+						(155, 1)
+					}
+					else if t == t_of_beat + 1
+					{
+						(155, 2)
+					}
+					else
+					{
+						(154, 1)
+					};
+					vline(113 + t, y, h);
+				}
+			}
+			else
+			{
+				hline(113, 154, 16);
+			}
 			text(format!("{:03}", self.hero.health), 133, 150);
 		}
 	}

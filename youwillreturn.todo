@@ -37,7 +37,7 @@ Sprites:
 Audio:
   ☐ Interference on flag tiles
   ☐ Brown noise that gets louder
-  ☐ Heartbeat
+  ✔ Heartbeat @done (2022-01-18 19:22)
   ☐ Breathing
   ☐ Alien sounds
   ✔ Sound of massive doors opening and closing @done (2022-01-18 17:05)
