@@ -27,7 +27,7 @@ const X_OF_FIELD: i32 =
 	(SCREEN_SIZE as i32) / 2 - (((FIELD_WIDTH as u32) * TILE_WIDTH) as i32) / 2;
 const H_OF_FIELD: u32 = (FIELD_HEIGHT as u32) * (TILE_HEIGHT as u32);
 
-const CONFIDENCE_PERCENTAGE: u8 = 90;
+const CONFIDENCE_PERCENTAGE: u8 = 100;
 const NORMAL_HEART_RATE_IN_TICKS: u8 = 80;
 const TERRIFIED_HEART_RATE_IN_TICKS: u8 = 12;
 const FATAL_HEART_RATE_IN_TICKS: u8 = 10;
@@ -44,6 +44,7 @@ pub struct Level
 	hero: Hero,
 	is_big_light_on: bool,
 	is_translating: bool,
+	last_translation_update: u8,
 	left_door_height: u32,
 	right_door_height: u32,
 	first_hero_number: u8,
@@ -82,6 +83,7 @@ impl Level
 			hero: Hero::new(hero_number),
 			is_big_light_on: false,
 			is_translating,
+			last_translation_update: 0,
 			left_door_height: (FIELD_HEIGHT as u32) * TILE_HEIGHT,
 			right_door_height: 0,
 			first_hero_number: hero_number,
@@ -104,19 +106,19 @@ impl Level
 			if self.dialog_ticks < 100
 			{
 				self.dialog_ticks += 1;
-				if self.dialog_ticks == 5
+				if self.dialog_ticks == 25
 				{
 					sfx::text_beep();
 				}
-				else if self.dialog_ticks == 10 && !dialog.is_self
+				else if self.dialog_ticks == 30 && !dialog.is_self
 				{
 					sfx::text_beep();
 				}
-				else if self.dialog_ticks == 15 && !dialog.is_self
+				else if self.dialog_ticks == 35 && !dialog.is_self
 				{
 					sfx::text_beep();
 				}
-				else if self.dialog_ticks == 20 && dialog.is_self
+				else if self.dialog_ticks == 40 && dialog.is_self
 				{
 					sfx::text_beep();
 				}
@@ -305,7 +307,14 @@ impl Level
 			}
 		}
 
-		if self.get_translation_progress_percentage() >= CONFIDENCE_PERCENTAGE
+		let translation_percentage = self.get_translation_progress_percentage();
+		if translation_percentage > self.last_translation_update
+		{
+			sfx::translation_update(translation_percentage);
+			self.last_translation_update = translation_percentage;
+		}
+
+		if translation_percentage >= CONFIDENCE_PERCENTAGE
 		{
 			if self.right_door_height == 0
 			{
@@ -418,6 +427,8 @@ impl Level
 			}
 		}
 
+		let progress = self.get_translation_progress_percentage() as usize;
+
 		let num_lines: usize = self
 			.communication
 			.untranslated
@@ -426,7 +437,6 @@ impl Level
 			.unwrap_or(NUM_LINES);
 		if num_lines > 0
 		{
-			let progress = self.get_translation_progress_percentage() as usize;
 			let y_start = 2 + (10 * (NUM_LINES - num_lines) / num_lines) as i32;
 			let chunk_size = (CONFIDENCE_PERCENTAGE as usize) / (2 * num_lines);
 			for i in 0..num_lines
@@ -537,12 +547,15 @@ impl Level
 			{
 				text(format!("{} >> {}", NAMES[i], NAMES[j]), 5, 140);
 			}
-			else
+			else if self.dialog_ticks > 20
 			{
 				text(format!("{} >> {}", NAMES[j], NAMES[i]), 5, 140);
-			};
+			}
 			text("X", 147, 140);
-			text(dialog.line, 5, 150);
+			if self.dialog_ticks > 20
+			{
+				text(dialog.line, 5, 150);
+			}
 		}
 		else
 		{
@@ -559,12 +572,53 @@ impl Level
 				140,
 			);
 
+			if self.is_translating
+			{
+				let x = 5;
+				let maxw = 45;
+				unsafe { *DRAW_COLORS = 0x22 };
+				rect(x, 150, maxw, 7);
+				let w = maxw * (progress as u32) / 100;
+				unsafe { *DRAW_COLORS = 0x33 };
+				if w > 0
+				{
+					rect(x, 150, w, 7);
+				}
+				unsafe { *DRAW_COLORS = 0x10 };
+				for i in 0..4
+				{
+					let seed = 48274771u32
+						.wrapping_add(self.field_offset as u32)
+						.wrapping_mul(68389231);
+					let xx = x + 7 + 8 * i;
+					let symbol = ((seed >> (8 * i)) & 0xFF) as u8;
+					sprites::alien_tile::draw(xx, 150, symbol);
+				}
+				unsafe { *DRAW_COLORS = 1 };
+				vline(x + 6, 150, 7);
+				hline(x + 1, 153, 4);
+				hline(x + maxw as i32 - 5, 153, 4);
+				unsafe { *DRAW_COLORS = 2 };
+				hline(x, 150, maxw);
+				hline(x, 156, maxw);
+				unsafe { *DRAW_COLORS = 3 };
+				if w > 0
+				{
+					hline(x, 150, w);
+					hline(x, 156, w);
+				}
+			}
+			else
+			{
+				text("!SYS4*", 5, 150);
+			}
+
 			unsafe { *DRAW_COLORS = 2 };
 			let depth_in_px = (self.field_offset as i32) * 216 + self.hero.x;
 			let snatch_h = std::cmp::min(self.hero.num_death_ticks, 150);
 			let depth =
 				std::cmp::max(0, depth_in_px) / 8 - (snatch_h / 10) as i32;
-			text(format!("{:03} m", depth), 5, 150);
+			text(format!("{:03}m", depth), 53, 150);
 
 			if self.hero.is_alive() && self.signal_percentage < 90
 			{
@@ -578,11 +632,11 @@ impl Level
 			{
 				if self.signal_percentage >= 25 * bar
 				{
-					let h = (bar as u32) + 1;
-					vline(65 + 2 * (bar as i32), 156 - h as i32, h);
+					let w = (bar as u32) + 1;
+					hline(87, 156 - 2 * (bar as i32), w);
 				}
 			}
-			text(format!("{:>2}%", self.signal_percentage), 77, 150);
+			text(format!("{:>2}%", self.signal_percentage), 93, 150);
 
 			if self.target_heart_rate_in_ticks <= FATAL_HEART_RATE_IN_TICKS
 			{
@@ -594,9 +648,9 @@ impl Level
 			}
 			if self.current_heart_rate_in_ticks > 0 && self.heart_ticks > 0
 			{
-				let t_of_beat: i32 = 20 * (self.heart_ticks as i32)
+				let t_of_beat: i32 = 16 * (self.heart_ticks as i32)
 					/ (self.current_heart_rate_in_ticks as i32);
-				for t in 0..16
+				for t in 0..13
 				{
 					let (y, h) = if t + 4 == t_of_beat
 					{
@@ -614,12 +668,12 @@ impl Level
 					{
 						(154, 1)
 					};
-					vline(113 + t, y, h);
+					vline(119 + t, y, h);
 				}
 			}
 			else
 			{
-				hline(113, 154, 16);
+				hline(119, 154, 13);
 			}
 			text(format!("{:03}", self.hero.health), 133, 150);
 		}
