@@ -142,8 +142,8 @@ impl Level
 		}
 
 		let geometry = self.determine_geometry();
-		let is_scanning = self.is_big_light_on || self.dialog.is_some();
-		self.hero.update(&geometry, is_scanning);
+		let is_looking_down = self.is_big_light_on || self.dialog.is_some();
+		self.hero.update(&geometry, is_looking_down);
 
 		if let Some(pos) = self.get_hero_position()
 		{
