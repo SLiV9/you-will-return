@@ -353,21 +353,38 @@ impl Level
 	{
 		unsafe { *PALETTE = palette::LEVEL };
 
-		let scan_interference =
+		let hero_position = self.get_hero_position();
+		let scan_interference = if let Some(pos) = &hero_position
+		{
+			self.field.flag_count_from_rc(pos.row, pos.col)
+		}
+		else
+		{
+			0
+		};
+		let heavy_scan_interference =
 			self.target_heart_rate_in_ticks == FATAL_HEART_RATE_IN_TICKS;
 
 		if self.hero.x > 0 && self.hero.x < SCREEN_SIZE as i32
 		{
 			let max = std::cmp::min(110, self.hero.max_death_ticks);
 			unsafe { *DRAW_COLORS = 0x22 };
-			if self.is_big_light_on && !scan_interference
+			if self.is_big_light_on && !heavy_scan_interference
 			{
 				rect(0, Y_OF_FIELD, SCREEN_SIZE, H_OF_FIELD);
 			}
 			else if self.hero.num_death_ticks == 0
 			{
-				let w = PROXIMITY_LIGHT_WIDTH;
-				let h = PROXIMITY_LIGHT_HEIGHT;
+				let percentage = if heavy_scan_interference
+				{
+					50
+				}
+				else
+				{
+					100 - 10 * (scan_interference as u32)
+				};
+				let w = PROXIMITY_LIGHT_WIDTH * percentage / 100;
+				let h = PROXIMITY_LIGHT_HEIGHT * percentage / 100;
 				let x = self.hero.x - (w as i32) / 2;
 				let y = self.hero.y - (h as i32) / 2;
 				oval(x, y, w, h);
@@ -472,7 +489,6 @@ impl Level
 			}
 		}
 
-		let hero_position = self.get_hero_position();
 		for r in 0..FIELD_HEIGHT
 		{
 			for c in 0..FIELD_WIDTH
@@ -490,7 +506,7 @@ impl Level
 					unsafe { *DRAW_COLORS = 0x01 };
 					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
 				}
-				else if scan_interference
+				else if heavy_scan_interference
 				{
 					unsafe { *DRAW_COLORS = 0x01 };
 					sprites::alien_tile::draw_tile(xx, yy, seed);
@@ -500,8 +516,25 @@ impl Level
 						rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
 						let count =
 							seed.wrapping_add((self.ticks as u32) / 10) % 4;
+						if count > 0
+						{
+							unsafe { *DRAW_COLORS = 0x13 };
+							text(format!("{}", count), xx + 4, yy + 4);
+						}
+					}
+				}
+				else if self.is_big_light_on
+					&& scan_interference > 0
+					&& self.field_work.is_visible_at_rc(r, c)
+				{
+					unsafe { *DRAW_COLORS = 0x01 };
+					sprites::alien_tile::draw_tile(xx, yy, seed);
+					unsafe { *DRAW_COLORS = 0x30 };
+					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
+					if (seed.wrapping_add((self.ticks as u32) / 22)) % 3 == 0
+					{
 						unsafe { *DRAW_COLORS = 0x13 };
-						text(format!("{}", count), xx + 4, yy + 4);
+						text("1", xx + 4, yy + 4);
 					}
 				}
 				else if self.field_work.is_visible_at_rc(r, c)
