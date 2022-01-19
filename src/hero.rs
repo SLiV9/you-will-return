@@ -31,18 +31,18 @@ pub struct Geometry
 	pub can_move_down: bool,
 }
 
-pub const NUM_NAMES: usize = 17;
+pub const NUM_NAMES: usize = 16;
 pub const NAMES: [&'static str; NUM_NAMES] = [
-	"WEIR", "ADAMS", "ZIMSKY", "PARKER", "SMITH", "MILLER", "KANE", "BLAIR",
-	"NORRIS", "PRICE", "MACE", "KANEDA", "HUDSON", "LELAND", "COOPER",
-	"DALLAS", "GORMAN",
+	"WEIR", "ADAMS", "ZIMSKY", "PARKER", "MILLER", "KANE", "BLAIR", "NORRIS",
+	"PRICE", "MACE", "KANEDA", "HUDSON", "LELAND", "COOPER", "DALLAS",
+	"GORMAN",
 ];
 
-pub const NUM_INITIALS: usize = 32;
+pub const NUM_INITIALS: usize = 31;
 pub const INITIALS: [&'static str; NUM_INITIALS] = [
-	"I", "S", "L", "M", "C", "G", "K", "J", "R", "D", "L", "B", "P", "T", "N",
-	"J", "M", "B", "H", "E", "R", "J", "T", "S", "D", "A", "F", "C", "A", "W",
-	"V", "K",
+	"D", "S", "L", "M", "C", "G", "K", "J", "R", "L", "B", "P", "T", "N", "J",
+	"M", "B", "H", "E", "R", "J", "T", "S", "D", "A", "F", "C", "A", "V", "K",
+	"E",
 ];
 
 impl Hero

@@ -224,7 +224,6 @@ impl Level
 					2 =>
 					{
 						self.dialog = self.dialog_tree.on_col_2;
-
 						self.dialog_ticks = 0;
 					}
 					4 =>
@@ -288,6 +287,7 @@ impl Level
 		if !self.hero.is_visible()
 		{
 			if self.hero.number == self.first_hero_number
+				&& self.dialog.is_none()
 			{
 				self.dialog = self.dialog_tree.on_first_death;
 				self.dialog_ticks = 0;
