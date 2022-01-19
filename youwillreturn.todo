@@ -49,7 +49,7 @@ Audio:
   ☐ Ambient "music"
   ✔ Footsteps @done (2022-01-18 22:33)
   ✔ Snatch animation sfx @done (2022-01-18 23:07)
-  ☐ Scanning sounds
+  ✘ Scanning sounds @cancelled (2022-01-19 22:42)
 
 Cinematics:
   ☐ Explain pressing Z to scan
@@ -62,3 +62,4 @@ Cinematics:
 Polish:
   ☐ HEAT DEATH style title font (?)
   ☐ CREDITS
+  ☐ Icon / favicon

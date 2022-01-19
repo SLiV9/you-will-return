@@ -4,15 +4,22 @@
 // License: MIT
 //
 
+use crate::field::NUM_FIELDS;
 use crate::palette;
 use crate::sprites::stars;
+use crate::sprites::vault_icon;
 use crate::wasm4::*;
 
 pub struct Menu
 {
 	ticks: u32,
+	quick_start_offset: Option<u8>,
+	is_scanning: bool,
 	is_starting: bool,
+	previous_gamepad: u8,
 }
+
+const NUM_INTRO_ANIMATION_TICKS: u32 = 260;
 
 impl Menu
 {
@@ -20,13 +27,17 @@ impl Menu
 	{
 		Self {
 			ticks: 0,
+			quick_start_offset: None,
+			is_scanning: false,
 			is_starting: false,
+			previous_gamepad: 0,
 		}
 	}
 
 	pub fn update(&mut self) -> Option<Transition>
 	{
 		self.ticks += 1;
+		self.is_scanning = false;
 
 		if !self.is_starting
 		{
@@ -38,13 +49,62 @@ impl Menu
 			}
 			else if gamepad & BUTTON_2 != 0
 			{
-				return Some(Transition::Test);
+				if self.ticks > NUM_INTRO_ANIMATION_TICKS
+				{
+					self.is_scanning = true;
+				}
+				else
+				{
+					self.ticks += 4;
+				}
 			}
+
+			if self.is_scanning || self.quick_start_offset.is_some()
+			{
+				if (gamepad & BUTTON_LEFT != 0)
+					&& (self.previous_gamepad & BUTTON_LEFT == 0)
+				{
+					match self.quick_start_offset
+					{
+						Some(offset) =>
+						{
+							if (offset as usize) + 1 < NUM_FIELDS
+							{
+								self.quick_start_offset = Some(offset + 1);
+							}
+						}
+						None => self.quick_start_offset = Some(0),
+					}
+				}
+				else if (gamepad & BUTTON_RIGHT != 0)
+					&& (self.previous_gamepad & BUTTON_RIGHT == 0)
+				{
+					match self.quick_start_offset
+					{
+						Some(offset) =>
+						{
+							if offset > 0
+							{
+								self.quick_start_offset = Some(offset - 1);
+							}
+							else
+							{
+								self.quick_start_offset = None;
+							}
+						}
+						None => (),
+					}
+				}
+			}
+
+			self.previous_gamepad = gamepad;
 		}
 
 		if self.is_starting && self.ticks > 30
 		{
-			Some(Transition::Start)
+			Some(Transition::Start {
+				quick_start_offset: self.quick_start_offset,
+			})
 		}
 		else
 		{
@@ -132,16 +192,62 @@ impl Menu
 			text("RETURN", 92, 40);
 		}
 
-		if self.ticks > 260
+		if self.ticks > NUM_INTRO_ANIMATION_TICKS
+		{
+			unsafe { *DRAW_COLORS = 3 }
+			text("Hold Z to scan", 3, 140);
+		}
+
+		if self.ticks > NUM_INTRO_ANIMATION_TICKS + 30
 		{
 			unsafe { *DRAW_COLORS = 3 }
 			text("Press X to start", 3, 150);
+		}
+
+		if (self.is_scanning || self.quick_start_offset.is_some())
+			&& !self.is_starting
+		{
+			let x = 88;
+			let y = 113;
+			if self.quick_start_offset.is_none()
+			{
+				if (self.ticks % 30) < 15
+				{
+					unsafe { *DRAW_COLORS = 0x32 };
+					rect(x - 6, y - 7, 12, 10);
+				}
+				unsafe { *DRAW_COLORS = 0x42 };
+			}
+			else
+			{
+				unsafe { *DRAW_COLORS = 0x32 };
+			}
+			vault_icon::draw(x, y);
+			for offset in 0..NUM_FIELDS
+			{
+				if self.quick_start_offset == Some(offset as u8)
+				{
+					if (self.ticks % 30) < 15
+					{
+						unsafe { *DRAW_COLORS = 0x33 };
+						hline(x - 12 - 6 * (offset as i32), y + 1, 5);
+					}
+					unsafe { *DRAW_COLORS = 0x44 };
+				}
+				else
+				{
+					unsafe { *DRAW_COLORS = 0x33 };
+				}
+				oval(x - 12 - 6 * (offset as i32), y - 5, 5, 5);
+			}
 		}
 	}
 }
 
 pub enum Transition
 {
-	Start,
-	Test,
+	Start
+	{
+		quick_start_offset: Option<u8>
+	},
 }

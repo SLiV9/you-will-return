@@ -23,7 +23,7 @@ pub const COMMUNICATIONS: [Communication; NUM_FIELDS] = [
 	},
 	Communication {
 		untranslated: ["DIT X", "PRAAT", "DNGR PRAAT", ""],
-		rough: ["this <copula>", "send/give/convey?", "power? send", ""],
+		rough: ["this is", "send/give/convey?", "power? send", ""],
 		confident: ["THIS IS", "A GIFT", "A GIFT OF ENERGY", ""],
 	},
 	Communication {

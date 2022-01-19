@@ -59,10 +59,14 @@ fn update()
 			let transition = menu.update();
 			match transition
 			{
-				Some(menu::Transition::Start) => Some(Progress::Prologue),
-				Some(menu::Transition::Test) => Some(Progress::Level {
-					field_offset: 255,
-					hero_number: 255,
+				Some(menu::Transition::Start {
+					quick_start_offset: None,
+				}) => Some(Progress::Prologue),
+				Some(menu::Transition::Start {
+					quick_start_offset: Some(offset),
+				}) => Some(Progress::Level {
+					field_offset: offset,
+					hero_number: 1,
 				}),
 				None => None,
 			}
