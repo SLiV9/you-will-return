@@ -18,6 +18,7 @@ mod hero;
 mod level;
 mod menu;
 mod palette;
+mod save_data;
 mod sfx;
 mod sprites;
 
@@ -25,11 +26,13 @@ use cutscene::Cutscene;
 use global_state::Wrapper;
 use level::Level;
 use menu::Menu;
+use save_data::SaveData;
 
-static GAME: Wrapper<Game> = Wrapper::new(Game::Menu(Menu::new()));
+static GAME: Wrapper<Game> = Wrapper::new(Game::Loading);
 
 enum Game
 {
+	Loading,
 	Menu(Menu),
 	Cutscene(Cutscene),
 	Level(Level),
@@ -54,6 +57,7 @@ fn update()
 	let game = GAME.get_mut();
 	let transition = match game
 	{
+		Game::Loading => Some(Progress::Menu),
 		Game::Menu(menu) =>
 		{
 			let transition = menu.update();
@@ -107,7 +111,8 @@ fn update()
 	{
 		Some(Progress::Menu) =>
 		{
-			*game = Game::Menu(Menu::new());
+			let save_data = SaveData::loaded();
+			*game = Game::Menu(Menu::new(save_data.max_field_offset_reached));
 		}
 		Some(Progress::Prologue) =>
 		{
@@ -122,6 +127,12 @@ fn update()
 			hero_number,
 		}) =>
 		{
+			let mut save_data = SaveData::loaded();
+			save_data.max_field_offset_reached =
+				std::cmp::max(save_data.max_field_offset_reached, field_offset);
+			save_data.current_hero_number = hero_number;
+			save_data.save();
+
 			*game = Game::Level(Level::new(field_offset, hero_number));
 		}
 		None => (),
@@ -129,6 +140,7 @@ fn update()
 
 	match game
 	{
+		Game::Loading => (),
 		Game::Menu(menu) => menu.draw(),
 		Game::Cutscene(cutscene) => cutscene.draw(),
 		Game::Level(level) => level.draw(),

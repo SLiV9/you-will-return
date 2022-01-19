@@ -13,6 +13,7 @@ use crate::wasm4::*;
 pub struct Menu
 {
 	ticks: u32,
+	max_field_offset_reached: u8,
 	quick_start_offset: Option<u8>,
 	is_scanning: bool,
 	is_starting: bool,
@@ -23,10 +24,11 @@ const NUM_INTRO_ANIMATION_TICKS: u32 = 260;
 
 impl Menu
 {
-	pub const fn new() -> Self
+	pub fn new(max_field_offset_reached: u8) -> Self
 	{
 		Self {
 			ticks: 0,
+			max_field_offset_reached,
 			quick_start_offset: None,
 			is_scanning: false,
 			is_starting: false,
@@ -73,6 +75,7 @@ impl Menu
 								self.quick_start_offset = Some(offset + 1);
 							}
 						}
+						None if self.max_field_offset_reached == 0 => (),
 						None => self.quick_start_offset = Some(0),
 					}
 				}
@@ -223,9 +226,17 @@ impl Menu
 				unsafe { *DRAW_COLORS = 0x32 };
 			}
 			vault_icon::draw(x, y);
-			for offset in 0..NUM_FIELDS
+			let num = if self.max_field_offset_reached == 0
 			{
-				if self.quick_start_offset == Some(offset as u8)
+				0
+			}
+			else
+			{
+				self.max_field_offset_reached + 1
+			};
+			for offset in 0..num
+			{
+				if self.quick_start_offset == Some(offset)
 				{
 					if (self.ticks % 30) < 15
 					{
