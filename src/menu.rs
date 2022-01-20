@@ -71,7 +71,7 @@ impl Menu
 					{
 						Some(offset) =>
 						{
-							if (offset as usize) + 1 <= NUM_FIELDS
+							if offset + 1 <= self.max_field_offset_reached
 							{
 								self.quick_start_offset = Some(offset + 1);
 							}
@@ -256,20 +256,23 @@ impl Menu
 				}
 				rect(x - 10 - 4 * (offset as i32), y - 5, 3, 6);
 			}
-			if self.quick_start_offset == Some(NUM_FIELDS as u8)
+			if self.max_field_offset_reached >= NUM_FIELDS as u8
 			{
-				if (self.ticks % 30) < 15
+				if self.quick_start_offset == Some(NUM_FIELDS as u8)
 				{
-					unsafe { *DRAW_COLORS = 0x33 };
-					hline(x - 17 - 4 * (NUM_FIELDS as i32), y + 2, 9);
+					if (self.ticks % 30) < 15
+					{
+						unsafe { *DRAW_COLORS = 0x33 };
+						hline(x - 17 - 4 * (NUM_FIELDS as i32), y + 2, 9);
+					}
+					unsafe { *DRAW_COLORS = 0x42 };
 				}
-				unsafe { *DRAW_COLORS = 0x42 };
+				else
+				{
+					unsafe { *DRAW_COLORS = 0x32 };
+				}
+				inner_doors_icon::draw(x - 13 - 4 * (NUM_FIELDS as i32), y);
 			}
-			else
-			{
-				unsafe { *DRAW_COLORS = 0x32 };
-			}
-			inner_doors_icon::draw(x - 13 - 4 * (NUM_FIELDS as i32), y);
 		}
 	}
 }

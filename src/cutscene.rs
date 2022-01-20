@@ -211,6 +211,13 @@ impl Cutscene
 			}
 			Tag::Reveal =>
 			{
+				let heart_rate_in_ticks =
+					if self.ticks > 250 { 10 } else { 12 };
+				if self.ticks % heart_rate_in_ticks == 0
+				{
+					sfx::heart_monitor();
+				}
+
 				if self.ticks == 50
 				{
 					sfx::door_jolt();

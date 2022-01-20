@@ -121,6 +121,14 @@ fn update()
 				Some(transition)
 					if transition.field_offset >= NUM_FIELDS as u8 =>
 				{
+					let mut save_data = SaveData::loaded();
+					save_data.max_field_offset_reached = std::cmp::max(
+						save_data.max_field_offset_reached,
+						transition.field_offset,
+					);
+					save_data.current_hero_number = transition.hero_number;
+					save_data.save();
+
 					Some(Progress::Reveal)
 				}
 				Some(transition) => Some(Progress::Level(transition)),

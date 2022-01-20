@@ -12,6 +12,7 @@ Mechanics:
     ✔ Keep health between levels @done (2022-01-20 01:16)
   ✔ Translation changes as player progresses through a level @done (2022-01-16 23:16)
   ✔ Save progress (NEW GAME / CONTINUE) @done (2022-01-20 00:18)
+  ☐ Walk slower if you've taken damage
 
 Content:
   ☐ Ten levels

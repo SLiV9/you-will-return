@@ -118,7 +118,7 @@ impl FieldWork
 	}
 }
 
-pub const NUM_FIELDS: usize = 6;
+pub const NUM_FIELDS: usize = 7;
 pub const FIELDS: [Field; NUM_FIELDS] = [
 	F_EMPTY_HALLWAY,
 	F_CENTER_WALL,
@@ -126,6 +126,7 @@ pub const FIELDS: [Field; NUM_FIELDS] = [
 	F_FIRST_BOMB,
 	F_DOUBLE_BOMB,
 	F_J_SHAPE,
+	F_FINAL_ROOM,
 ];
 
 const fn generate_flag_data(
@@ -340,6 +341,26 @@ const F_DIAGONAL: Field = {
 		0b00001101,
 		0b00010001,
 		0b00000111,
+	];
+	Field::generate(WALL_DATA, BOMB_DATA)
+};
+
+const F_FINAL_ROOM: Field = {
+	#[rustfmt::skip]
+	const WALL_DATA: [u8; WALL_DATA_SIZE] = [
+		0b00011111,
+		0b00001110,
+		0b00000000,
+		0b00001110,
+		0b00011111,
+	];
+	#[rustfmt::skip]
+	const BOMB_DATA: [u8; BOMB_DATA_SIZE] = [
+		0b11100000,
+		0b10110001,
+		0b11111111,
+		0b10110001,
+		0b11100000,
 	];
 	Field::generate(WALL_DATA, BOMB_DATA)
 };

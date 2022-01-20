@@ -157,7 +157,21 @@ impl Level
 
 		if let Some(pos) = self.get_hero_position()
 		{
-			if self.field.has_bomb_at_rc(pos.row, pos.col)
+			if self.field_offset == (NUM_FIELDS - 1) as u8
+			{
+				if self.is_translating
+					&& !self.field.has_bomb_at_rc(pos.row, pos.col)
+				{
+					self.field_work.activate(pos.row, pos.col);
+				}
+
+				let strength = 1 + (pos.col + 1) / 2;
+				sfx::interference(4 + 4 * strength as u32);
+				self.target_heart_rate_in_ticks = 60 / strength;
+				self.signal_percentage =
+					95 - 13 * (pos.col) + ((2 * (self.ticks / 30)) % 5) as u8;
+			}
+			else if self.field.has_bomb_at_rc(pos.row, pos.col)
 			{
 				self.hero.become_grabbed();
 				self.target_heart_rate_in_ticks = TERRIFIED_HEART_RATE_IN_TICKS;
@@ -226,7 +240,9 @@ impl Level
 				}
 			}
 
-			if self.hero.is_alive() && pos.col > self.max_col_reached
+			if self.hero.is_alive()
+				&& !self.going_back
+				&& pos.col > self.max_col_reached
 			{
 				self.max_col_reached = pos.col;
 				match pos.col
@@ -248,6 +264,10 @@ impl Level
 					_ => (),
 				}
 			}
+		}
+		else if self.hero.is_alive() && self.hero.x < X_OF_FIELD
+		{
+			self.signal_percentage = 99;
 		}
 
 		if self.hero.num_death_ticks == 175
@@ -298,6 +318,7 @@ impl Level
 		{
 			if self.hero.number == self.first_hero_number
 				&& self.dialog.is_none()
+				&& !self.going_back
 			{
 				self.dialog = self.dialog_tree.on_first_death;
 				self.dialog_ticks = 0;
@@ -391,9 +412,13 @@ impl Level
 				{
 					50
 				}
-				else
+				else if scan_interference < 5
 				{
 					100 - 10 * (scan_interference as u32)
+				}
+				else
+				{
+					50
 				};
 				let w = PROXIMITY_LIGHT_WIDTH * percentage / 100;
 				let h = PROXIMITY_LIGHT_HEIGHT * percentage / 100;
@@ -441,6 +466,7 @@ impl Level
 			}
 		}
 		if self.right_door_height > 0
+			&& (self.going_back || self.field_offset + 1 < NUM_FIELDS as u8)
 		{
 			unsafe { *DRAW_COLORS = 2 };
 			for i in [0, 1, 3, 5]
@@ -466,7 +492,7 @@ impl Level
 			.unwrap_or(NUM_LINES);
 		if num_lines > 0
 		{
-			let y_start = 2 + (10 * (NUM_LINES - num_lines) / num_lines) as i32;
+			let y_start = 2 + 5 * (NUM_LINES - num_lines) as i32;
 			let chunk_size = (CONFIDENCE_PERCENTAGE as usize) / (2 * num_lines);
 			for i in 0..num_lines
 			{
@@ -507,11 +533,19 @@ impl Level
 			{
 				let xx = X_OF_FIELD + (TILE_WIDTH as i32) * (c as i32);
 				let yy = Y_OF_FIELD + (TILE_HEIGHT as i32) * (r as i32);
-				let seed = 48274771u32
-					.wrapping_add(self.field_offset as u32)
-					.wrapping_mul(68389231)
-					.wrapping_add((r * FIELD_WIDTH + c) as u32)
-					.wrapping_mul(1012391339);
+				let seed = if self.field_offset == (NUM_FIELDS - 1) as u8
+					&& self.field.has_bomb_at_rc(r, c)
+				{
+					0x15151515
+				}
+				else
+				{
+					48274771u32
+						.wrapping_add(self.field_offset as u32)
+						.wrapping_mul(68389231)
+						.wrapping_add((r * FIELD_WIDTH + c) as u32)
+						.wrapping_mul(1012391339)
+				};
 
 				if self.field.has_wall_at_rc(r, c)
 				{
@@ -559,7 +593,7 @@ impl Level
 					unsafe { *DRAW_COLORS = 0x30 };
 					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
 					unsafe { *DRAW_COLORS = 0x13 };
-					if count > 0
+					if count > 0 && count < 8
 					{
 						text(format!("{}", count), xx + 4, yy + 4);
 					}
@@ -609,15 +643,20 @@ impl Level
 
 			if self.is_translating
 				&& self.seconds_since_last_translation_update > 20
-				&& scan_interference == 0
+				&& (scan_interference == 0
+					|| self.field_offset == (NUM_FIELDS - 1) as u8)
 			{
 				unsafe { *DRAW_COLORS = 2 };
 				rect(0, 160 - HUD_HEIGHT as i32, 160, 11);
 				unsafe { *DRAW_COLORS = 1 };
-				if self.get_translation_progress_percentage()
+				if self.going_back
+				{
+					text("Run!", 5, 139);
+				}
+				else if self.get_translation_progress_percentage()
 					>= CONFIDENCE_PERCENTAGE
 				{
-					text("Head to the exit!", 5, 139);
+					text("The door is open.", 5, 139);
 				}
 				else
 				{

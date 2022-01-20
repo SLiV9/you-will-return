@@ -4,6 +4,12 @@
 // License: MIT
 //
 
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// !                                                                          !
+// !                             HERE BE SPOILERS                             !
+// !                                                                          !
+// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 use crate::field::NUM_FIELDS;
 
 pub const NUM_LINES: usize = 4;
@@ -60,5 +66,10 @@ pub const COMMUNICATIONS: [Communication; NUM_FIELDS] = [
 		untranslated: ["DIT X DIT", "X DUW WEG WY", "", ""],
 		rough: ["what is here", "is send? away we", "", ""],
 		confident: ["WHAT IS HERE", "IS WHAT LAUNCHED US", "", ""],
+	},
+	Communication {
+		untranslated: ["QDPCQ KLOQJ", "", "", ""],
+		rough: ["  CONFIRM OVERRIDE  ", "", "", ""],
+		confident: [" OVERRIDE CONFIRMED ", "", "", ""],
 	},
 ];
