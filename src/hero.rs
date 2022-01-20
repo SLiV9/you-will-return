@@ -25,6 +25,7 @@ pub struct Hero
 
 pub struct Geometry
 {
+	pub going_back: bool,
 	pub can_move_left: bool,
 	pub can_move_right: bool,
 	pub can_move_up: bool,
@@ -99,7 +100,12 @@ impl Hero
 		{
 			self.sprite.scan();
 		}
-		else if self.x > (SCREEN_SIZE as i32) - 10
+		else if self.x < 10 && walls.going_back
+		{
+			self.sprite.run_left();
+			self.x -= 1;
+		}
+		else if self.x > (SCREEN_SIZE as i32) - 10 && !walls.going_back
 		{
 			self.sprite.run_right();
 			self.x += 1;
@@ -128,10 +134,15 @@ impl Hero
 			self.sprite.run_down();
 			self.y += 1;
 		}
-		else if self.x < 10
+		else if self.x < 10 && !walls.going_back
 		{
 			self.sprite.run_right();
 			self.x += 1;
+		}
+		else if self.x > (SCREEN_SIZE as i32) - 10 && walls.going_back
+		{
+			self.sprite.run_left();
+			self.x -= 1;
 		}
 		else
 		{

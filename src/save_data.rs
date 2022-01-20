@@ -4,7 +4,6 @@
 // License: MIT
 //
 
-use crate::field::NUM_FIELDS;
 use crate::wasm4::*;
 
 #[repr(packed)]

@@ -261,7 +261,11 @@ impl Cutscene
 					hline(77, 141, 6);
 					hline(77, 142, 6);
 					hline(78, 143, 4);
-					rect(79, 0, 2, 140);
+					vline(80, 79, 1);
+					vline(80, 81, 2);
+					vline(80, 84, 5);
+					vline(80, 90, 9);
+					vline(80, 100, 40);
 				}
 
 				let w = if self.ticks < 50

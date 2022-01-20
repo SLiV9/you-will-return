@@ -64,13 +64,32 @@ impl Level
 	pub fn new(transition: Transition) -> Self
 	{
 		let field_offset = transition.field_offset;
-		let is_translating = field_offset > 0;
+		let is_translating = field_offset > 0 && !transition.going_back;
 
 		let mut hero = Hero::new(transition.hero_number);
+		if transition.going_back
+		{
+			hero.x = (SCREEN_SIZE as i32) + 10;
+		}
 		if let Some(health) = transition.hero_health
 		{
 			hero.health = health;
 		}
+		else if transition.going_back
+			&& field_offset == (NUM_FIELDS - 1) as u8
+		{
+			hero.health = 18;
+		}
+
+		let left_door_height = (FIELD_HEIGHT as u32) * TILE_HEIGHT;
+		let right_door_height = if transition.going_back
+		{
+			left_door_height
+		}
+		else
+		{
+			0
+		};
 
 		Self {
 			going_back: transition.going_back,
@@ -85,8 +104,8 @@ impl Level
 			is_big_light_on: false,
 			is_translating,
 			last_translation_update: 0,
-			left_door_height: (FIELD_HEIGHT as u32) * TILE_HEIGHT,
-			right_door_height: 0,
+			left_door_height,
+			right_door_height,
 			first_hero_number: transition.hero_number,
 			max_col_reached: 0,
 			respawn_ticks: 0,
@@ -324,7 +343,7 @@ impl Level
 				self.dialog_ticks = 0;
 			}
 
-			if self.respawn_ticks == 0
+			if self.respawn_ticks == 0 && !self.going_back
 			{
 				self.hero = Hero::new(self.hero.number.wrapping_add(1));
 				self.heart_ticks = 0;
@@ -332,7 +351,7 @@ impl Level
 				self.target_heart_rate_in_ticks = NORMAL_HEART_RATE_IN_TICKS;
 				self.signal_percentage = 99;
 			}
-			else if self.dialog.is_none()
+			else if self.respawn_ticks > 0 && self.dialog.is_none()
 			{
 				self.respawn_ticks -= 1;
 			}
@@ -346,7 +365,22 @@ impl Level
 			self.seconds_since_last_translation_update = 0;
 		}
 
-		if translation_percentage >= CONFIDENCE_PERCENTAGE
+		if self.going_back && self.field_offset == 0
+		{
+			if self.left_door_height > 20
+			{
+				self.left_door_height -= 1;
+			}
+			else if self.left_door_height > 5
+			{
+				self.left_door_height -= 5;
+			}
+			else
+			{
+				self.left_door_height = 0;
+			}
+		}
+		else if translation_percentage >= CONFIDENCE_PERCENTAGE
 		{
 			if self.right_door_height == 0
 			{
@@ -367,13 +401,46 @@ impl Level
 			}
 		}
 
-		if self.hero.x > (SCREEN_SIZE as i32) + 5
+		if !self.going_back && self.hero.x > (SCREEN_SIZE as i32) + 5
 		{
 			Some(Transition {
 				going_back: self.going_back,
 				field_offset: self.field_offset + 1,
 				hero_number: self.hero.number,
 				hero_health: Some(self.hero.health),
+			})
+		}
+		else if self.going_back && self.field_offset > 0 && self.hero.x < 0
+		{
+			Some(Transition {
+				going_back: self.going_back,
+				field_offset: self.field_offset - 1,
+				hero_number: self.hero.number,
+				hero_health: Some(self.hero.health),
+			})
+		}
+		else if self.going_back
+			&& self.field_offset == 0
+			&& !self.hero.is_visible()
+			&& self.respawn_ticks == 0
+		{
+			Some(Transition {
+				going_back: true,
+				field_offset: NUM_FIELDS as u8,
+				hero_number: 0,
+				hero_health: None,
+			})
+		}
+		else if self.going_back
+			&& self.field_offset > 0
+			&& !self.hero.is_visible()
+			&& self.respawn_ticks == 0
+		{
+			Some(Transition {
+				going_back: self.going_back,
+				field_offset: self.field_offset - 1,
+				hero_number: self.hero.number.wrapping_add(1),
+				hero_health: None,
 			})
 		}
 		else
@@ -468,7 +535,14 @@ impl Level
 		if self.right_door_height > 0
 			&& (self.going_back || self.field_offset + 1 < NUM_FIELDS as u8)
 		{
-			unsafe { *DRAW_COLORS = 2 };
+			if self.going_back
+			{
+				unsafe { *DRAW_COLORS = 4 };
+			}
+			else
+			{
+				unsafe { *DRAW_COLORS = 2 };
+			}
 			for i in [0, 1, 3, 5]
 			{
 				let y = Y_OF_FIELD + (H_OF_FIELD as i32) / 2
@@ -785,6 +859,7 @@ impl Level
 
 	fn determine_geometry(&self) -> Geometry
 	{
+		let can_escape_left = !self.going_back || self.field_offset > 0;
 		let can_escape = self.right_door_height > 0;
 		let yy = self.hero.y - Y_OF_FIELD;
 		let xx = self.hero.x - X_OF_FIELD;
@@ -798,9 +873,10 @@ impl Level
 		let col_of_right = (xx + 1 + 100 * tw) / tw - 100;
 		let is_off = c < 0 || c >= (FIELD_WIDTH as i32);
 		let can_move_left = col_of_left == c
-			|| col_of_left < 0
+			|| (col_of_left < 0 && can_escape_left)
 			|| col_of_left >= (FIELD_WIDTH as i32)
-			|| !self.field.has_wall_at_rc(r as u8, col_of_left as u8);
+			|| (col_of_left >= 0
+				&& !self.field.has_wall_at_rc(r as u8, col_of_left as u8));
 		let can_move_right = col_of_right == c
 			|| (col_of_right >= (FIELD_WIDTH as i32) && can_escape)
 			|| col_of_right < 0
@@ -815,6 +891,7 @@ impl Level
 			|| (row_of_down < (FIELD_HEIGHT as i32)
 				&& !self.field.has_wall_at_rc(row_of_down as u8, c as u8));
 		Geometry {
+			going_back: self.going_back,
 			can_move_left,
 			can_move_right,
 			can_move_up,

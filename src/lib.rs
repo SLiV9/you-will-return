@@ -103,7 +103,7 @@ fn update()
 					{
 						let save_data = SaveData::loaded();
 						Some(Progress::Level(level::Transition {
-							going_back: false,
+							going_back: true,
 							field_offset: (NUM_FIELDS - 1) as u8,
 							hero_number: save_data.current_hero_number,
 							hero_health: None,
@@ -129,7 +129,14 @@ fn update()
 					save_data.current_hero_number = transition.hero_number;
 					save_data.save();
 
-					Some(Progress::Reveal)
+					if transition.going_back
+					{
+						Some(Progress::Menu)
+					}
+					else
+					{
+						Some(Progress::Reveal)
+					}
 				}
 				Some(transition) => Some(Progress::Level(transition)),
 				None => None,
