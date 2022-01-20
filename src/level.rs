@@ -54,6 +54,7 @@ pub struct Level
 	heart_ticks: u8,
 	current_heart_rate_in_ticks: u8,
 	target_heart_rate_in_ticks: u8,
+	seconds_since_last_translation_update: u8,
 	signal_percentage: u8,
 }
 
@@ -91,6 +92,7 @@ impl Level
 			heart_ticks: 0,
 			current_heart_rate_in_ticks: NORMAL_HEART_RATE_IN_TICKS,
 			target_heart_rate_in_ticks: NORMAL_HEART_RATE_IN_TICKS,
+			seconds_since_last_translation_update: 0,
 			signal_percentage: 99,
 		}
 	}
@@ -98,6 +100,14 @@ impl Level
 	pub fn update(&mut self) -> Option<Transition>
 	{
 		self.ticks += 1;
+
+		if self.ticks % 60 == 0
+		{
+			if self.seconds_since_last_translation_update < 255
+			{
+				self.seconds_since_last_translation_update += 1;
+			}
+		}
 
 		if let Some(dialog) = &self.dialog
 		{
@@ -310,6 +320,7 @@ impl Level
 		{
 			sfx::translation_update(translation_percentage);
 			self.last_translation_update = translation_percentage;
+			self.seconds_since_last_translation_update = 0;
 		}
 
 		if translation_percentage >= CONFIDENCE_PERCENTAGE
@@ -594,15 +605,35 @@ impl Level
 			unsafe { *DRAW_COLORS = 0x21 };
 			rect(0, 160 - HUD_HEIGHT as i32, 160, HUD_HEIGHT);
 
-			unsafe { *DRAW_COLORS = 2 };
-			text(
-				format!(
-					"//ID/{:03}/{:/>6}/{}//",
-					self.hero.number, self.hero.name, self.hero.initial
-				),
-				5,
-				140,
-			);
+			if self.is_translating
+				&& self.seconds_since_last_translation_update > 20
+				&& scan_interference == 0
+			{
+				unsafe { *DRAW_COLORS = 2 };
+				rect(0, 160 - HUD_HEIGHT as i32, 160, 11);
+				unsafe { *DRAW_COLORS = 1 };
+				if self.get_translation_progress_percentage()
+					>= CONFIDENCE_PERCENTAGE
+				{
+					text("Head to the exit!", 5, 139);
+				}
+				else
+				{
+					text("Hold Z to scan", 5, 139);
+				}
+			}
+			else
+			{
+				unsafe { *DRAW_COLORS = 2 };
+				text(
+					format!(
+						"//ID/{:03}/{:/>6}/{}//",
+						self.hero.number, self.hero.name, self.hero.initial
+					),
+					5,
+					140,
+				);
+			}
 
 			if self.is_translating
 			{
