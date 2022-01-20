@@ -66,13 +66,14 @@ fn update()
 				}) => Some(Progress::Prologue),
 				Some(menu::Transition::Start {
 					quick_start_offset: Some(offset),
-				}) if offset == (NUM_FIELDS - 1) as u8 => Some(Progress::Reveal),
+				}) if offset >= NUM_FIELDS as u8 => Some(Progress::Reveal),
 				Some(menu::Transition::Start {
 					quick_start_offset: Some(offset),
 				}) =>
 				{
 					let save_data = SaveData::loaded();
 					Some(Progress::Level(level::Transition {
+						going_back: false,
 						field_offset: offset,
 						hero_number: save_data.current_hero_number,
 						hero_health: None,
@@ -92,6 +93,7 @@ fn update()
 					cutscene::Tag::Entry =>
 					{
 						Some(Progress::Level(level::Transition {
+							going_back: false,
 							field_offset: 0,
 							hero_number: 1,
 							hero_health: None,
@@ -99,9 +101,11 @@ fn update()
 					}
 					cutscene::Tag::Reveal =>
 					{
+						let save_data = SaveData::loaded();
 						Some(Progress::Level(level::Transition {
-							field_offset: 0,
-							hero_number: 1,
+							going_back: false,
+							field_offset: (NUM_FIELDS - 1) as u8,
+							hero_number: save_data.current_hero_number,
 							hero_health: None,
 						}))
 					}
@@ -115,7 +119,7 @@ fn update()
 			match transition
 			{
 				Some(transition)
-					if transition.field_offset == (NUM_FIELDS - 1) as u8 =>
+					if transition.field_offset >= NUM_FIELDS as u8 =>
 				{
 					Some(Progress::Reveal)
 				}

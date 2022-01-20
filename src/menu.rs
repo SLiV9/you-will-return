@@ -6,6 +6,7 @@
 
 use crate::field::NUM_FIELDS;
 use crate::palette;
+use crate::sprites::inner_doors_icon;
 use crate::sprites::stars;
 use crate::sprites::vault_icon;
 use crate::wasm4::*;
@@ -70,7 +71,7 @@ impl Menu
 					{
 						Some(offset) =>
 						{
-							if (offset as usize) + 1 < NUM_FIELDS
+							if (offset as usize) + 1 <= NUM_FIELDS
 							{
 								self.quick_start_offset = Some(offset + 1);
 							}
@@ -230,6 +231,10 @@ impl Menu
 			{
 				0
 			}
+			else if self.max_field_offset_reached == NUM_FIELDS as u8
+			{
+				NUM_FIELDS as u8
+			}
 			else
 			{
 				self.max_field_offset_reached + 1
@@ -241,7 +246,7 @@ impl Menu
 					if (self.ticks % 30) < 15
 					{
 						unsafe { *DRAW_COLORS = 0x33 };
-						hline(x - 12 - 6 * (offset as i32), y + 1, 5);
+						hline(x - 11 - 4 * (offset as i32), y + 2, 5);
 					}
 					unsafe { *DRAW_COLORS = 0x44 };
 				}
@@ -249,8 +254,22 @@ impl Menu
 				{
 					unsafe { *DRAW_COLORS = 0x33 };
 				}
-				oval(x - 12 - 6 * (offset as i32), y - 5, 5, 5);
+				rect(x - 10 - 4 * (offset as i32), y - 5, 3, 6);
 			}
+			if self.quick_start_offset == Some(NUM_FIELDS as u8)
+			{
+				if (self.ticks % 30) < 15
+				{
+					unsafe { *DRAW_COLORS = 0x33 };
+					hline(x - 17 - 4 * (NUM_FIELDS as i32), y + 2, 9);
+				}
+				unsafe { *DRAW_COLORS = 0x42 };
+			}
+			else
+			{
+				unsafe { *DRAW_COLORS = 0x32 };
+			}
+			inner_doors_icon::draw(x - 13 - 4 * (NUM_FIELDS as i32), y);
 		}
 	}
 }

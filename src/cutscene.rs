@@ -240,12 +240,11 @@ impl Cutscene
 
 				let has_lights = self.ticks < 150
 					&& (self.ticks < 100
-						|| (7 * (self.ticks / 5)) % 13
-							> (self.ticks - 100) / 10);
+						|| (7 * (self.ticks / 5)) % 13 > (self.ticks - 95) / 8);
 				if has_lights
 				{
 					unsafe { *DRAW_COLORS = 0x44 };
-					oval(60, 110, 40, 60);
+					oval(60, 70, 40, 100);
 					unsafe { *DRAW_COLORS = 0x11 };
 					rect(0, 140, 160, 20);
 					unsafe { *DRAW_COLORS = 0x44 };

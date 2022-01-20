@@ -34,6 +34,7 @@ const FATAL_HEART_RATE_IN_TICKS: u8 = 10;
 
 pub struct Level
 {
+	going_back: bool,
 	field_offset: u8,
 	field: &'static Field,
 	communication: &'static Communication,
@@ -72,6 +73,7 @@ impl Level
 		}
 
 		Self {
+			going_back: transition.going_back,
 			field_offset,
 			field: &FIELDS[field_offset as usize],
 			communication: &COMMUNICATIONS[field_offset as usize],
@@ -345,9 +347,9 @@ impl Level
 		}
 
 		if self.hero.x > (SCREEN_SIZE as i32) + 5
-			&& ((self.field_offset + 1) as usize) < NUM_FIELDS
 		{
 			Some(Transition {
+				going_back: self.going_back,
 				field_offset: self.field_offset + 1,
 				hero_number: self.hero.number,
 				hero_health: Some(self.hero.health),
@@ -820,6 +822,7 @@ impl Level
 
 pub struct Transition
 {
+	pub going_back: bool,
 	pub field_offset: u8,
 	pub hero_number: u8,
 	pub hero_health: Option<u8>,

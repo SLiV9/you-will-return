@@ -69,14 +69,6 @@ impl SaveData
 			));
 			SaveData::new()
 		}
-		else if loaded.max_field_offset_reached >= NUM_FIELDS as u8
-		{
-			trace(format!(
-				"Failed to load: invalid content: {}",
-				loaded.version
-			));
-			SaveData::new()
-		}
 		else
 		{
 			loaded

@@ -6,6 +6,7 @@
 
 pub mod alien_tile;
 pub mod astronaut;
+pub mod inner_doors_icon;
 pub mod open_sesame;
 pub mod stars;
 pub mod vault_icon;
