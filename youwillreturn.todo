@@ -33,6 +33,7 @@ Sprites:
   ✘ Blood on the floor instead of numbers? @cancelled (2022-01-18 23:36)
   ☐ Some creature that runs around the edges of your peripheral vision
     and disappears if you turn on the light
+    Ooh the shadow of another astronaut follows while you run and then disappears if you stop or turn around
     ☐ And creatures that look like floating corpses
   ✘ Reveal over time during scanning @cancelled (2022-01-18 23:36)
     ✔ Reveal garbage when scanning in interference @done (2022-01-18 23:36)
@@ -52,7 +53,8 @@ Audio:
   ✘ Scanning sounds @cancelled (2022-01-19 22:42)
 
 Cinematics:
-  ☐ Explain pressing Z to scan
+  ✔ Explain pressing Z to scan @done (2022-01-20 01:17)
+    ☐ Add reminder if is_translating and 30 seconds go by without progress
   ✔ Menu screen cinematic @done (2022-01-15 23:10)
     Planet/sun in the background descending from top of the screen, dark planet ascending from the bottom
   ✔ Initial door opening @done (2022-01-17 02:25)

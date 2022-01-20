@@ -79,8 +79,6 @@ impl SaveData
 		}
 		else
 		{
-			let magic_bytes: u32 = loaded.magic_bytes;
-			trace(format!("Loaded: magic bytes {:#010x}", magic_bytes));
 			loaded
 		}
 	}
