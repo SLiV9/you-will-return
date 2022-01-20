@@ -44,11 +44,7 @@ enum Progress
 	Menu,
 	Prologue,
 	Entry,
-	Level
-	{
-		field_offset: u8,
-		hero_number: u8,
-	},
+	Level(level::Transition),
 }
 
 #[no_mangle]
@@ -68,10 +64,15 @@ fn update()
 				}) => Some(Progress::Prologue),
 				Some(menu::Transition::Start {
 					quick_start_offset: Some(offset),
-				}) => Some(Progress::Level {
-					field_offset: offset,
-					hero_number: 1,
-				}),
+				}) =>
+				{
+					let save_data = SaveData::loaded();
+					Some(Progress::Level(level::Transition {
+						field_offset: offset,
+						hero_number: save_data.current_hero_number,
+						hero_health: None,
+					}))
+				}
 				None => None,
 			}
 		}
@@ -83,10 +84,14 @@ fn update()
 				Some(cutscene::Transition::Continue) => match cutscene.tag()
 				{
 					cutscene::Tag::Prologue => Some(Progress::Entry),
-					cutscene::Tag::Entry => Some(Progress::Level {
-						field_offset: 0,
-						hero_number: 1,
-					}),
+					cutscene::Tag::Entry =>
+					{
+						Some(Progress::Level(level::Transition {
+							field_offset: 0,
+							hero_number: 1,
+							hero_health: None,
+						}))
+					}
 				},
 				None => None,
 			}
@@ -96,13 +101,7 @@ fn update()
 			let transition = level.update();
 			match transition
 			{
-				Some(level::Transition::Next {
-					field_offset,
-					hero_number,
-				}) => Some(Progress::Level {
-					field_offset,
-					hero_number,
-				}),
+				Some(transition) => Some(Progress::Level(transition)),
 				None => None,
 			}
 		}
@@ -122,18 +121,17 @@ fn update()
 		{
 			*game = Game::Cutscene(Cutscene::new(cutscene::Tag::Entry));
 		}
-		Some(Progress::Level {
-			field_offset,
-			hero_number,
-		}) =>
+		Some(Progress::Level(transition)) =>
 		{
 			let mut save_data = SaveData::loaded();
-			save_data.max_field_offset_reached =
-				std::cmp::max(save_data.max_field_offset_reached, field_offset);
-			save_data.current_hero_number = hero_number;
+			save_data.max_field_offset_reached = std::cmp::max(
+				save_data.max_field_offset_reached,
+				transition.field_offset,
+			);
+			save_data.current_hero_number = transition.hero_number;
 			save_data.save();
 
-			*game = Game::Level(Level::new(field_offset, hero_number));
+			*game = Game::Level(Level::new(transition));
 		}
 		None => (),
 	}

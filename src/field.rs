@@ -118,9 +118,15 @@ impl FieldWork
 	}
 }
 
-pub const NUM_FIELDS: usize = 4;
-pub const FIELDS: [Field; NUM_FIELDS] =
-	[F_EMPTY_HALLWAY, F_CENTER_WALL, F_TWO_ROOMS, F_FIRST_BOMB];
+pub const NUM_FIELDS: usize = 6;
+pub const FIELDS: [Field; NUM_FIELDS] = [
+	F_EMPTY_HALLWAY,
+	F_CENTER_WALL,
+	F_TWO_ROOMS,
+	F_FIRST_BOMB,
+	F_DOUBLE_BOMB,
+	F_J_SHAPE,
+];
 
 const fn generate_flag_data(
 	bomb_data: &[u8; BOMB_DATA_SIZE],
@@ -261,11 +267,11 @@ const F_TWO_ROOMS: Field = {
 const F_FIRST_BOMB: Field = {
 	#[rustfmt::skip]
 	const WALL_DATA: [u8; WALL_DATA_SIZE] = [
-		0b00011111,
+		0b11111111,
 		0b00000000,
 		0b00000000,
 		0b00000000,
-		0b00011111,
+		0b11111111,
 	];
 	#[rustfmt::skip]
 	const BOMB_DATA: [u8; BOMB_DATA_SIZE] = [
@@ -278,20 +284,40 @@ const F_FIRST_BOMB: Field = {
 	Field::generate(WALL_DATA, BOMB_DATA)
 };
 
-const F_J_SHAPE: Field = {
+const F_DOUBLE_BOMB: Field = {
 	#[rustfmt::skip]
 	const WALL_DATA: [u8; WALL_DATA_SIZE] = [
-		0b00011111,
+		0b11001001,
+		0b01101001,
 		0b00000000,
-		0b00000000,
-		0b00000000,
-		0b00011111,
+		0b00100001,
+		0b11111111,
 	];
 	#[rustfmt::skip]
 	const BOMB_DATA: [u8; BOMB_DATA_SIZE] = [
 		0b00000000,
-		0b00000010,
-		0b00000110,
+		0b00000100,
+		0b00000000,
+		0b00010000,
+		0b00000000,
+	];
+	Field::generate(WALL_DATA, BOMB_DATA)
+};
+
+const F_J_SHAPE: Field = {
+	#[rustfmt::skip]
+	const WALL_DATA: [u8; WALL_DATA_SIZE] = [
+		0b11111000,
+		0b00000000,
+		0b01000000,
+		0b01000011,
+		0b11111111,
+	];
+	#[rustfmt::skip]
+	const BOMB_DATA: [u8; BOMB_DATA_SIZE] = [
+		0b00000000,
+		0b00001000,
+		0b00011000,
 		0b00000000,
 		0b00000000,
 	];

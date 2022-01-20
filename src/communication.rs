@@ -51,4 +51,14 @@ pub const COMMUNICATIONS: [Communication; NUM_FIELDS] = [
 		rough: ["we are strong?", "you will", "revolve? back", ""],
 		confident: ["WE ARE CONVINCED", "YOU WILL", "RETURN", ""],
 	},
+	Communication {
+		untranslated: ["DIT X DIT", "FUR WY NEG NUT", "", ""],
+		rough: ["this is this", "onto we no use?", "", ""],
+		confident: ["WHAT IS HERE", "WE DO NOT NEED", "", ""],
+	},
+	Communication {
+		untranslated: ["DIT X DIT", "X DUW WEG WY", "", ""],
+		rough: ["what is here", "is send? away we", "", ""],
+		confident: ["WHAT IS HERE", "IS WHAT LAUNCHED US", "", ""],
+	},
 ];

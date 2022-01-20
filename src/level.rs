@@ -59,34 +59,32 @@ pub struct Level
 
 impl Level
 {
-	pub fn new(mut field_offset: u8, hero_number: u8) -> Self
+	pub fn new(transition: Transition) -> Self
 	{
+		let field_offset = transition.field_offset;
 		let is_translating = field_offset > 0;
-		let field = if (field_offset as usize) < NUM_FIELDS
+
+		let mut hero = Hero::new(transition.hero_number);
+		if let Some(health) = transition.hero_health
 		{
-			&FIELDS[field_offset as usize]
+			hero.health = health;
 		}
-		else
-		{
-			field_offset = (NUM_FIELDS / 2) as u8;
-			&F_TEST
-		};
 
 		Self {
 			field_offset,
-			field,
+			field: &FIELDS[field_offset as usize],
 			communication: &COMMUNICATIONS[field_offset as usize],
 			dialog_tree: &DIALOG_TREES[field_offset as usize],
 			field_work: FieldWork::new(),
 			dialog: None,
 			ticks: 0,
-			hero: Hero::new(hero_number),
+			hero,
 			is_big_light_on: false,
 			is_translating,
 			last_translation_update: 0,
 			left_door_height: (FIELD_HEIGHT as u32) * TILE_HEIGHT,
 			right_door_height: 0,
-			first_hero_number: hero_number,
+			first_hero_number: transition.hero_number,
 			max_col_reached: 0,
 			respawn_ticks: 0,
 			dialog_ticks: 0,
@@ -338,9 +336,10 @@ impl Level
 		if self.hero.x > (SCREEN_SIZE as i32) + 5
 			&& ((self.field_offset + 1) as usize) < NUM_FIELDS
 		{
-			Some(Transition::Next {
+			Some(Transition {
 				field_offset: self.field_offset + 1,
 				hero_number: self.hero.number,
+				hero_health: Some(self.hero.health),
 			})
 		}
 		else
@@ -788,12 +787,11 @@ impl Level
 	}
 }
 
-pub enum Transition
+pub struct Transition
 {
-	Next
-	{
-		field_offset: u8, hero_number: u8
-	},
+	pub field_offset: u8,
+	pub hero_number: u8,
+	pub hero_health: Option<u8>,
 }
 
 #[derive(Debug, PartialEq, Eq)]

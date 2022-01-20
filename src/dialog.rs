@@ -76,4 +76,28 @@ pub const DIALOG_TREES: [DialogTree; NUM_FIELDS] = [
 			line: "What happened?",
 		}),
 	},
+	DialogTree {
+		on_col_2: Some(Dialog {
+			is_self: true,
+			line: "The suit is safe...",
+		}),
+		on_col_4: Some(Dialog {
+			is_self: true,
+			line: "Right?",
+		}),
+		on_confident_translation: None,
+		on_first_death: Some(Dialog {
+			is_self: false,
+			line: "Why wouldn't it be?",
+		}),
+	},
+	DialogTree {
+		on_col_2: Some(Dialog {
+			is_self: false,
+			line: "Just keep going.",
+		}),
+		on_col_4: None,
+		on_confident_translation: None,
+		on_first_death: None,
+	},
 ];
