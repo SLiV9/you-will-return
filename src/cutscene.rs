@@ -22,6 +22,7 @@ pub enum Tag
 {
 	Prologue,
 	Entry,
+	Reveal,
 }
 
 impl Cutscene
@@ -121,6 +122,17 @@ impl Cutscene
 				{
 					self.is_done = true;
 				}
+
+				if self.is_done
+				{
+					unsafe { *DRAW_COLORS = 0x4 }
+					text("Press X to continue", 3, 150);
+				}
+				else if self.ticks > 30
+				{
+					unsafe { *DRAW_COLORS = 0x2 }
+					text("Press X to skip", 3, 150);
+				}
 			}
 			Tag::Entry =>
 			{
@@ -185,18 +197,125 @@ impl Cutscene
 
 				unsafe { *DRAW_COLORS = 0x10 };
 				sprites::open_sesame::draw(80, 140);
-			}
-		}
 
-		if self.is_done
-		{
-			unsafe { *DRAW_COLORS = 0x4 }
-			text("Press X to continue", 3, 150);
-		}
-		else if self.ticks > 30
-		{
-			unsafe { *DRAW_COLORS = 0x2 }
-			text("Press X to skip", 3, 150);
+				if self.is_done
+				{
+					unsafe { *DRAW_COLORS = 0x4 }
+					text("Press X to continue", 3, 150);
+				}
+				else if self.ticks > 30
+				{
+					unsafe { *DRAW_COLORS = 0x2 }
+					text("Press X to skip", 3, 150);
+				}
+			}
+			Tag::Reveal =>
+			{
+				if self.ticks == 50
+				{
+					sfx::door_jolt();
+				}
+				else if self.ticks == 100
+				{
+					sfx::door_opening();
+				}
+				else if self.ticks == 224
+				{
+					sfx::door_opened();
+				}
+				else if self.ticks == 244
+				{
+					sfx::door_echo(60);
+				}
+				else if self.ticks == 250
+				{
+					sfx::the_sound();
+				}
+				else if self.ticks >= 430
+				{
+					self.is_continuing = true;
+				}
+
+				unsafe { *PALETTE = palette::REVEAL };
+
+				let has_lights = self.ticks < 150
+					&& (self.ticks < 100
+						|| (7 * (self.ticks / 5)) % 13
+							> (self.ticks - 100) / 10);
+				if has_lights
+				{
+					unsafe { *DRAW_COLORS = 0x44 };
+					oval(60, 110, 40, 60);
+					unsafe { *DRAW_COLORS = 0x11 };
+					rect(0, 140, 160, 20);
+					unsafe { *DRAW_COLORS = 0x44 };
+					oval(60, 137, 40, 6);
+					unsafe { *DRAW_COLORS = 0x11 };
+					hline(0, 140, 160);
+					hline(77, 141, 6);
+					hline(77, 142, 6);
+					hline(78, 143, 4);
+					rect(79, 0, 2, 140);
+				}
+
+				let w = if self.ticks < 50
+				{
+					0
+				}
+				else if self.ticks < 100
+				{
+					2
+				}
+				else if self.ticks < 116
+				{
+					2 + (self.ticks - 100) / 4
+				}
+				else if self.ticks < 124
+				{
+					6 + (self.ticks - 116) / 2
+				}
+				else if self.ticks < 224
+				{
+					10 + (self.ticks - 124)
+				}
+				else if self.ticks < 300
+				{
+					110
+				}
+				else if self.ticks < 400
+				{
+					110 + (self.ticks - 300) / 2
+				}
+				else
+				{
+					160
+				};
+
+				if w > 110
+				{
+					unsafe { *DRAW_COLORS = 0x33 };
+					let h = std::cmp::min(w + 10, 160);
+					rect(80 - (w as i32) / 2, 80 - (h as i32) / 2, w, h);
+				}
+				else if w > 0
+				{
+					unsafe { *DRAW_COLORS = 0x33 };
+					rect(80 - (w as i32) / 2, 20, w, 120);
+				}
+
+				if w < 115
+				{
+					if has_lights
+					{
+						unsafe { *DRAW_COLORS = 0x20 };
+					}
+					else
+					{
+						unsafe { *DRAW_COLORS = 0x10 };
+					}
+					sprites::open_sesame::draw(80, 141);
+				}
+			}
 		}
 	}
 }

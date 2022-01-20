@@ -23,6 +23,7 @@ mod sfx;
 mod sprites;
 
 use cutscene::Cutscene;
+use field::NUM_FIELDS;
 use global_state::Wrapper;
 use level::Level;
 use menu::Menu;
@@ -45,6 +46,7 @@ enum Progress
 	Prologue,
 	Entry,
 	Level(level::Transition),
+	Reveal,
 }
 
 #[no_mangle]
@@ -62,6 +64,9 @@ fn update()
 				Some(menu::Transition::Start {
 					quick_start_offset: None,
 				}) => Some(Progress::Prologue),
+				Some(menu::Transition::Start {
+					quick_start_offset: Some(offset),
+				}) if offset == (NUM_FIELDS - 1) as u8 => Some(Progress::Reveal),
 				Some(menu::Transition::Start {
 					quick_start_offset: Some(offset),
 				}) =>
@@ -92,6 +97,14 @@ fn update()
 							hero_health: None,
 						}))
 					}
+					cutscene::Tag::Reveal =>
+					{
+						Some(Progress::Level(level::Transition {
+							field_offset: 0,
+							hero_number: 1,
+							hero_health: None,
+						}))
+					}
 				},
 				None => None,
 			}
@@ -101,6 +114,11 @@ fn update()
 			let transition = level.update();
 			match transition
 			{
+				Some(transition)
+					if transition.field_offset == (NUM_FIELDS - 1) as u8 =>
+				{
+					Some(Progress::Reveal)
+				}
 				Some(transition) => Some(Progress::Level(transition)),
 				None => None,
 			}
@@ -120,6 +138,10 @@ fn update()
 		Some(Progress::Entry) =>
 		{
 			*game = Game::Cutscene(Cutscene::new(cutscene::Tag::Entry));
+		}
+		Some(Progress::Reveal) =>
+		{
+			*game = Game::Cutscene(Cutscene::new(cutscene::Tag::Reveal));
 		}
 		Some(Progress::Level(transition)) =>
 		{

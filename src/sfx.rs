@@ -38,6 +38,11 @@ pub fn door_echo(volume: u32)
 	tone(110 + 40 * volume / 100, 20 << 8, volume / 2, TONE_NOISE);
 }
 
+pub fn the_sound()
+{
+	tone(170, (50 << 24) | 110 | (20 << 8), 70, TONE_NOISE);
+}
+
 pub fn interference(volume: u32)
 {
 	tone(230, 11, volume, TONE_NOISE);
