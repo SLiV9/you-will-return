@@ -456,6 +456,34 @@ impl Level
 
 	pub fn draw(&mut self)
 	{
+		let sequence = [0, 0, 5, 4, 8, 7, 12];
+		let rate: u32 = 12;
+		if (self.ticks as usize) % (rate as usize) == 0
+			&& (self.ticks as usize) < sequence.len() * (rate as usize)
+		{
+			let good = true;
+			let ground_freq = 264;
+			let i = ((self.ticks as usize) / (rate as usize)) % sequence.len();
+			let power = if good { 12 } else { 13 };
+			let magic = 2f64.powf(1.0 / (power as f64));
+			let freq: f64 =
+				(ground_freq as f64) * magic.powf(sequence[i] as f64);
+			let (sustain, release) = if i + 2 < sequence.len()
+			{
+				(rate / 2, rate / 2)
+			}
+			else
+			{
+				(rate / 2, rate * 3 / 2)
+			};
+			tone(
+				freq.round() as u32,
+				sustain | (release << 8),
+				20,
+				TONE_PULSE1,
+			);
+		}
+
 		unsafe { *PALETTE = palette::LEVEL };
 
 		let hero_position = self.get_hero_position();
