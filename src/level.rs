@@ -63,11 +63,12 @@ impl Level
 {
 	pub fn new(transition: Transition) -> Self
 	{
+		let going_back = transition.going_back;
 		let field_offset = transition.field_offset;
-		let is_translating = field_offset > 0 && !transition.going_back;
+		let is_translating = field_offset > 0 && !going_back;
 
 		let mut hero = Hero::new(transition.hero_number);
-		if transition.going_back
+		if going_back
 		{
 			hero.x = (SCREEN_SIZE as i32) + 10;
 		}
@@ -75,24 +76,25 @@ impl Level
 		{
 			hero.health = health;
 		}
-		else if transition.going_back
-			&& field_offset == (NUM_FIELDS - 1) as u8
+		else if going_back && field_offset == (NUM_FIELDS - 1) as u8
 		{
 			hero.health = 18;
 		}
 
 		let left_door_height = (FIELD_HEIGHT as u32) * TILE_HEIGHT;
-		let right_door_height = if transition.going_back
+		let right_door_height = if going_back { left_door_height } else { 0 };
+		let signal_percentage = if going_back { 2 } else { 99 };
+		let current_heart_rate_in_ticks = if going_back
 		{
-			left_door_height
+			TERRIFIED_HEART_RATE_IN_TICKS
 		}
 		else
 		{
-			0
+			NORMAL_HEART_RATE_IN_TICKS
 		};
 
 		Self {
-			going_back: transition.going_back,
+			going_back,
 			field_offset,
 			field: &FIELDS[field_offset as usize],
 			communication: &COMMUNICATIONS[field_offset as usize],
@@ -111,10 +113,10 @@ impl Level
 			respawn_ticks: 0,
 			dialog_ticks: 0,
 			heart_ticks: 0,
-			current_heart_rate_in_ticks: NORMAL_HEART_RATE_IN_TICKS,
-			target_heart_rate_in_ticks: NORMAL_HEART_RATE_IN_TICKS,
+			current_heart_rate_in_ticks,
+			target_heart_rate_in_ticks: current_heart_rate_in_ticks,
 			seconds_since_last_translation_update: 0,
-			signal_percentage: 99,
+			signal_percentage,
 		}
 	}
 
@@ -360,7 +362,10 @@ impl Level
 		let translation_percentage = self.get_translation_progress_percentage();
 		if translation_percentage > self.last_translation_update
 		{
-			sfx::translation_update(translation_percentage);
+			if self.is_translating
+			{
+				sfx::translation_update(translation_percentage);
+			}
 			self.last_translation_update = translation_percentage;
 			self.seconds_since_last_translation_update = 0;
 		}
@@ -567,7 +572,14 @@ impl Level
 		if num_lines > 0
 		{
 			let y_start = 2 + 5 * (NUM_LINES - num_lines) as i32;
-			let chunk_size = (CONFIDENCE_PERCENTAGE as usize) / (2 * num_lines);
+			let chunk_size = if self.going_back
+			{
+				(CONFIDENCE_PERCENTAGE as usize) / num_lines
+			}
+			else
+			{
+				(CONFIDENCE_PERCENTAGE as usize) / (2 * num_lines)
+			};
 			for i in 0..num_lines
 			{
 				let y = y_start + (10 * i) as i32;
@@ -586,7 +598,24 @@ impl Level
 					}
 				}
 
-				if progress >= (num_lines + i + 1) * chunk_size
+				if self.going_back && progress >= (i + 1) * chunk_size
+				{
+					let line = self.communication.real[i];
+					unsafe { *DRAW_COLORS = 0x13 };
+					if line != self.communication.confident[i]
+						&& (7 * (self.ticks / 10) + 5 * (i as i32)) % 23 < 4
+					{
+						unsafe { *DRAW_COLORS = 0x12 };
+					}
+					text(line, 2, y);
+				}
+				else if self.going_back
+				{
+					let line = self.communication.confident[i];
+					unsafe { *DRAW_COLORS = 0x12 };
+					text(line, 2, y);
+				}
+				else if progress >= (num_lines + i + 1) * chunk_size
 				{
 					let line = self.communication.confident[i];
 					unsafe { *DRAW_COLORS = 0x13 };
@@ -715,8 +744,8 @@ impl Level
 			unsafe { *DRAW_COLORS = 0x21 };
 			rect(0, 160 - HUD_HEIGHT as i32, 160, HUD_HEIGHT);
 
-			if self.is_translating
-				&& self.seconds_since_last_translation_update > 20
+			if self.seconds_since_last_translation_update > 20
+				&& self.hero.is_alive()
 				&& (scan_interference == 0
 					|| self.field_offset == (NUM_FIELDS - 1) as u8)
 			{
@@ -788,10 +817,18 @@ impl Level
 			}
 			else
 			{
+				unsafe { *DRAW_COLORS = 2 };
 				text("!SYS4*", 5, 150);
 			}
 
-			unsafe { *DRAW_COLORS = 2 };
+			if self.going_back
+			{
+				unsafe { *DRAW_COLORS = 3 };
+			}
+			else
+			{
+				unsafe { *DRAW_COLORS = 2 };
+			}
 			let depth_in_px = (self.field_offset as i32) * 216 + self.hero.x;
 			let snatch_h = std::cmp::min(self.hero.num_death_ticks, 150);
 			let depth =
@@ -929,10 +966,17 @@ impl Level
 
 	fn get_translation_progress_percentage(&self) -> u8
 	{
-		let max = self.field.num_reachable_tiles();
-		let progress = self.field_work.num_activated_tiles();
-		let percentage = std::cmp::min(progress * 100 / max, 100);
-		percentage as u8
+		if self.going_back && self.ticks > 50
+		{
+			10 * std::cmp::min(10, (self.ticks - 50) / 10) as u8
+		}
+		else
+		{
+			let max = self.field.num_reachable_tiles();
+			let progress = self.field_work.num_activated_tiles();
+			let percentage = std::cmp::min(progress * 100 / max, 100);
+			percentage as u8
+		}
 	}
 }
 
