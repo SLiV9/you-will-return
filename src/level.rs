@@ -8,7 +8,7 @@ use crate::communication::*;
 use crate::dialog::*;
 use crate::field::*;
 use crate::hero::*;
-use crate::music;
+use crate::music::Music;
 use crate::palette;
 use crate::sfx;
 use crate::sprites;
@@ -58,6 +58,7 @@ pub struct Level
 	target_heart_rate_in_ticks: u8,
 	seconds_since_last_translation_update: u8,
 	signal_percentage: u8,
+	music: Music,
 }
 
 impl Level
@@ -118,21 +119,13 @@ impl Level
 			target_heart_rate_in_ticks: current_heart_rate_in_ticks,
 			seconds_since_last_translation_update: 0,
 			signal_percentage,
+			music: Music::for_level(field_offset, going_back),
 		}
 	}
 
 	pub fn update(&mut self) -> Option<Transition>
 	{
-		{
-			let progress = self.get_translation_progress_percentage();
-			let base = -24 + 24 * (progress as i32) / 100;
-			music::play(
-				self.ticks as usize,
-				self.field_offset as usize,
-				base as i8,
-				self.going_back,
-			);
-		}
+		self.music.update();
 
 		self.ticks += 1;
 
@@ -200,6 +193,7 @@ impl Level
 
 				let strength = 1 + (pos.col + 1) / 2;
 				sfx::interference(4 + 4 * strength as u32);
+				self.music.target_volume = 5;
 				self.target_heart_rate_in_ticks = 60 / strength;
 				self.signal_percentage =
 					95 - 13 * (pos.col) + ((2 * (self.ticks / 30)) % 5) as u8;
@@ -235,6 +229,7 @@ impl Level
 					if strength > 1 && self.is_big_light_on
 					{
 						sfx::interference(50);
+						self.music.target_volume = 0;
 						let damage = 3 * (strength - 1) + strength - 2;
 						if self.hero.health > damage
 						{
@@ -256,16 +251,19 @@ impl Level
 					else if strength > 1
 					{
 						sfx::interference(4 + 4 * strength as u32);
+						self.music.target_volume = 10;
 						self.target_heart_rate_in_ticks = 60 / strength;
 					}
 					else
 					{
 						sfx::interference(4);
+						self.music.target_volume = 15;
 						self.target_heart_rate_in_ticks = 50;
 					}
 				}
 				else if strength == 0
 				{
+					self.music.target_volume = 25;
 					self.target_heart_rate_in_ticks =
 						NORMAL_HEART_RATE_IN_TICKS;
 					self.signal_percentage =
@@ -374,6 +372,10 @@ impl Level
 		let translation_percentage = self.get_translation_progress_percentage();
 		if translation_percentage > self.last_translation_update
 		{
+			if self.is_translating
+			{
+				sfx::translation_update(translation_percentage);
+			}
 			self.last_translation_update = translation_percentage;
 			self.seconds_since_last_translation_update = 0;
 		}

@@ -5,7 +5,7 @@
 //
 
 use crate::field::NUM_FIELDS;
-use crate::music;
+use crate::music::Music;
 use crate::palette;
 use crate::sprites::inner_doors_icon;
 use crate::sprites::stars;
@@ -20,6 +20,7 @@ pub struct Menu
 	is_scanning: bool,
 	is_starting: bool,
 	previous_gamepad: u8,
+	music: Music,
 }
 
 const NUM_INTRO_ANIMATION_TICKS: u32 = 260;
@@ -35,12 +36,13 @@ impl Menu
 			is_scanning: false,
 			is_starting: false,
 			previous_gamepad: 0,
+			music: Music::main_theme(),
 		}
 	}
 
 	pub fn update(&mut self) -> Option<Transition>
 	{
-		music::play_title_screen(self.ticks as usize);
+		self.music.update();
 
 		self.ticks += 1;
 		self.is_scanning = false;

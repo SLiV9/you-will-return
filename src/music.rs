@@ -43,24 +43,74 @@ const SEED_RAIN: usize = 311;
 const SEED_CLIMB: usize = 209;
 const SEED_BROKEN: usize = 109;
 
-pub fn play_title_screen(t: usize)
+pub struct Music
 {
-	let seed: usize = SEED_ALPHA;
-	let broken = false;
-	play(t, seed, 3, broken)
+	pub seed: usize,
+	pub broken: bool,
+	pub base: i8,
+	pub target_volume: u8,
+
+	volume: u8,
+	ticks: usize,
 }
 
-pub fn play(tick: usize, seed_offset: usize, base: i8, broken: bool)
+impl Music
 {
-	if tick % RATE != 0
+	pub fn main_theme() -> Music
 	{
-		return;
+		Music {
+			seed: SEED_ALPHA,
+			broken: false,
+			base: -9,
+			target_volume: 30,
+			volume: 0,
+			ticks: 0,
+		}
 	}
 
-	let t = tick / RATE;
-	let seed = SEEDS[seed_offset % NUM_FIELDS];
-	let note = base + determine_note(t, seed, broken);
-	play_note(note, broken)
+	pub fn for_level(field_offset: u8, broken: bool) -> Music
+	{
+		let base = if field_offset < (NUM_FIELDS as u8) / 2
+		{
+			0 - (field_offset as i8)
+		}
+		else
+		{
+			-6 + (field_offset as i8)
+		};
+
+		Music {
+			seed: SEEDS[(field_offset as usize) % NUM_FIELDS],
+			base,
+			broken,
+			target_volume: 20,
+			volume: 0,
+			ticks: 0,
+		}
+	}
+
+	pub fn update(&mut self)
+	{
+		let t = self.ticks / RATE;
+		if self.ticks % RATE != 0
+		{
+			self.ticks += 1;
+			return;
+		}
+		self.ticks += 1;
+
+		if self.volume < self.target_volume
+		{
+			self.volume += 1;
+		}
+		else if self.volume > self.target_volume
+		{
+			self.volume -= 1;
+		}
+
+		let note = self.base + determine_note(t, self.seed, self.broken);
+		play_note(note, self.broken, self.volume)
+	}
 }
 
 const fn determine_note(t: usize, seed: usize, broken: bool) -> i8
@@ -77,7 +127,7 @@ const fn determine_note(t: usize, seed: usize, broken: bool) -> i8
 	}
 }
 
-fn play_note(note: i8, broken: bool)
+fn play_note(note: i8, broken: bool, volume: u8)
 {
 	let power = if broken { 13 } else { 12 };
 	let magic = 2f64.powf(1.0 / (power as f64));
@@ -87,7 +137,7 @@ fn play_note(note: i8, broken: bool)
 	tone(
 		freq.round() as u32,
 		sustain | (release << 8),
-		20,
+		volume as u32,
 		TONE_TRIANGLE,
 	);
 }

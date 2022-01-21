@@ -55,6 +55,7 @@ Audio:
     ✔ Change `base` based on translation progress @done (2022-01-21 23:21)
       In multiples of 36?
     ✔ Change `broken` if `going_back` @done (2022-01-21 23:11)
+  ☐ Change translation_update sound
   ✔ Footsteps @done (2022-01-18 22:33)
   ✔ Snatch animation sfx @done (2022-01-18 23:07)
   ✘ Scanning sounds @cancelled (2022-01-19 22:42)
@@ -69,6 +70,7 @@ Cinematics:
   ✔ Last door closing @done (2022-01-21 11:23)
 
 Polish:
+  ☐ Are the framerate issues also there on release build?
   ☐ HEAT DEATH style title font (?)
   ☐ CREDITS
   ☐ Icon / favicon
