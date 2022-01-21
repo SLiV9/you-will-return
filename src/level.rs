@@ -8,6 +8,7 @@ use crate::communication::*;
 use crate::dialog::*;
 use crate::field::*;
 use crate::hero::*;
+use crate::music;
 use crate::palette;
 use crate::sfx;
 use crate::sprites;
@@ -456,6 +457,8 @@ impl Level
 
 	pub fn draw(&mut self)
 	{
+		music::play_sample(self.ticks as usize);
+
 		unsafe { *PALETTE = palette::LEVEL };
 
 		let hero_position = self.get_hero_position();
