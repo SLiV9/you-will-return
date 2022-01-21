@@ -12,10 +12,10 @@ const RATE: usize = 14;
 
 pub fn play_sample(t: usize)
 {
-	//let seed: usize = 487;
-	//let seed: usize = 443;
-	//let seed: usize = 389;
-	let seed: usize = 449;
+	let seed: usize = 174;
+	//let seed: usize = 130;
+	//let seed: usize = 76;
+	//let seed: usize = 136;
 	let ground_freq = 264;
 	let broken = false;
 	play(t, seed, ground_freq, broken)
@@ -60,4 +60,55 @@ fn play_note(note: i8, ground_freq: u32, broken: bool)
 		20,
 		TONE_PULSE1,
 	);
+}
+
+#[cfg(test)]
+mod tests
+{
+	use super::*;
+
+	const LOOP_LENGTH: usize = 313 * 12;
+
+	#[test]
+	fn test_loop_length()
+	{
+		for seed in 7..487
+		{
+			let first_notes =
+				(0..LOOP_LENGTH).map(|t| get_note_from_t(t, seed, false));
+			let second_notes = (0..LOOP_LENGTH)
+				.map(|t| get_note_from_t(t + LOOP_LENGTH, seed, false));
+			for (t, (a, b)) in first_notes.zip(second_notes).enumerate()
+			{
+				assert_eq!(a, b, "note mismatch at {} in seed {}", t, seed);
+			}
+		}
+	}
+
+	#[test]
+	fn print_unique_seed()
+	{
+		let mut uniques: Vec<(usize, [i8; LOOP_LENGTH])> = Vec::new();
+		for seed in 1..487
+		{
+			let mut notes = [0i8; LOOP_LENGTH];
+			for t in 0..LOOP_LENGTH
+			{
+				notes[t] = get_note_from_t(t, seed, false);
+			}
+			let is_matched = uniques.iter().any(|(_, seed_notes)| {
+				seed_notes.iter().zip(notes.iter()).all(|(a, b)| a == b)
+			});
+			if !is_matched
+			{
+				uniques.push((seed, notes));
+			}
+		}
+		println!("There are {} unique seeds:", uniques.len());
+		for (seed, _) in uniques
+		{
+			print!("{} ", seed);
+		}
+		println!();
+	}
 }
