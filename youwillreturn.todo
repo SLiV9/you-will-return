@@ -50,6 +50,9 @@ Audio:
   ✔ Sound of massive doors opening and closing @done (2022-01-18 17:05)
   ☐ Water drips (?)
   ☐ Ambient "music"
+    Change `seed` based on field offset, but pick some nice ones.
+    Change `base` based on translation progress (in multiples of 36?).
+    Change `broken` if `going_back`.
   ✔ Footsteps @done (2022-01-18 22:33)
   ✔ Snatch animation sfx @done (2022-01-18 23:07)
   ✘ Scanning sounds @cancelled (2022-01-19 22:42)
