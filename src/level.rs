@@ -8,6 +8,7 @@ use crate::communication::*;
 use crate::dialog::*;
 use crate::field::*;
 use crate::hero::*;
+use crate::music;
 use crate::palette;
 use crate::sfx;
 use crate::sprites;
@@ -456,37 +457,7 @@ impl Level
 
 	pub fn draw(&mut self)
 	{
-		let mysterious_subset = [0, 2, 3, 5, 7, 8, 11, 12];
-		let rate: u32 = 14;
-		if (self.ticks as usize) % (rate as usize) == 0
-		{
-			let good = true;
-			let ground_freq = 264;
-			let i = (self.ticks as usize) / (rate as usize);
-			let power = if good { 12 } else { 13 };
-			let note = if i % power == 0
-			{
-				0
-			}
-			else
-			{
-				//let offset = (487usize.wrapping_mul(i)) % 313;
-				//let offset = (443usize.wrapping_mul(i)) % 313;
-				//let offset = (389usize.wrapping_mul(i)) % 313;
-				let offset = (449usize.wrapping_mul(i)) % 313;
-				mysterious_subset[offset % mysterious_subset.len()]
-			};
-			let magic = 2f64.powf(1.0 / (power as f64));
-			let freq: f64 = (ground_freq as f64) * magic.powf(note as f64);
-			let sustain = rate / 2;
-			let release = rate / 2;
-			tone(
-				freq.round() as u32,
-				sustain | (release << 8),
-				20,
-				TONE_PULSE1,
-			);
-		}
+		music::play_sample(self.ticks as usize);
 
 		unsafe { *PALETTE = palette::LEVEL };
 

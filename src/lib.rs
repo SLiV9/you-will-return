@@ -17,6 +17,7 @@ mod global_state;
 mod hero;
 mod level;
 mod menu;
+mod music;
 mod palette;
 mod save_data;
 mod sfx;
