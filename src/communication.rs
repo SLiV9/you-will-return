@@ -135,8 +135,8 @@ pub const COMMUNICATIONS: [Communication; NUM_FIELDS] = [
 		real: ["YOU", "MUST", "TURN BACK", ""],
 	},
 	Communication {
-		untranslated: ["FINIS", "PRAAT", "", ""],
-		rough: ["latest", "gift", "", ""],
+		untranslated: ["FINIS PRAAT", "", "", ""],
+		rough: ["latest gift", "", "", ""],
 		confident: ["OUR ULTIMATE GIFT", "", "", ""],
 		real: ["FINAL WARNING", "", "", ""],
 	},

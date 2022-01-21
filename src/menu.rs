@@ -99,6 +99,31 @@ impl Menu
 						None => (),
 					}
 				}
+				else if (gamepad & BUTTON_UP != 0)
+					&& (self.previous_gamepad & BUTTON_UP == 0)
+				{
+					match self.quick_start_offset
+					{
+						Some(offset)
+							if offset >= 8 && offset < (NUM_FIELDS as u8) =>
+						{
+							self.quick_start_offset = Some(offset - 5);
+						}
+						Some(_) | None => (),
+					}
+				}
+				else if (gamepad & BUTTON_DOWN != 0)
+					&& (self.previous_gamepad & BUTTON_DOWN == 0)
+				{
+					match self.quick_start_offset
+					{
+						Some(offset) if offset >= 3 && offset < 8 =>
+						{
+							self.quick_start_offset = Some(offset + 5);
+						}
+						Some(_) | None => (),
+					}
+				}
 			}
 
 			self.previous_gamepad = gamepad;
@@ -241,12 +266,24 @@ impl Menu
 			};
 			for offset in 0..num
 			{
+				let (xx, yy) = if offset < 3
+				{
+					(x - 10 - 4 * (offset as i32), y - 5)
+				}
+				else if offset < 8
+				{
+					(x - 12 - 4 * (offset as i32), y - 5)
+				}
+				else
+				{
+					(x - 12 - 4 * (offset as i32) + 20, y + 4)
+				};
 				if self.quick_start_offset == Some(offset)
 				{
 					if (self.ticks % 30) < 15
 					{
 						unsafe { *DRAW_COLORS = 0x33 };
-						hline(x - 11 - 4 * (offset as i32), y + 2, 5);
+						hline(xx - 1, yy + 7, 5);
 					}
 					unsafe { *DRAW_COLORS = 0x44 };
 				}
@@ -254,16 +291,18 @@ impl Menu
 				{
 					unsafe { *DRAW_COLORS = 0x33 };
 				}
-				rect(x - 10 - 4 * (offset as i32), y - 5, 3, 6);
+				rect(xx, yy, 3, 6);
 			}
 			if self.max_field_offset_reached >= NUM_FIELDS as u8
 			{
+				let xx = x - 15 - 4 * (NUM_FIELDS as i32) + 20;
+				let yy = y + 9;
 				if self.quick_start_offset == Some(NUM_FIELDS as u8)
 				{
 					if (self.ticks % 30) < 15
 					{
 						unsafe { *DRAW_COLORS = 0x33 };
-						hline(x - 17 - 4 * (NUM_FIELDS as i32), y + 2, 9);
+						hline(xx - 4, yy + 2, 9);
 					}
 					unsafe { *DRAW_COLORS = 0x42 };
 				}
@@ -271,7 +310,7 @@ impl Menu
 				{
 					unsafe { *DRAW_COLORS = 0x32 };
 				}
-				inner_doors_icon::draw(x - 13 - 4 * (NUM_FIELDS as i32), y);
+				inner_doors_icon::draw(xx, yy);
 			}
 		}
 	}

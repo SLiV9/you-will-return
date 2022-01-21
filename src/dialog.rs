@@ -102,6 +102,42 @@ pub const DIALOG_TREES: [DialogTree; NUM_FIELDS] = [
 	},
 	DialogTree {
 		on_col_2: None,
+		on_col_4: None,
+		on_confident_translation: None,
+		on_first_death: None,
+	},
+	DialogTree {
+		on_col_2: None,
+		on_col_4: None,
+		on_confident_translation: None,
+		on_first_death: None,
+	},
+	DialogTree {
+		on_col_2: None,
+		on_col_4: None,
+		on_confident_translation: None,
+		on_first_death: None,
+	},
+	DialogTree {
+		on_col_2: None,
+		on_col_4: None,
+		on_confident_translation: None,
+		on_first_death: None,
+	},
+	DialogTree {
+		on_col_2: None,
+		on_col_4: None,
+		on_confident_translation: None,
+		on_first_death: None,
+	},
+	DialogTree {
+		on_col_2: None,
+		on_col_4: None,
+		on_confident_translation: None,
+		on_first_death: None,
+	},
+	DialogTree {
+		on_col_2: None,
 		on_col_4: Some(Dialog {
 			is_self: true,
 			line: "Our salvation!",

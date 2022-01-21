@@ -118,13 +118,19 @@ impl FieldWork
 	}
 }
 
-pub const NUM_FIELDS: usize = 7;
+pub const NUM_FIELDS: usize = 13;
 pub const FIELDS: [Field; NUM_FIELDS] = [
 	F_EMPTY_HALLWAY,
 	F_CENTER_WALL,
 	F_TWO_ROOMS,
 	F_FIRST_BOMB,
 	F_DOUBLE_BOMB,
+	F_J_SHAPE,
+	F_J_SHAPE,
+	F_J_SHAPE,
+	F_J_SHAPE,
+	F_J_SHAPE,
+	F_J_SHAPE,
 	F_J_SHAPE,
 	F_FINAL_ROOM,
 ];
