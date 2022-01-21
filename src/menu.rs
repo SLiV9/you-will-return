@@ -231,7 +231,7 @@ impl Menu
 			{
 				0
 			}
-			else if self.max_field_offset_reached == NUM_FIELDS as u8
+			else if self.max_field_offset_reached >= NUM_FIELDS as u8
 			{
 				NUM_FIELDS as u8
 			}
