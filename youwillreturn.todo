@@ -1,6 +1,6 @@
 Game design:
   ✔ Come up with a main game mechanic @done (2022-01-15 11:32)
-  ☐ Master palette
+  ✔ Master palette @done (2022-01-21 11:23)
     Maybe turning the lights on changes the color palette?
 
 Mechanics:
@@ -16,7 +16,7 @@ Mechanics:
 
 Content:
   ☐ Ten levels
-  ☐ Write the text on the walls
+  ✔ Write the text on the walls @done (2022-01-21 12:02)
   ☐ Dialogue between astronauts (?)
   ✔ Prologue @done (2022-01-17 02:02)
 
@@ -40,6 +40,7 @@ Sprites:
   ✘ Reveal over time during scanning @cancelled (2022-01-18 23:36)
     ✔ Reveal garbage when scanning in interference @done (2022-01-18 23:36)
       ✔ Also with strength 1 @done (2022-01-19 22:20)
+  ☐ HUD starts glitching when going back
 
 Audio:
   ✔ Interference on flag tiles @done (2022-01-18 22:11)
@@ -61,7 +62,7 @@ Cinematics:
     Planet/sun in the background descending from top of the screen, dark planet ascending from the bottom
   ✔ Initial door opening @done (2022-01-17 02:25)
   ✔ Final door opening @done (2022-01-20 21:55)
-  ☐ Last door closing
+  ✔ Last door closing @done (2022-01-21 11:23)
 
 Polish:
   ☐ HEAT DEATH style title font (?)

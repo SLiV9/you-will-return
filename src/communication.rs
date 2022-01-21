@@ -80,6 +80,67 @@ pub const COMMUNICATIONS: [Communication; NUM_FIELDS] = [
 		real: ["WHAT IS HERE", "IS REPULSIVE TO US", "", ""],
 	},
 	Communication {
+		untranslated: ["DIT X BRON", "DE DNGR", "X NEG OOIT", "X KLEIN"],
+		rough: ["it is source?", "of energy", "it not ever", "is small"],
+		confident: ["IT IS A SOURCE", "OF ENERGY", "IT NEVER", "RUNS OUT"],
+		real: ["IT IS A SOURCE", "OF DANGER", "IT NEVER", "GOES AWAY"],
+	},
+	Communication {
+		untranslated: ["DNGR", "X DE MASS", "X GENOEG", "TOT EINDE"],
+		rough: ["energy", "is of weight", "is enough", "until end?"],
+		confident: [
+			"THE ENERGY",
+			"IS STRONG",
+			"IT IS ENOUGH",
+			"TO LAST FOREVER",
+		],
+		real: [
+			"THE DANGER",
+			"IS TO THE BODY",
+			"IT IS ENOUGH",
+			"TO BE FATAL",
+		],
+	},
+	Communication {
+		untranslated: ["DIT X IN BOX", "LYK VEILIG", "ACHTER DIT MUUR", ""],
+		rough: ["it is in box", "like? safe", "behind? this door", ""],
+		confident: ["IT IS STORED", "SAFELY", "BEHIND THESE DOORS", ""],
+		real: ["IT IS CONTAINED", "SAFELY", "BEHIND THESE WALLS", ""],
+	},
+	Communication {
+		untranslated: [
+			"CE JIJ UNBOX DIT",
+			"TOT TOEKOMST",
+			"CE JIJ GA",
+			"TEGENKOM WY",
+		],
+		rough: [
+			"when? you un-box it",
+			"until future",
+			"when? you go",
+			"and meet us",
+		],
+		confident: [
+			"WHEN YOU OPEN IT",
+			"IN THE FUTURE",
+			"YOU GO",
+			"TO MEET US",
+		],
+		real: ["YOU UNLEASH IT", "FOREVER", "WHEN YOU GO ON", "AND DEFY US"],
+	},
+	Communication {
+		untranslated: ["JIJ", "ZAL", "KEER TERUG", ""],
+		rough: ["you", "will", "return", ""],
+		confident: ["YOU", "WILL", "RETURN", ""],
+		real: ["YOU", "MUST", "TURN BACK", ""],
+	},
+	Communication {
+		untranslated: ["FINIS", "PRAAT", "", ""],
+		rough: ["latest", "gift", "", ""],
+		confident: ["OUR ULTIMATE GIFT", "", "", ""],
+		real: ["FINAL WARNING", "", "", ""],
+	},
+	Communication {
 		untranslated: ["QDPCQ KLOQJ", "", "", ""],
 		rough: ["  CONFIRM OVERRIDE  ", "", "", ""],
 		confident: [" OVERRIDE CONFIRMED ", "", "", ""],
