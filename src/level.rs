@@ -456,26 +456,30 @@ impl Level
 
 	pub fn draw(&mut self)
 	{
-		let sequence = [0, 0, 5, 4, 8, 7, 12];
-		let rate: u32 = 12;
+		let mysterious_subset = [0, 2, 3, 5, 7, 8, 11, 12];
+		let rate: u32 = 14;
 		if (self.ticks as usize) % (rate as usize) == 0
-			&& (self.ticks as usize) < sequence.len() * (rate as usize)
 		{
 			let good = true;
 			let ground_freq = 264;
-			let i = ((self.ticks as usize) / (rate as usize)) % sequence.len();
+			let i = (self.ticks as usize) / (rate as usize);
 			let power = if good { 12 } else { 13 };
-			let magic = 2f64.powf(1.0 / (power as f64));
-			let freq: f64 =
-				(ground_freq as f64) * magic.powf(sequence[i] as f64);
-			let (sustain, release) = if i + 2 < sequence.len()
+			let note = if i % power == 0
 			{
-				(rate / 2, rate / 2)
+				0
 			}
 			else
 			{
-				(rate / 2, rate * 3 / 2)
+				//let offset = (487usize.wrapping_mul(i)) % 313;
+				//let offset = (443usize.wrapping_mul(i)) % 313;
+				//let offset = (389usize.wrapping_mul(i)) % 313;
+				let offset = (449usize.wrapping_mul(i)) % 313;
+				mysterious_subset[offset % mysterious_subset.len()]
 			};
+			let magic = 2f64.powf(1.0 / (power as f64));
+			let freq: f64 = (ground_freq as f64) * magic.powf(note as f64);
+			let sustain = rate / 2;
+			let release = rate / 2;
 			tone(
 				freq.round() as u32,
 				sustain | (release << 8),
