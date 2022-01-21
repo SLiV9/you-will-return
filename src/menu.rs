@@ -5,6 +5,7 @@
 //
 
 use crate::field::NUM_FIELDS;
+use crate::music;
 use crate::palette;
 use crate::sprites::inner_doors_icon;
 use crate::sprites::stars;
@@ -39,6 +40,8 @@ impl Menu
 
 	pub fn update(&mut self) -> Option<Transition>
 	{
+		music::play_title_screen(self.ticks as usize);
+
 		self.ticks += 1;
 		self.is_scanning = false;
 

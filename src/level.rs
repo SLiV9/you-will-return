@@ -123,6 +123,17 @@ impl Level
 
 	pub fn update(&mut self) -> Option<Transition>
 	{
+		{
+			let progress = self.get_translation_progress_percentage();
+			let base = -24 + 24 * (progress as i32) / 100;
+			music::play(
+				self.ticks as usize,
+				self.field_offset as usize,
+				base as i8,
+				self.going_back,
+			);
+		}
+
 		self.ticks += 1;
 
 		if self.ticks % 60 == 0
@@ -363,10 +374,6 @@ impl Level
 		let translation_percentage = self.get_translation_progress_percentage();
 		if translation_percentage > self.last_translation_update
 		{
-			if self.is_translating
-			{
-				sfx::translation_update(translation_percentage);
-			}
 			self.last_translation_update = translation_percentage;
 			self.seconds_since_last_translation_update = 0;
 		}
@@ -457,8 +464,6 @@ impl Level
 
 	pub fn draw(&mut self)
 	{
-		music::play_sample(self.ticks as usize);
-
 		unsafe { *PALETTE = palette::LEVEL };
 
 		let hero_position = self.get_hero_position();

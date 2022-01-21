@@ -11,13 +11,6 @@ pub fn text_beep()
 	tone(390, (2 << 24) | (8 << 8), 33, TONE_TRIANGLE | TONE_MODE2);
 }
 
-pub fn translation_update(percentage: u8)
-{
-	let freq = 400 + 3 * percentage as u32;
-	let freq2 = freq + 10;
-	tone(freq | (freq2 << 16), 8 | (12 << 8), 10, TONE_TRIANGLE);
-}
-
 pub fn door_jolt()
 {
 	tone(190 | (180 << 16), 10 | (35 << 8), 100, TONE_NOISE);
