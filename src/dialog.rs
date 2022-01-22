@@ -59,16 +59,13 @@ pub const DIALOG_TREES: [DialogTree; NUM_FIELDS] = [
 			is_self: true,
 			line: "For us to find!",
 		}),
-		on_first_death: Some(Dialog {
-			is_self: false,
-			line: "What happened?",
-		}),
+		on_first_death: None,
 	},
 	DialogTree {
 		on_col_2: None,
 		on_col_4: Some(Dialog {
-			is_self: false,
-			line: "... interference...",
+			is_self: true,
+			line: "Suit going haywire.",
 		}),
 		on_confident_translation: None,
 		on_first_death: Some(Dialog {

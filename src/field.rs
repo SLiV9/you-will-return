@@ -126,12 +126,12 @@ pub const FIELDS: [Field; NUM_FIELDS] = [
 	F_FIRST_BOMB,
 	F_DOUBLE_BOMB,
 	F_J_SHAPE,
+	F_DIAGONAL,
+	F_MAZE,
 	F_PAIRS,
-	F_PAIRS,
-	F_PAIRS,
-	F_PAIRS,
-	F_PAIRS,
-	F_PAIRS,
+	F_DIAGONAL,
+	F_DIAGONAL,
+	F_DIAGONAL,
 	F_FINAL_ROOM,
 ];
 
@@ -234,11 +234,11 @@ const F_CENTER_WALL: Field = {
 const F_TWO_ROOMS: Field = {
 	#[rustfmt::skip]
 	const WALL_DATA: [u8; WALL_DATA_SIZE] = [
-		0b10000010,
-		0b11101110,
-		0b00000000,
-		0b11101110,
-		0b10000010,
+		0b00100000,
+		0b01101110,
+		0b00101000,
+		0b01101110,
+		0b00001000,
 	];
 	#[rustfmt::skip]
 	const BOMB_DATA: [u8; BOMB_DATA_SIZE] = [
@@ -254,11 +254,11 @@ const F_TWO_ROOMS: Field = {
 const F_FIRST_BOMB: Field = {
 	#[rustfmt::skip]
 	const WALL_DATA: [u8; WALL_DATA_SIZE] = [
-		0b11111111,
+		0b00111111,
+		0b00100000,
 		0b00000000,
-		0b00000000,
-		0b00000000,
-		0b11111111,
+		0b00100000,
+		0b00111111,
 	];
 	#[rustfmt::skip]
 	const BOMB_DATA: [u8; BOMB_DATA_SIZE] = [
@@ -275,9 +275,9 @@ const F_DOUBLE_BOMB: Field = {
 	#[rustfmt::skip]
 	const WALL_DATA: [u8; WALL_DATA_SIZE] = [
 		0b11001001,
-		0b01101001,
-		0b00000000,
-		0b00100001,
+		0b01011000,
+		0b00000010,
+		0b00100000,
 		0b11111111,
 	];
 	#[rustfmt::skip]
@@ -314,18 +314,58 @@ const F_J_SHAPE: Field = {
 const F_PAIRS: Field = {
 	#[rustfmt::skip]
 	const WALL_DATA: [u8; WALL_DATA_SIZE] = [
+		0b10000001,
+		0b00010000,
+		0b00010000,
 		0b00000000,
+		0b10000001,
+	];
+	#[rustfmt::skip]
+	const BOMB_DATA: [u8; BOMB_DATA_SIZE] = [
+		0b00100100,
+		0b00100100,
 		0b00000000,
-		0b00000000,
-		0b00000000,
-		0b00000000,
+		0b00110100,
+		0b00000100,
+	];
+	Field::generate(WALL_DATA, BOMB_DATA)
+};
+
+const F_MAZE: Field = {
+	#[rustfmt::skip]
+	const WALL_DATA: [u8; WALL_DATA_SIZE] = [
+		0b10001000,
+		0b00101010,
+		0b00000010,
+		0b00101010,
+		0b10001000,
 	];
 	#[rustfmt::skip]
 	const BOMB_DATA: [u8; BOMB_DATA_SIZE] = [
 		0b00000100,
-		0b00100100,
+		0b01000000,
 		0b00100000,
-		0b00001100,
+		0b00000000,
+		0b00000000,
+	];
+	Field::generate(WALL_DATA, BOMB_DATA)
+};
+
+const F_DIAGONAL: Field = {
+	#[rustfmt::skip]
+	const WALL_DATA: [u8; WALL_DATA_SIZE] = [
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00010000,
+	];
+	#[rustfmt::skip]
+	const BOMB_DATA: [u8; BOMB_DATA_SIZE] = [
+		0b00001000,
+		0b01000100,
+		0b00100010,
+		0b00010000,
 		0b00000000,
 	];
 	Field::generate(WALL_DATA, BOMB_DATA)

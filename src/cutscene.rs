@@ -75,10 +75,10 @@ impl Cutscene
 				let progress = (self.ticks / 7) as usize;
 				unsafe { *DRAW_COLORS = 0x33 };
 				let h_of_box = std::cmp::min(
-					10 * PROLOGUE_LINES.len() + 2,
+					10 * PROLOGUE_LINES.len() + 4,
 					3 + (self.ticks / 8) as usize,
 				);
-				rect(3, 3, 160 - 6, h_of_box as u32);
+				rect(2, 2, 160 - 4, h_of_box as u32);
 				let x = 5;
 				let mut y = 5;
 				let mut t = 10;
@@ -339,15 +339,15 @@ const PROLOGUE_LINES: [&'static str; 14] = [
 	"We left our home",
 	"to explore space.",
 	"Cold, empty space.",
-	"At last we have",
-	"returned.",
+	"At last we return.",
 	"",
 	"What we find is",
 	"total desolation.",
+	"Our ancestors gone.",
 	"Where did they go?",
-	"All that remains of",
-	"our civilization",
-	"is a hidden vault.",
 	"",
-	"Waiting for us.",
+	"No signs of life or",
+	"civilization remain",
+	"apart from a single",
+	"underground vault.",
 ];
