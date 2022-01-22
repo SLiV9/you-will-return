@@ -57,7 +57,7 @@ pub const DIALOG_TREES: [DialogTree; NUM_FIELDS] = [
 		}),
 		on_confident_translation: Some(Dialog {
 			is_self: true,
-			line: "For us to find!",
+			line: "Built it for us!",
 		}),
 		on_first_death: None,
 	},
@@ -94,7 +94,10 @@ pub const DIALOG_TREES: [DialogTree; NUM_FIELDS] = [
 			line: "Just keep going.",
 		}),
 		on_col_4: None,
-		on_confident_translation: None,
+		on_confident_translation: Some(Dialog {
+			is_self: true,
+			line: "Is it rocket fuel?",
+		}),
 		on_first_death: None,
 	},
 	DialogTree {
@@ -112,26 +115,38 @@ pub const DIALOG_TREES: [DialogTree; NUM_FIELDS] = [
 	DialogTree {
 		on_col_2: None,
 		on_col_4: None,
-		on_confident_translation: None,
+		on_confident_translation: Some(Dialog {
+			is_self: true,
+			line: "They saved us some.",
+		}),
+		on_first_death: None,
+	},
+	DialogTree {
+		on_col_2: None,
+		on_col_4: None,
+		on_confident_translation: Some(Dialog {
+			is_self: true,
+			line: "We can find them!",
+		}),
 		on_first_death: None,
 	},
 	DialogTree {
 		on_col_2: None,
 		on_col_4: None,
 		on_confident_translation: None,
-		on_first_death: None,
+		on_first_death: Some(Dialog {
+			is_self: false,
+			line: "We cannot give up.",
+		}),
 	},
 	DialogTree {
 		on_col_2: None,
 		on_col_4: None,
 		on_confident_translation: None,
-		on_first_death: None,
-	},
-	DialogTree {
-		on_col_2: None,
-		on_col_4: None,
-		on_confident_translation: None,
-		on_first_death: None,
+		on_first_death: Some(Dialog {
+			is_self: false,
+			line: "We must go on.",
+		}),
 	},
 	DialogTree {
 		on_col_2: None,

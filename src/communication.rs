@@ -80,8 +80,8 @@ pub const COMMUNICATIONS: [Communication; NUM_FIELDS] = [
 		real: ["WHAT IS HERE", "IS REPULSIVE TO US", "", ""],
 	},
 	Communication {
-		untranslated: ["DIT X BRON", "DE DNGR", "X NEG OOIT", "X KLEIN"],
-		rough: ["it is source?", "of energy", "it not ever", "is small"],
+		untranslated: ["DIT X BRON", "DE DNGR", "DIT NEG OOIT", "VER KLEIN"],
+		rough: ["it is source?", "of energy", "it not ever", "become? small"],
 		confident: ["IT IS A SOURCE", "OF ENERGY", "IT NEVER", "RUNS OUT"],
 		real: ["IT IS A SOURCE", "OF DANGER", "IT NEVER", "GOES AWAY"],
 	},
@@ -102,10 +102,10 @@ pub const COMMUNICATIONS: [Communication; NUM_FIELDS] = [
 		],
 	},
 	Communication {
-		untranslated: ["DIT X IN BOX", "LYK VEILIG", "ACHTER DIT MUUR", ""],
-		rough: ["it is in box", "like? safe", "behind? this door", ""],
-		confident: ["IT IS STORED", "SAFELY", "BEHIND THESE DOORS", ""],
-		real: ["IT IS CONTAINED", "SAFELY", "BEHIND THESE WALLS", ""],
+		untranslated: ["WY BOX DIT", "LYK VEILIG", "ACHTER DIT MUUR", ""],
+		rough: ["we box this", "like? safe", "behind? this door", ""],
+		confident: ["WE STORED IT", "SAFELY", "BEHIND THESE DOORS", ""],
+		real: ["WE CONTAINED IT", "SAFELY", "BEHIND THESE WALLS", ""],
 	},
 	Communication {
 		untranslated: [
