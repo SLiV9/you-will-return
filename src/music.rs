@@ -14,17 +14,17 @@ const RATE: usize = 14;
 const GROUND_FREQUENCY: f64 = 220f64;
 
 const SEEDS: [usize; NUM_FIELDS] = [
-	SEED_ARRIVAL,
+	SEED_ALPHA,
 	SEED_PENSIVE,
 	SEED_INVESTIGATE,
 	SEED_ALTERNATING,
 	SEED_ENGINE,
 	SEED_CASTLE,
+	SEED_ALPHA,
 	SEED_BLOOD,
 	SEED_RAIN,
 	SEED_BROKEN,
 	SEED_CLIMB,
-	SEED_ALPHA,
 	SEED_ULTRA,
 	SEED_DESCENDING,
 ];
@@ -59,7 +59,7 @@ impl Music
 	pub fn main_theme() -> Music
 	{
 		Music {
-			seed: SEED_ALPHA,
+			seed: SEED_ARRIVAL,
 			broken: false,
 			base: -9,
 			target_volume: 30,

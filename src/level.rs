@@ -372,7 +372,7 @@ impl Level
 		let translation_percentage = self.get_translation_progress_percentage();
 		if translation_percentage > self.last_translation_update
 		{
-			if self.is_translating
+			if self.is_translating && self.dialog.is_none()
 			{
 				sfx::translation_update(translation_percentage);
 			}

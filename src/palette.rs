@@ -17,15 +17,15 @@ pub const PROLOGUE: [u32; 4] = [
 	0x26201d,
 	0x4d533a,
 	0x4d533a,
-	0x5d7643,
+	0xcbd1be,
 ];
 
 #[rustfmt::skip]
 pub const ENTRY: [u32; 4] = [
 	0x26201d,
-	0x4d533a,
+	0x26201d,
 	0xcbd1be,
-	0x5d7643,
+	0x4d533a,
 ];
 
 #[rustfmt::skip]
