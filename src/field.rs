@@ -52,6 +52,10 @@ impl Field
 
 	pub fn flag_count_from_rc(&self, r: u8, c: u8) -> u8
 	{
+		if self.has_bomb_at_rc(r, c)
+		{
+			return 0;
+		}
 		let data_offset = r * FIELD_WIDTH + c;
 		let byte_offset = (data_offset / 2) as usize;
 		let needs_bit_shift: bool = (data_offset % 2) == 0;

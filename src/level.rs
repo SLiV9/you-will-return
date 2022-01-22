@@ -95,13 +95,29 @@ impl Level
 			NORMAL_HEART_RATE_IN_TICKS
 		};
 
+		let field = &FIELDS[field_offset as usize];
+		let mut field_work = FieldWork::new();
+		if field_offset != (NUM_FIELDS - 1) as u8
+		{
+			for r in 0..FIELD_HEIGHT
+			{
+				for c in 0..FIELD_WIDTH
+				{
+					if !field.has_wall_at_rc(r, c)
+					{
+						field_work.activate(r, c);
+					}
+				}
+			}
+		}
+
 		Self {
 			going_back,
 			field_offset,
-			field: &FIELDS[field_offset as usize],
+			field,
 			communication: &COMMUNICATIONS[field_offset as usize],
 			dialog_tree: &DIALOG_TREES[field_offset as usize],
-			field_work: FieldWork::new(),
+			field_work,
 			dialog: None,
 			ticks: 0,
 			hero,
@@ -703,8 +719,12 @@ impl Level
 					let count = self.field.flag_count_from_rc(r, c);
 					unsafe { *DRAW_COLORS = 0x01 };
 					sprites::alien_tile::draw_tile(xx, yy, seed);
-					unsafe { *DRAW_COLORS = 0x30 };
-					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
+					if !self.going_back
+						|| hero_position == Some(Position { row: r, col: c })
+					{
+						unsafe { *DRAW_COLORS = 0x30 };
+						rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
+					}
 					unsafe { *DRAW_COLORS = 0x13 };
 					if count > 0 && count < 8
 					{
