@@ -50,12 +50,12 @@ Audio:
   ☐ Alien sounds
   ✔ Sound of massive doors opening and closing @done (2022-01-18 17:05)
   ☐ Water drips (?)
-  ☐ Ambient "music"
+  ✔ Ambient "music" @done (2022-01-22 13:39)
     ✔ Change `seed` based on field offset, but pick some nice ones @done (2022-01-21 23:11)
     ✔ Change `base` based on translation progress @done (2022-01-21 23:21)
       In multiples of 36?
     ✔ Change `broken` if `going_back` @done (2022-01-21 23:11)
-  ☐ Change translation_update sound
+  ✔ Change translation_update sound @done (2022-01-22 13:39)
   ✔ Footsteps @done (2022-01-18 22:33)
   ✔ Snatch animation sfx @done (2022-01-18 23:07)
   ✘ Scanning sounds @cancelled (2022-01-19 22:42)
@@ -70,7 +70,9 @@ Cinematics:
   ✔ Last door closing @done (2022-01-21 11:23)
 
 Polish:
-  ☐ Are the framerate issues also there on release build?
+  ✔ Are the framerate issues also there on release build? @done (2022-01-22 13:57)
+    Yes.
+    ☐ Fix framerate issues
   ☐ HEAT DEATH style title font (?)
   ☐ CREDITS
   ☐ Icon / favicon
