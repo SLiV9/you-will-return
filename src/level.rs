@@ -97,7 +97,7 @@ impl Level
 
 		let field = &FIELDS[field_offset as usize];
 		let mut field_work = FieldWork::new();
-		if field_offset != (NUM_FIELDS - 1) as u8
+		if going_back && field_offset != (NUM_FIELDS - 1) as u8
 		{
 			for r in 0..FIELD_HEIGHT
 			{
@@ -533,6 +533,18 @@ impl Level
 				let y = self.hero.y - (h as i32) / 2;
 				oval(x, y, w, h);
 			}
+		}
+
+		if self.going_back
+		{
+			let x = self.get_x_of_decay();
+			unsafe { *DRAW_COLORS = 0x44 };
+			rect(
+				x,
+				Y_OF_FIELD,
+				(160 - x) as u32,
+				(FIELD_HEIGHT as u32) * TILE_HEIGHT,
+			);
 		}
 
 		unsafe { *DRAW_COLORS = 1 };
@@ -1007,6 +1019,28 @@ impl Level
 			let percentage = std::cmp::min(progress * 100 / max, 100);
 			percentage as u8
 		}
+	}
+
+	fn get_x_of_decay(&self) -> i32
+	{
+		let difficulty = (NUM_FIELDS as i32) - (self.field_offset as i32);
+		let ticks_between_jumps = 50 - 3 * difficulty;
+		let noise = (83 * (self.ticks / 4)) % 127;
+		let extra = if noise < 10
+		{
+			2
+		}
+		else if noise - (self.ticks % ticks_between_jumps) < 5
+		{
+			1
+		}
+		else
+		{
+			0
+		};
+		let progress = self.ticks / ticks_between_jumps + extra;
+		let x = 160 - 2 * progress;
+		std::cmp::max(1, std::cmp::min(x, 160))
 	}
 }
 
