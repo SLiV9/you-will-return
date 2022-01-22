@@ -129,9 +129,9 @@ pub const FIELDS: [Field; NUM_FIELDS] = [
 	F_DIAGONAL,
 	F_MAZE,
 	F_PAIRS,
-	F_DIAGONAL,
+	F_RED_SEA,
 	F_EXCESS,
-	F_DIAGONAL,
+	F_DESPAIR,
 	F_FINAL_ROOM,
 ];
 
@@ -387,6 +387,46 @@ const F_EXCESS: Field = {
 		0b00010000,
 		0b00110001,
 		0b00000000,
+	];
+	Field::generate(WALL_DATA, BOMB_DATA)
+};
+
+const F_RED_SEA: Field = {
+	#[rustfmt::skip]
+	const WALL_DATA: [u8; WALL_DATA_SIZE] = [
+		0b00000011,
+		0b00001010,
+		0b01000010,
+		0b00000010,
+		0b00100000,
+	];
+	#[rustfmt::skip]
+	const BOMB_DATA: [u8; BOMB_DATA_SIZE] = [
+		0b00000000,
+		0b00000000,
+		0b00101000,
+		0b00101100,
+		0b00000000,
+	];
+	Field::generate(WALL_DATA, BOMB_DATA)
+};
+
+const F_DESPAIR: Field = {
+	#[rustfmt::skip]
+	const WALL_DATA: [u8; WALL_DATA_SIZE] = [
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+		0b00000000,
+	];
+	#[rustfmt::skip]
+	const BOMB_DATA: [u8; BOMB_DATA_SIZE] = [
+		0b00000111,
+		0b00100100,
+		0b00001000,
+		0b01000010,
+		0b00000010,
 	];
 	Field::generate(WALL_DATA, BOMB_DATA)
 };
