@@ -20,11 +20,11 @@ const SEEDS: [usize; NUM_FIELDS] = [
 	SEED_ALTERNATING,
 	SEED_ENGINE,
 	SEED_CASTLE,
-	SEED_ALPHA,
+	SEED_UNSURE,
 	SEED_BLOOD,
 	SEED_RAIN,
 	SEED_BROKEN,
-	SEED_CLIMB,
+	SEED_DEMISE,
 	SEED_ULTRA,
 	SEED_DESCENDING,
 ];
@@ -40,7 +40,8 @@ const SEED_ULTRA: usize = 29;
 const SEED_ARRIVAL: usize = 1;
 const SEED_PENSIVE: usize = 3;
 const SEED_RAIN: usize = 311;
-const SEED_CLIMB: usize = 209;
+const SEED_UNSURE: usize = 211;
+const SEED_DEMISE: usize = 213;
 const SEED_BROKEN: usize = 109;
 
 pub struct Music
@@ -118,7 +119,14 @@ const fn determine_note(t: usize, seed: usize, broken: bool) -> i8
 	let ground = if broken { 13 } else { 12 };
 	if t % ground == 0
 	{
-		0
+		if (5 * (t / ground)) % 17 < 5
+		{
+			12
+		}
+		else
+		{
+			0
+		}
 	}
 	else
 	{
@@ -140,4 +148,33 @@ fn play_note(note: i8, broken: bool, volume: u8)
 		volume as u32,
 		TONE_TRIANGLE,
 	);
+}
+
+#[cfg(test)]
+mod tests
+{
+	use super::*;
+
+	#[test]
+	fn print_notes()
+	{
+		for seed in 0..=8
+		{
+			print_notes_of_seed(seed)
+		}
+		for seed in &SEEDS
+		{
+			print_notes_of_seed(*seed)
+		}
+	}
+
+	fn print_notes_of_seed(seed: usize)
+	{
+		print!("{:03}:  ", seed);
+		for t in 0..204
+		{
+			print!("{:x}", determine_note(t, seed, false));
+		}
+		println!();
+	}
 }
