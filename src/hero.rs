@@ -25,6 +25,7 @@ pub struct Hero
 
 pub struct Geometry
 {
+	pub is_forced_to_go_left: bool,
 	pub going_back: bool,
 	pub can_move_left: bool,
 	pub can_move_right: bool,
@@ -77,7 +78,11 @@ impl Hero
 
 		if self.is_dead
 		{
-			self.num_death_ticks += 1;
+			if self.num_death_ticks < self.max_death_ticks
+				|| self.max_death_ticks > 20
+			{
+				self.num_death_ticks += 1;
+			}
 
 			if self.num_death_ticks == 22
 			{
@@ -95,6 +100,11 @@ impl Hero
 			{
 				sfx::crunch();
 			}
+		}
+		else if walls.is_forced_to_go_left
+		{
+			self.sprite.run_left();
+			self.x -= 1;
 		}
 		else if is_scanning
 		{

@@ -102,14 +102,14 @@ pub const COMMUNICATIONS: [Communication; NUM_FIELDS] = [
 		],
 	},
 	Communication {
-		untranslated: ["WY BOX DIT", "LYK VEILIG", "ACHTER DIT MUUR", ""],
+		untranslated: ["WY BOQ DIT", "LYK VEILIG", "ACHTER DIT MUUR", ""],
 		rough: ["we box this", "like? safe", "behind? this door", ""],
 		confident: ["WE STORED IT", "SAFELY", "BEHIND THESE DOORS", ""],
 		real: ["WE CONTAINED IT", "SAFELY", "BEHIND THESE WALLS", ""],
 	},
 	Communication {
 		untranslated: [
-			"CE JIJ UNBOX DIT",
+			"CE JIJ UNBOQ DIT",
 			"TOT TOEKOMST",
 			"CE JIJ GA",
 			"TEGENKOM WY",
@@ -141,9 +141,9 @@ pub const COMMUNICATIONS: [Communication; NUM_FIELDS] = [
 		real: ["FINAL WARNING", "", "", ""],
 	},
 	Communication {
-		untranslated: ["QDPCQ KLOQJ", "", "", ""],
-		rough: ["  CONFIRM OVERRIDE  ", "", "", ""],
-		confident: [" OVERRIDE CONFIRMED ", "", "", ""],
-		real: [" OVERRIDE CONFIRMED ", "", "", ""],
+		untranslated: ["", "", "", ""],
+		rough: ["", "", "", ""],
+		confident: ["", "", "", ""],
+		real: ["", "", "", ""],
 	},
 ];

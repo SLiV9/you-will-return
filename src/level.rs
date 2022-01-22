@@ -72,15 +72,24 @@ impl Level
 		let mut hero = Hero::new(transition.hero_number);
 		if going_back
 		{
-			hero.x = (SCREEN_SIZE as i32) + 10;
+			if transition.hero_health.is_some()
+			{
+				hero.x = (SCREEN_SIZE as i32) + 10;
+			}
+			else if field_offset == (NUM_FIELDS - 1) as u8
+			{
+				hero.x = (SCREEN_SIZE as i32) + 10;
+				hero.health = 18;
+			}
+			else
+			{
+				hero.x = (SCREEN_SIZE as i32) - 10;
+				hero.y += ((17 * (field_offset as i32)) % 23) - 11;
+			}
 		}
 		if let Some(health) = transition.hero_health
 		{
 			hero.health = health;
-		}
-		else if going_back && field_offset == (NUM_FIELDS - 1) as u8
-		{
-			hero.health = 18;
 		}
 
 		let left_door_height = (FIELD_HEIGHT as u32) * TILE_HEIGHT;
@@ -178,12 +187,14 @@ impl Level
 		}
 
 		let gamepad = unsafe { *GAMEPAD1 };
-		self.is_big_light_on =
-			self.hero.is_alive() && (gamepad & BUTTON_2 != 0);
+		self.is_big_light_on = self.hero.is_alive()
+			&& self.hero.x > 0
+			&& self.hero.x < (SCREEN_SIZE as i32)
+			&& (gamepad & BUTTON_2 != 0);
 		if self.dialog.is_some() && (gamepad & BUTTON_1 != 0)
 		{
 			self.dialog = None;
-			if !self.hero.is_visible()
+			if !self.hero.is_visible() && !self.going_back
 			{
 				self.hero = Hero::new(self.hero.number.wrapping_add(1));
 				self.heart_ticks = 0;
@@ -197,6 +208,8 @@ impl Level
 		let is_looking_down = self.is_big_light_on || self.dialog.is_some();
 		self.hero.update(&geometry, is_looking_down);
 
+		let mut interference = 0;
+		let mut damage = 0;
 		if let Some(pos) = self.get_hero_position()
 		{
 			if self.field_offset == (NUM_FIELDS - 1) as u8
@@ -208,8 +221,7 @@ impl Level
 				}
 
 				let strength = 1 + (pos.col + 1) / 2;
-				sfx::interference(4 + 4 * strength as u32);
-				self.music.target_volume = 5;
+				interference = 4 + 4 * strength as u32;
 				self.target_heart_rate_in_ticks = 60 / strength;
 				self.signal_percentage =
 					95 - 13 * (pos.col) + ((2 * (self.ticks / 30)) % 5) as u8;
@@ -244,42 +256,22 @@ impl Level
 
 					if strength > 1 && self.is_big_light_on
 					{
-						sfx::interference(50);
-						self.music.target_volume = 0;
-						let damage = 3 * (strength - 1) + strength - 2;
-						if self.hero.health > damage
-						{
-							self.hero.health -= damage;
-							sfx::migraine();
-							self.current_heart_rate_in_ticks =
-								FATAL_HEART_RATE_IN_TICKS;
-							self.target_heart_rate_in_ticks =
-								FATAL_HEART_RATE_IN_TICKS;
-						}
-						else
-						{
-							self.hero.health = 0;
-							self.hero.collapse();
-							sfx::flatline();
-							self.respawn_ticks = 60;
-						}
+						interference = 50;
+						damage = 3 * (strength - 1) + strength - 2;
 					}
 					else if strength > 1
 					{
-						sfx::interference(4 + 4 * strength as u32);
-						self.music.target_volume = 10;
+						interference = 4 + 4 * strength as u32;
 						self.target_heart_rate_in_ticks = 60 / strength;
 					}
 					else
 					{
-						sfx::interference(4);
-						self.music.target_volume = 15;
+						interference = 4;
 						self.target_heart_rate_in_ticks = 50;
 					}
 				}
 				else if strength == 0
 				{
-					self.music.target_volume = 25;
 					self.target_heart_rate_in_ticks =
 						NORMAL_HEART_RATE_IN_TICKS;
 					self.signal_percentage =
@@ -317,18 +309,101 @@ impl Level
 			self.signal_percentage = 99;
 		}
 
+		if self.hero.is_alive()
+			&& self.going_back
+			&& self.ticks > 60
+			&& self.hero.x > self.get_x_of_decay()
+		{
+			if self.hero.x > self.get_x_of_decay() + (TILE_WIDTH as i32)
+			{
+				interference = std::cmp::max(interference, 50);
+				if (self.ticks % 10) == 0
+					|| self.target_heart_rate_in_ticks
+						> FATAL_HEART_RATE_IN_TICKS
+				{
+					damage += 6;
+				}
+			}
+			else
+			{
+				interference = std::cmp::max(interference, 25);
+				if (self.ticks % 10) == 0
+					|| self.target_heart_rate_in_ticks
+						> FATAL_HEART_RATE_IN_TICKS
+				{
+					damage += 1;
+				}
+			};
+		}
+		else if self.hero.is_alive()
+			&& self.going_back
+			&& self.hero.x > self.get_x_of_decay() - (TILE_WIDTH as i32)
+		{
+			interference = 15;
+			self.target_heart_rate_in_ticks = 50;
+		}
+
 		if self.hero.num_death_ticks == 175
 		{
+			self.music.target_volume = 0;
 			self.hero.health = 0;
 			sfx::flatline_quiet();
 			self.respawn_ticks = 60;
 		}
 		else if self.hero.num_death_ticks >= 170
 		{
+			self.music.target_volume = 0;
 			if self.hero.health > 19
 			{
 				self.hero.health -= 19;
 			}
+		}
+		else if !self.hero.is_alive()
+		{
+			self.music.target_volume = 5;
+		}
+		else if damage > 0
+		{
+			if (self.ticks % 10) == 0
+				|| self.target_heart_rate_in_ticks > FATAL_HEART_RATE_IN_TICKS
+			{
+				sfx::interference(50);
+			}
+			self.music.target_volume = 0;
+			if self.hero.health > damage
+			{
+				self.hero.health -= damage;
+				sfx::migraine();
+				self.current_heart_rate_in_ticks = FATAL_HEART_RATE_IN_TICKS;
+				self.target_heart_rate_in_ticks = FATAL_HEART_RATE_IN_TICKS;
+			}
+			else
+			{
+				self.hero.health = 0;
+				self.hero.collapse();
+				sfx::flatline();
+				self.respawn_ticks = 60;
+			}
+		}
+		else if interference > 0
+		{
+			if (self.ticks % 10) == 0
+				|| self.target_heart_rate_in_ticks > FATAL_HEART_RATE_IN_TICKS
+			{
+				sfx::interference(interference);
+			}
+			if interference < 25
+			{
+				self.music.target_volume = (25 - interference) as u8;
+			}
+			else
+			{
+				self.music.target_volume = 0;
+			}
+		}
+		else
+		{
+			self.music.target_volume = 25;
 		}
 
 		if self.hero.health == 0
@@ -365,10 +440,19 @@ impl Level
 		{
 			if self.hero.number == self.first_hero_number
 				&& self.dialog.is_none()
-				&& !self.going_back
 			{
-				self.dialog = self.dialog_tree.on_first_death;
+				if self.going_back
+				{
+					self.dialog = self.dialog_tree.on_last_death;
+					self.respawn_ticks = 1;
+				}
+				else
+				{
+					self.dialog = self.dialog_tree.on_first_death;
+				}
 				self.dialog_ticks = 0;
+				self.first_hero_number =
+					self.first_hero_number.wrapping_add(255);
 			}
 
 			if self.respawn_ticks == 0 && !self.going_back
@@ -441,7 +525,10 @@ impl Level
 				hero_health: Some(self.hero.health),
 			})
 		}
-		else if self.going_back && self.field_offset > 0 && self.hero.x < 0
+		else if self.going_back
+			&& self.field_offset > 0
+			&& self.field_offset < (NUM_FIELDS as u8) - 1
+			&& self.hero.x < 0
 		{
 			Some(Transition {
 				going_back: self.going_back,
@@ -694,13 +781,19 @@ impl Level
 					rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
 				}
 				else if heavy_scan_interference
+					&& self.field_offset != (NUM_FIELDS - 1) as u8
 				{
 					unsafe { *DRAW_COLORS = 0x01 };
 					sprites::alien_tile::draw_tile(xx, yy, seed);
 					if seed.wrapping_add((self.ticks as u32) / 35) % 3 == 0
 					{
-						unsafe { *DRAW_COLORS = 0x30 };
-						rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
+						if !self.going_back
+							|| hero_position
+								== Some(Position { row: r, col: c })
+						{
+							unsafe { *DRAW_COLORS = 0x30 };
+							rect(xx, yy, TILE_WIDTH, TILE_HEIGHT);
+						}
 						let count =
 							seed.wrapping_add((self.ticks as u32) / 10) % 4;
 						if count > 0
@@ -778,7 +871,14 @@ impl Level
 			text("X", 147, 140);
 			if self.dialog_ticks > 20
 			{
-				text(dialog.line, 5, 150);
+				if dialog.line.chars().nth(0) == Some('@')
+				{
+					text(format!("... {}?!", NAMES[i]), 5, 150);
+				}
+				else
+				{
+					text(dialog.line, 5, 150);
+				}
 			}
 		}
 		else
@@ -872,7 +972,14 @@ impl Level
 				unsafe { *DRAW_COLORS = 2 };
 			}
 			let depth_in_px = (self.field_offset as i32) * 216 + self.hero.x;
-			let snatch_h = std::cmp::min(self.hero.num_death_ticks, 150);
+			let snatch_h = if self.hero.num_death_ticks > 20
+			{
+				std::cmp::min(self.hero.num_death_ticks - 20, 150)
+			}
+			else
+			{
+				0
+			};
 			let depth =
 				std::cmp::max(0, depth_in_px) / 8 - (snatch_h / 10) as i32;
 			text(format!("{:03}m", depth), 53, 150);
@@ -938,6 +1045,8 @@ impl Level
 
 	fn determine_geometry(&self) -> Geometry
 	{
+		let is_forced_to_go_left =
+			self.going_back && self.field_offset == (NUM_FIELDS as u8) - 1;
 		let can_escape_left = !self.going_back || self.field_offset > 0;
 		let can_escape = self.right_door_height > 0;
 		let yy = self.hero.y - Y_OF_FIELD;
@@ -970,6 +1079,7 @@ impl Level
 			|| (row_of_down < (FIELD_HEIGHT as i32)
 				&& !self.field.has_wall_at_rc(row_of_down as u8, c as u8));
 		Geometry {
+			is_forced_to_go_left,
 			going_back: self.going_back,
 			can_move_left,
 			can_move_right,
@@ -1008,9 +1118,16 @@ impl Level
 
 	fn get_translation_progress_percentage(&self) -> u8
 	{
-		if self.going_back && self.ticks > 50
+		if self.going_back
 		{
-			10 * std::cmp::min(10, (self.ticks - 50) / 10) as u8
+			if self.ticks > 50
+			{
+				10 * std::cmp::min(10, (self.ticks - 50) / 10) as u8
+			}
+			else
+			{
+				0
+			}
 		}
 		else
 		{
@@ -1023,8 +1140,15 @@ impl Level
 
 	fn get_x_of_decay(&self) -> i32
 	{
-		let difficulty = (NUM_FIELDS as i32) - (self.field_offset as i32);
-		let ticks_between_jumps = 50 - 3 * difficulty;
+		let difficulty = if self.field_offset == (NUM_FIELDS as u8) - 1
+		{
+			20
+		}
+		else
+		{
+			(NUM_FIELDS as i32) - (self.field_offset as i32)
+		};
+		let ticks_between_jumps = std::cmp::max(3, 180 - 12 * difficulty);
 		let noise = (83 * (self.ticks / 4)) % 127;
 		let extra = if noise < 10
 		{
@@ -1039,7 +1163,14 @@ impl Level
 			0
 		};
 		let progress = self.ticks / ticks_between_jumps + extra;
-		let x = 160 - 2 * progress;
+		let x = if difficulty == 20
+		{
+			200 - 4 * progress
+		}
+		else
+		{
+			160 - 4 * progress
+		};
 		std::cmp::max(1, std::cmp::min(x, 160))
 	}
 }

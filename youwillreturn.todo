@@ -42,7 +42,7 @@ Sprites:
     ✔ Reveal garbage when scanning in interference @done (2022-01-18 23:36)
       ✔ Also with strength 1 @done (2022-01-19 22:20)
   ☐ HUD starts glitching when going back
-  ☐ Light starts flickering instead of shrinking when past 3
+  ✘ Light starts flickering instead of shrinking when past 3 @cancelled (2022-01-22 22:11)
 
 Audio:
   ✔ Interference on flag tiles @done (2022-01-18 22:11)
@@ -75,9 +75,9 @@ Polish:
   ✔ Are the framerate issues also there on release build? @done (2022-01-22 13:57)
     Yes.
     ☐ Fix framerate issues
-  ☐ HEAT DEATH style title font (?)
-  ☐ CREDITS
-  ☐ Icon / favicon
+  ✘ HEAT DEATH style title font (?) @cancelled (2022-01-22 22:11)
+  ✘ CREDITS @cancelled (2022-01-22 22:11)
+  ✘ Icon / favicon @cancelled (2022-01-22 22:11)
   ☐ Itch.io page
-  ☐ Fake out blue screen of death aan het einde van het laatste level
+  ✘ Fake out blue screen of death aan het einde van het laatste level @cancelled (2022-01-22 22:11)
   ☐ Menu title en palette veranderen als je terugkomt
