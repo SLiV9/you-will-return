@@ -480,7 +480,7 @@ impl Level
 			self.seconds_since_last_translation_update = 0;
 		}
 
-		if self.going_back && self.field_offset == 0
+		if self.going_back && self.field_offset == 0 && self.ticks > 60
 		{
 			if self.left_door_height > 20
 			{
@@ -1140,15 +1140,19 @@ impl Level
 
 	fn get_x_of_decay(&self) -> i32
 	{
-		let difficulty = if self.field_offset == (NUM_FIELDS as u8) - 1
+		let ticks_between_jumps = if self.field_offset == (NUM_FIELDS as u8) - 1
 		{
-			20
+			3
+		}
+		else if self.field_offset < 3
+		{
+			10 + 5 * (self.field_offset as i32)
 		}
 		else
 		{
-			(NUM_FIELDS as i32) - (self.field_offset as i32)
+			let difficulty = (NUM_FIELDS as i32) - (self.field_offset as i32);
+			180 - 15 * difficulty
 		};
-		let ticks_between_jumps = std::cmp::max(3, 180 - 12 * difficulty);
 		let noise = (83 * (self.ticks / 4)) % 127;
 		let extra = if noise < 10
 		{
@@ -1163,13 +1167,13 @@ impl Level
 			0
 		};
 		let progress = self.ticks / ticks_between_jumps + extra;
-		let x = if difficulty == 20
+		let x = if self.field_offset == (NUM_FIELDS as u8) - 1
 		{
 			200 - 4 * progress
 		}
 		else
 		{
-			160 - 4 * progress
+			170 - 4 * progress
 		};
 		std::cmp::max(1, std::cmp::min(x, 160))
 	}
