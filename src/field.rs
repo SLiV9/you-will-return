@@ -130,7 +130,7 @@ pub const FIELDS: [Field; NUM_FIELDS] = [
 	F_MAZE,
 	F_PAIRS,
 	F_DIAGONAL,
-	F_DIAGONAL,
+	F_EXCESS,
 	F_DIAGONAL,
 	F_FINAL_ROOM,
 ];
@@ -366,6 +366,26 @@ const F_DIAGONAL: Field = {
 		0b01000100,
 		0b00100010,
 		0b00010000,
+		0b00000000,
+	];
+	Field::generate(WALL_DATA, BOMB_DATA)
+};
+
+const F_EXCESS: Field = {
+	#[rustfmt::skip]
+	const WALL_DATA: [u8; WALL_DATA_SIZE] = [
+		0b00000111,
+		0b00000100,
+		0b00000001,
+		0b01000000,
+		0b00100111,
+	];
+	#[rustfmt::skip]
+	const BOMB_DATA: [u8; BOMB_DATA_SIZE] = [
+		0b00000000,
+		0b00110000,
+		0b00010000,
+		0b00110001,
 		0b00000000,
 	];
 	Field::generate(WALL_DATA, BOMB_DATA)
