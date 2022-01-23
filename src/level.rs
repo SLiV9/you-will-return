@@ -79,7 +79,7 @@ impl Level
 			else if field_offset == (NUM_FIELDS - 1) as u8
 			{
 				hero.x = (SCREEN_SIZE as i32) + 10;
-				hero.health = 18;
+				hero.health = 5;
 			}
 			else
 			{
@@ -318,8 +318,6 @@ impl Level
 			{
 				interference = std::cmp::max(interference, 50);
 				if (self.ticks % 10) == 0
-					|| self.target_heart_rate_in_ticks
-						> FATAL_HEART_RATE_IN_TICKS
 				{
 					damage += 6;
 				}
@@ -328,8 +326,6 @@ impl Level
 			{
 				interference = std::cmp::max(interference, 25);
 				if (self.ticks % 10) == 0
-					|| self.target_heart_rate_in_ticks
-						> FATAL_HEART_RATE_IN_TICKS
 				{
 					damage += 1;
 				}
@@ -528,7 +524,7 @@ impl Level
 		else if self.going_back
 			&& self.field_offset > 0
 			&& self.field_offset < (NUM_FIELDS as u8) - 1
-			&& self.hero.x < 0
+			&& self.hero.x <= 0
 		{
 			Some(Transition {
 				going_back: self.going_back,
