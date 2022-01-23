@@ -860,7 +860,11 @@ impl Level
 			unsafe { *DRAW_COLORS = 1 };
 			let i = (self.hero.number as usize) % NUM_NAMES;
 			let j = (self.hero.number.wrapping_add(1) as usize) % NUM_NAMES;
-			if dialog.is_self
+			if self.going_back && self.field_offset < 10
+			{
+				text(format!("{} >> ALL", NAMES[j]), 5, 140);
+			}
+			else if dialog.is_self
 			{
 				text(format!("{} >> {}", NAMES[i], NAMES[j]), 5, 140);
 			}

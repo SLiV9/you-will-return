@@ -50,7 +50,10 @@ pub const DIALOG_TREES: [DialogTree; NUM_FIELDS] = [
 			line: "A power station?",
 		}),
 		on_first_death: None,
-		on_last_death: None,
+		on_last_death: Some(Dialog {
+			is_self: false,
+			line: "Don't leave me!",
+		}),
 	},
 	DialogTree {
 		on_col_2: None,
@@ -63,7 +66,10 @@ pub const DIALOG_TREES: [DialogTree; NUM_FIELDS] = [
 			line: "Built it for us!",
 		}),
 		on_first_death: None,
-		on_last_death: None,
+		on_last_death: Some(Dialog {
+			is_self: false,
+			line: "Keep going!",
+		}),
 	},
 	DialogTree {
 		on_col_2: None,
@@ -76,7 +82,10 @@ pub const DIALOG_TREES: [DialogTree; NUM_FIELDS] = [
 			is_self: false,
 			line: "What happened?",
 		}),
-		on_last_death: None,
+		on_last_death: Some(Dialog {
+			is_self: false,
+			line: "What happened?",
+		}),
 	},
 	DialogTree {
 		on_col_2: Some(Dialog {
@@ -92,7 +101,10 @@ pub const DIALOG_TREES: [DialogTree; NUM_FIELDS] = [
 			is_self: false,
 			line: "Why wouldn't it be?",
 		}),
-		on_last_death: None,
+		on_last_death: Some(Dialog {
+			is_self: false,
+			line: "Leave them!",
+		}),
 	},
 	DialogTree {
 		on_col_2: Some(Dialog {
@@ -105,21 +117,30 @@ pub const DIALOG_TREES: [DialogTree; NUM_FIELDS] = [
 			line: "Is it rocket fuel?",
 		}),
 		on_first_death: None,
-		on_last_death: None,
+		on_last_death: Some(Dialog {
+			is_self: false,
+			line: "No, no, no!",
+		}),
 	},
 	DialogTree {
 		on_col_2: None,
 		on_col_4: None,
 		on_confident_translation: None,
 		on_first_death: None,
-		on_last_death: None,
+		on_last_death: Some(Dialog {
+			is_self: false,
+			line: "Oh no...",
+		}),
 	},
 	DialogTree {
 		on_col_2: None,
 		on_col_4: None,
 		on_confident_translation: None,
 		on_first_death: None,
-		on_last_death: None,
+		on_last_death: Some(Dialog {
+			is_self: false,
+			line: "What did we do?",
+		}),
 	},
 	DialogTree {
 		on_col_2: None,
@@ -129,7 +150,10 @@ pub const DIALOG_TREES: [DialogTree; NUM_FIELDS] = [
 			line: "They saved us some.",
 		}),
 		on_first_death: None,
-		on_last_death: None,
+		on_last_death: Some(Dialog {
+			is_self: false,
+			line: "Just keep running!",
+		}),
 	},
 	DialogTree {
 		on_col_2: None,
@@ -139,7 +163,10 @@ pub const DIALOG_TREES: [DialogTree; NUM_FIELDS] = [
 			line: "We can find them!",
 		}),
 		on_first_death: None,
-		on_last_death: None,
+		on_last_death: Some(Dialog {
+			is_self: false,
+			line: "I'm out of here!",
+		}),
 	},
 	DialogTree {
 		on_col_2: None,
@@ -149,7 +176,10 @@ pub const DIALOG_TREES: [DialogTree; NUM_FIELDS] = [
 			is_self: false,
 			line: "We cannot give up.",
 		}),
-		on_last_death: None,
+		on_last_death: Some(Dialog {
+			is_self: false,
+			line: "Oh my god...",
+		}),
 	},
 	DialogTree {
 		on_col_2: None,
@@ -159,7 +189,10 @@ pub const DIALOG_TREES: [DialogTree; NUM_FIELDS] = [
 			is_self: false,
 			line: "We must go on.",
 		}),
-		on_last_death: None,
+		on_last_death: Some(Dialog {
+			is_self: false,
+			line: "You ok down there?",
+		}),
 	},
 	DialogTree {
 		on_col_2: None,
