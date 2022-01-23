@@ -13,7 +13,7 @@ Mechanics:
   ✔ Translation changes as player progresses through a level @done (2022-01-16 23:16)
   ✔ Save progress (NEW GAME / CONTINUE) @done (2022-01-20 00:18)
   ✘ Still translate when going back @cancelled (2022-01-22 18:32)
-  ☐ Walk slower after you've taken damage
+  ✔ Walk slower after you've taken damage @done (2022-01-23 00:20)
 
 Content:
   ✔ Ten levels @done (2022-01-22 19:35)
@@ -30,18 +30,18 @@ Sprites:
   ✔ Ceiling monster (?) @done (2022-01-16 21:10)
   ✘ Wires @cancelled (2022-01-16 21:10)
   ✔ Distortion edge @done (2022-01-22 21:29)
-  ☐ Distortion bullets (?)
+  ✘ Distortion bullets (?) @cancelled (2022-01-23 00:20)
   ✔ Title screen stars @done (2022-01-15 23:58)
   ✔ Alien symbols on the wall (?) @done (2022-01-16 23:39)
   ✘ Blood on the floor instead of numbers? @cancelled (2022-01-18 23:36)
-  ☐ Some creature that runs around the edges of your peripheral vision
+  ✘ Some creature that runs around the edges of your peripheral vision @cancelled (2022-01-23 00:21)
     and disappears if you turn on the light
     Ooh the shadow of another astronaut follows while you run and then disappears if you stop or turn around
-    ☐ And creatures that look like floating corpses
+    ✘ And creatures that look like floating corpses @cancelled (2022-01-23 00:21)
   ✘ Reveal over time during scanning @cancelled (2022-01-18 23:36)
     ✔ Reveal garbage when scanning in interference @done (2022-01-18 23:36)
       ✔ Also with strength 1 @done (2022-01-19 22:20)
-  ☐ HUD starts glitching when going back
+  ✘ HUD starts glitching when going back @cancelled (2022-01-23 00:20)
   ✘ Light starts flickering instead of shrinking when past 3 @cancelled (2022-01-22 22:11)
 
 Audio:
@@ -49,7 +49,7 @@ Audio:
   ✔ Brown noise that gets louder @done (2022-01-20 21:55)
   ✔ Heartbeat @done (2022-01-18 19:22)
   ✘ Breathing @cancelled (2022-01-18 22:11)
-  ☐ Alien sounds
+  ✘ Alien sounds @cancelled (2022-01-23 00:21)
   ✔ Sound of massive doors opening and closing @done (2022-01-18 17:05)
   ✘ Water drips (?) @cancelled (2022-01-22 21:30)
   ✔ Ambient "music" @done (2022-01-22 13:39)
@@ -79,5 +79,5 @@ Polish:
   ✘ CREDITS @cancelled (2022-01-22 22:11)
   ✘ Icon / favicon @cancelled (2022-01-22 22:11)
   ☐ Itch.io page
-  ✘ Fake out blue screen of death aan het einde van het laatste level @cancelled (2022-01-22 22:11)
-  ☐ Menu title en palette veranderen als je terugkomt
+  ✔ Fake out blue screen of death aan het einde van het laatste level @done (2022-01-23 01:06)
+  ✔ Menu palette veranderen als je terugkomt @done (2022-01-23 01:06)

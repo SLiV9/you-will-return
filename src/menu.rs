@@ -17,6 +17,7 @@ pub struct Menu
 	ticks: u32,
 	max_field_offset_reached: u8,
 	quick_start_offset: Option<u8>,
+	has_returned: bool,
 	is_scanning: bool,
 	is_starting: bool,
 	previous_gamepad: u8,
@@ -27,16 +28,17 @@ const NUM_INTRO_ANIMATION_TICKS: u32 = 260;
 
 impl Menu
 {
-	pub fn new(max_field_offset_reached: u8) -> Self
+	pub fn new(max_field_offset_reached: u8, has_returned: bool) -> Self
 	{
 		Self {
 			ticks: 0,
 			max_field_offset_reached,
 			quick_start_offset: None,
+			has_returned,
 			is_scanning: false,
 			is_starting: false,
 			previous_gamepad: 0,
-			music: Music::main_theme(),
+			music: Music::main_theme(has_returned),
 		}
 	}
 
@@ -51,6 +53,7 @@ impl Menu
 		{
 			let gamepad = unsafe { *GAMEPAD1 };
 			if gamepad & BUTTON_1 != 0
+				&& (!self.has_returned || gamepad & BUTTON_2 != 0)
 			{
 				self.is_starting = true;
 				self.ticks = 0;
@@ -148,7 +151,14 @@ impl Menu
 
 	pub fn draw(&mut self)
 	{
-		unsafe { *PALETTE = palette::MENU };
+		if self.has_returned
+		{
+			unsafe { *PALETTE = palette::MENU_ALT };
+		}
+		else
+		{
+			unsafe { *PALETTE = palette::MENU };
+		}
 
 		if self.is_starting
 		{
@@ -213,26 +223,50 @@ impl Menu
 		}
 
 		unsafe { *DRAW_COLORS = 0x14 }
-		if self.ticks > 60
+		if self.has_returned
 		{
-			text("YOU", 20, 40);
+			if self.ticks > 60
+			{
+				text("YOU", 10, 40);
+			}
+			if self.ticks > 75
+			{
+				text("MUST", 42, 40);
+			}
+			if self.ticks > 90
+			{
+				text("TURN", 80, 40);
+			}
+			if self.ticks > 105
+			{
+				text("BACK", 118, 40);
+			}
 		}
-		if self.ticks > 80
+		else
 		{
-			text("WILL", 52, 40);
-		}
-		if self.ticks > 100
-		{
-			text("RETURN", 92, 40);
+			if self.ticks > 60
+			{
+				text("YOU", 20, 40);
+			}
+			if self.ticks > 80
+			{
+				text("WILL", 52, 40);
+			}
+			if self.ticks > 100
+			{
+				text("RETURN", 92, 40);
+			}
 		}
 
 		if self.ticks > NUM_INTRO_ANIMATION_TICKS
+			&& (!self.has_returned || self.is_scanning)
 		{
 			unsafe { *DRAW_COLORS = 3 }
 			text("Hold Z to scan", 3, 140);
 		}
 
 		if self.ticks > NUM_INTRO_ANIMATION_TICKS + 30
+			&& (!self.has_returned || self.is_scanning)
 		{
 			unsafe { *DRAW_COLORS = 3 }
 			text("Press X to start", 3, 150);

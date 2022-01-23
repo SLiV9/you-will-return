@@ -83,11 +83,6 @@ pub fn footstep(frequency: u32)
 	tone(frequency | (20 << 16), 4, 12, TONE_PULSE2);
 }
 
-pub fn other_footstep(frequency: u32)
-{
-	tone(frequency | (20 << 16), 4, 6, TONE_PULSE2 | TONE_MODE2);
-}
-
 pub fn snatch_hit()
 {
 	tone(20 | (40 << 16), (8 << 24) | (8 << 8), 40, TONE_PULSE2);
@@ -108,7 +103,11 @@ pub fn swallow()
 	tone(140 | (80 << 16), (4 << 24) | 4, 80, TONE_NOISE);
 }
 
-#[allow(unused)]
+pub fn plugged_out(freq: u32)
+{
+	tone(freq, 2, 33, TONE_PULSE1);
+}
+
 pub fn something()
 {
 	tone(10, (12 << 24) | (18 << 16) | 4 | 28, 40, TONE_PULSE2);

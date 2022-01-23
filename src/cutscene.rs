@@ -23,6 +23,7 @@ pub enum Tag
 	Prologue,
 	Entry,
 	Reveal,
+	Bluescreen,
 }
 
 impl Cutscene
@@ -325,6 +326,63 @@ impl Cutscene
 					}
 					sprites::open_sesame::draw(80, 141);
 				}
+			}
+			Tag::Bluescreen =>
+			{
+				let mut palette: [u32; 4] = palette::BLUESCREEN;
+
+				if self.ticks < 10 && self.ticks % 2 == 0
+				{
+					let freq = (412 * self.ticks) % 1000;
+					sfx::plugged_out(freq);
+				}
+				else if self.ticks == 10
+				{
+					sfx::something();
+				}
+				else if self.ticks >= 150 && self.ticks < 250
+				{
+					let p = 100 * (8 * (250 - self.ticks) / 100) / 8;
+					for i in 0..4
+					{
+						let x = palette[i];
+						palette[i] = ((p * ((x >> 16) & 0xFF) / 100) << 16)
+							| ((p * ((x >> 8) & 0xFF) / 100) << 8)
+							| (p * (x & 0xFF) / 100);
+					}
+				}
+				else if self.ticks >= 250 && self.ticks < 300
+				{
+					for i in 0..4
+					{
+						palette[i] = 0;
+					}
+				}
+				else if self.ticks >= 300
+				{
+					for i in 0..4
+					{
+						palette[i] = 0;
+					}
+					self.is_continuing = true;
+				}
+
+				unsafe { *PALETTE = palette };
+
+				unsafe { *DRAW_COLORS = 0x22 };
+				rect(45, 19, 70, 9);
+
+				unsafe { *DRAW_COLORS = 0x21 };
+				text(" !SYS4* ", 48, 20);
+
+				unsafe { *DRAW_COLORS = 0x02 };
+				text("Your suit has been", 8, 60);
+				text("bombarded by", 8, 70);
+				text("unknown isotopes.", 8, 80);
+				text("This has caused", 8, 90);
+				text("cardiac arrest.", 8, 100);
+
+				text("You are now dead.", 8, 130);
 			}
 		}
 	}

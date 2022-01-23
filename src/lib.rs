@@ -48,6 +48,8 @@ enum Progress
 	Entry,
 	Level(level::Transition),
 	Reveal,
+	Bluescreen,
+	BackToMenu,
 }
 
 #[no_mangle]
@@ -110,6 +112,7 @@ fn update()
 							hero_health: None,
 						}))
 					}
+					cutscene::Tag::Bluescreen => Some(Progress::BackToMenu),
 				},
 				None => None,
 			}
@@ -132,7 +135,7 @@ fn update()
 
 					if transition.going_back
 					{
-						Some(Progress::Menu)
+						Some(Progress::Bluescreen)
 					}
 					else
 					{
@@ -149,7 +152,16 @@ fn update()
 		Some(Progress::Menu) =>
 		{
 			let save_data = SaveData::loaded();
-			*game = Game::Menu(Menu::new(save_data.max_field_offset_reached));
+			*game = Game::Menu(Menu::new(
+				save_data.max_field_offset_reached,
+				false,
+			));
+		}
+		Some(Progress::BackToMenu) =>
+		{
+			let save_data = SaveData::loaded();
+			*game =
+				Game::Menu(Menu::new(save_data.max_field_offset_reached, true));
 		}
 		Some(Progress::Prologue) =>
 		{
@@ -162,6 +174,10 @@ fn update()
 		Some(Progress::Reveal) =>
 		{
 			*game = Game::Cutscene(Cutscene::new(cutscene::Tag::Reveal));
+		}
+		Some(Progress::Bluescreen) =>
+		{
+			*game = Game::Cutscene(Cutscene::new(cutscene::Tag::Bluescreen));
 		}
 		Some(Progress::Level(transition)) =>
 		{

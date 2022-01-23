@@ -57,12 +57,12 @@ pub struct Music
 
 impl Music
 {
-	pub fn main_theme() -> Music
+	pub fn main_theme(has_returned: bool) -> Music
 	{
 		Music {
 			seed: SEED_ARRIVAL,
 			broken: false,
-			base: -9,
+			base: if has_returned { -15 } else { -9 },
 			target_volume: 30,
 			volume: 0,
 			ticks: 0,
